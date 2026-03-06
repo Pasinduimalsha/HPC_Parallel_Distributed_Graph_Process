@@ -1,47 +1,10 @@
 #include "graph.h"
-#include "algorithms.h"
+#include "pagerank.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-/* Serial BFS */
-int* bfs(const Graph *g, int source) {
-    int n = g->num_vertices;
-    int *dist = (int*)malloc(n * sizeof(int));
-    if (!dist) return NULL;
-
-    for (int i = 0; i < n; i++) dist[i] = -1;
-    dist[source] = 0;
-
-    int *queue = (int*)malloc(n * sizeof(int));
-    if (!queue) {
-        free(dist);
-        return NULL;
-    }
-
-    int front = 0, rear = 0;
-    queue[rear++] = source;
-
-    while (front < rear) {
-        int u = queue[front++];
-        int count;
-        const int *neighbors = graph_get_neighbors(g, u, &count);
-        for (int i = 0; i < count; i++) {
-            int v = neighbors[i];
-            if (dist[v] == -1) {
-                dist[v] = dist[u] + 1;
-                queue[rear++] = v;
-            }
-        }
-    }
-
-    free(queue);
-    return dist;
-}
-
-/* Serial PageRank - O(E) per iteration via sparse formulation */
-double* pagerank(const Graph *g, double damping_factor, int max_iterations, double tolerance) {
+double* pagerank_serial(const Graph *g, double damping_factor, int max_iterations, double tolerance) {
     int n = g->num_vertices;
     double *rank = (double*)malloc(n * sizeof(double));
     double *new_rank = (double*)malloc(n * sizeof(double));
@@ -57,7 +20,6 @@ double* pagerank(const Graph *g, double damping_factor, int max_iterations, doub
     for (int iter = 0; iter < max_iterations; iter++) {
         for (int i = 0; i < n; i++) new_rank[i] = (1.0 - damping_factor) / n;
 
-        /* For each vertex j, distribute rank[j] to its neighbors */
         for (int j = 0; j < n; j++) {
             int count = g->out_degree[j];
             if (count <= 0) continue;
@@ -81,19 +43,10 @@ double* pagerank(const Graph *g, double damping_factor, int max_iterations, doub
     return rank;
 }
 
-double compute_rmse(const double *a, const double *b, int n) {
+double pagerank_rmse(const double *a, const double *b, int n) {
     double sum = 0;
     for (int i = 0; i < n; i++) {
         double d = a[i] - b[i];
-        sum += d * d;
-    }
-    return (n > 0) ? sqrt(sum / n) : 0;
-}
-
-double compute_rmse_int(const int *a, const int *b, int n) {
-    double sum = 0;
-    for (int i = 0; i < n; i++) {
-        double d = (double)(a[i] - b[i]);
         sum += d * d;
     }
     return (n > 0) ? sqrt(sum / n) : 0;
