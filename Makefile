@@ -1,70 +1,87 @@
-# HPC Project - Distributed Graph Processing System
-# EE7218/EC7207 High Performance Computing
+# EE7218/EC7207 HPC Project - Group 24
+# High-Performance Parallel PageRank for Large-Scale Graph Analytics
 
 CC = gcc
 CFLAGS = -Wall -O3 -I include
-# OpenMP: use -fopenmp for GCC; on macOS with clang use: make OMPFLAGS="-Xpreprocessor -fopenmp -lomp"
-# (requires: brew install libomp)
 OMPFLAGS ?= -fopenmp
 MPICC = mpicc
 MPIFLAGS = $(OMPFLAGS)
+NVCC = nvcc
+NVCCFLAGS = -O3 -I include -arch=sm_50
 
-# macOS: Apple clang lacks OpenMP. Install: brew install libomp
-# Then: make OMPFLAGS="-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp"
-# Or use GCC via Homebrew: brew install gcc && make CC=gcc-13
+# macOS: brew install libomp, then: make OMPFLAGS="-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp"
 
-SRC = src/graph.c src/serial.c
-OBJ = build/graph.o build/serial.o
+CORE_OBJ = build/graph.o build/serial_pagerank.o
 
-.PHONY: all core clean run_serial run_openmp run_pthreads run_mpi run_hybrid benchmark data
+.PHONY: all clean run_serial run_openmp run_mpi run_hybrid run_validation benchmark data
 
-# Core: serial, pthreads, graph generator (no extra deps)
-core: serial pthreads generate_graph
+all: serial openmp mpi generate_graph validation
+	@if command -v nvcc >/dev/null 2>&1; then $(MAKE) hybrid; fi
 
-# Full build (needs libomp for OpenMP, OpenMPI for MPI)
-all: core openmp mpi hybrid
+serial: build bin build/graph.o build/serial_pagerank.o
+	$(CC) $(CFLAGS) -o bin/serial main/main_serial.c $(CORE_OBJ) -lm
+
+openmp: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o
+	$(CC) $(CFLAGS) $(OMPFLAGS) -o bin/openmp main/main_openmp.c $(CORE_OBJ) build/openmp_pagerank.o -lm
+
+mpi: build bin build/graph.o build/serial_pagerank.o build/mpi_pagerank.o
+	$(MPICC) $(CFLAGS) $(MPIFLAGS) -o bin/mpi main/main_mpi.c $(CORE_OBJ) build/mpi_pagerank.o -lm
+
+build/cuda_pagerank.o: src/cuda_pagerank.cu include/graph.h include/pagerank.h
+	$(NVCC) $(NVCCFLAGS) -c src/cuda_pagerank.cu -o build/cuda_pagerank.o
+
+hybrid: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o build/cuda_pagerank.o
+	$(NVCC) $(NVCCFLAGS) -o bin/hybrid main/main_hybrid.c build/graph.o build/serial_pagerank.o build/openmp_pagerank.o build/cuda_pagerank.o -lm -lcudart -lomp -Xcompiler -fopenmp
+
+generate_graph: bin
+	$(CC) -O2 -o bin/generate_graph tools/generate_graph.c
+
+validation: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o
+	$(CC) $(CFLAGS) $(OMPFLAGS) -o bin/validation main/main_validation.c $(CORE_OBJ) build/openmp_pagerank.o -lm
 
 build:
 	mkdir -p build
 
-serial: build bin $(OBJ)
-	$(CC) $(CFLAGS) -o bin/serial src/main_serial.c $(OBJ) -lm
-
-openmp: build bin $(OBJ)
-	$(CC) $(CFLAGS) $(OMPFLAGS) -o bin/openmp main_openmp.c $(OBJ) -lm
-
-pthreads: build bin $(OBJ)
-	$(CC) $(CFLAGS) -o bin/pthreads main_pthreads.c $(OBJ) -lm -lpthread
-
-mpi: build bin $(OBJ)
-	$(MPICC) $(CFLAGS) -o bin/mpi main_mpi.c $(OBJ) -lm
-
-hybrid: build bin $(OBJ)
-	$(MPICC) $(CFLAGS) $(MPIFLAGS) -o bin/hybrid main_hybrid.c $(OBJ) -lm
-
-generate_graph: build bin
-	$(CC) -O2 -o bin/generate_graph generate_graph.c
+bin:
+	mkdir -p bin
 
 build/graph.o: src/graph.c include/graph.h
 	$(CC) $(CFLAGS) -c src/graph.c -o build/graph.o
 
-build/serial.o: src/serial.c include/graph.h include/algorithms.h
-	$(CC) $(CFLAGS) -c src/serial.c -o build/serial.o -lm
+build/serial_pagerank.o: src/serial_pagerank.c include/graph.h include/pagerank.h
+	$(CC) $(CFLAGS) -c src/serial_pagerank.c -o build/serial_pagerank.o
+
+build/openmp_pagerank.o: src/openmp_pagerank.c include/graph.h include/pagerank.h
+	$(CC) $(CFLAGS) $(OMPFLAGS) -c src/openmp_pagerank.c -o build/openmp_pagerank.o
+
+build/mpi_pagerank.o: src/mpi_pagerank.c include/graph.h include/pagerank.h
+	$(MPICC) $(CFLAGS) -c src/mpi_pagerank.c -o build/mpi_pagerank.o
 
 run_serial: serial data
-	./bin/serial data/sample_graph.txt 0
+	./bin/serial data/sample_graph.txt
 
 run_openmp: openmp data
-	./bin/openmp data/sample_graph.txt 0 4
-
-run_pthreads: pthreads data
-	./bin/pthreads data/sample_graph.txt 0 4
+	./bin/openmp data/sample_graph.txt 4
 
 run_mpi: mpi data
-	mpirun -np 2 ./bin/mpi data/sample_graph.txt 0
+	mpirun -np 2 ./bin/mpi data/sample_graph.txt
 
 run_hybrid: hybrid data
-	mpirun -np 2 ./bin/hybrid data/sample_graph.txt 0 2
+	./bin/hybrid data/sample_graph.txt 4
+
+run_validation: validation data
+	./bin/validation data/sample_graph.txt
+
+benchmark: all data
+	@echo "=== Generating larger graph (5000 vertices) ==="
+	./bin/generate_graph 5000 10 > data/graph_5k.txt 2>/dev/null
+	@echo "=== Serial ==="
+	./bin/serial data/graph_5k.txt
+	@echo "=== OpenMP (4 threads) ==="
+	./bin/openmp data/graph_5k.txt 4
+	@echo "=== MPI (2 processes) ==="
+	mpirun -np 2 ./bin/mpi data/graph_5k.txt
+	@if [ -f ./bin/hybrid ]; then echo "=== Hybrid ==="; ./bin/hybrid data/graph_5k.txt 4; fi
 
 data:
 	mkdir -p data
@@ -73,22 +90,5 @@ data:
 		echo "Created data/sample_graph.txt"; \
 	fi
 
-benchmark: all data
-	@echo "=== Generating larger graph (5000 vertices) ==="
-	./bin/generate_graph 5000 10 > data/graph_5k.txt 2>/dev/null
-	@echo "=== Serial ==="
-	./bin/serial data/graph_5k.txt 0
-	@echo "=== OpenMP (4 threads) ==="
-	./bin/openmp data/graph_5k.txt 0 4
-	@echo "=== Pthreads (4 threads) ==="
-	./bin/pthreads data/graph_5k.txt 0 4
-	@echo "=== MPI (2 processes) ==="
-	mpirun -np 2 ./bin/mpi data/graph_5k.txt 0
-	@echo "=== Hybrid (2 MPI x 2 OpenMP) ==="
-	mpirun -np 2 ./bin/hybrid data/graph_5k.txt 0 2
-
 clean:
 	rm -rf build bin
-
-bin:
-	mkdir -p bin

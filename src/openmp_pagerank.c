@@ -1,10 +1,10 @@
 #include "graph.h"
-#include "algorithms.h"
+#include "pagerank.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <omp.h>
 
-/* OpenMP PageRank - parallel over vertices */
 double* pagerank_openmp(const Graph *g, double damping_factor, int max_iterations, double tolerance) {
     int n = g->num_vertices;
     double *rank = (double*)malloc(n * sizeof(double));
@@ -23,20 +23,15 @@ double* pagerank_openmp(const Graph *g, double damping_factor, int max_iteration
         #pragma omp parallel for
         for (int i = 0; i < n; i++) new_rank[i] = (1.0 - damping_factor) / n;
 
-        /* Distribute rank: each thread processes a chunk of vertices j */
-        #pragma omp parallel
-        {
-            #pragma omp for schedule(static)
-            for (int j = 0; j < n; j++) {
-                int count = g->out_degree[j];
-                if (count <= 0) continue;
-                double contrib = damping_factor * rank[j] / count;
-                const int *neighbors = g->adjacency_list + g->adjacency_index[j];
-                for (int k = 0; k < count; k++) {
-                    int target = neighbors[k];
-                    #pragma omp atomic
-                    new_rank[target] += contrib;
-                }
+        #pragma omp parallel for schedule(static)
+        for (int j = 0; j < n; j++) {
+            int count = g->out_degree[j];
+            if (count <= 0) continue;
+            double contrib = damping_factor * rank[j] / count;
+            const int *nb = g->adjacency_list + g->adjacency_index[j];
+            for (int k = 0; k < count; k++) {
+                #pragma omp atomic
+                new_rank[nb[k]] += contrib;
             }
         }
 

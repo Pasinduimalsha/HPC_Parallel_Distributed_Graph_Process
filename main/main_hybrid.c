@@ -1,0 +1,36 @@
+#include "graph.h"
+#include "pagerank.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <omp.h>
+
+int main(int argc, char **argv) {
+    const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
+    int num_threads = (argc > 2) ? atoi(argv[2]) : 0;
+    if (num_threads > 0) omp_set_num_threads(num_threads);
+
+    Graph *g = graph_load_from_file(graph_file);
+    if (!g) return 1;
+
+    printf("Hybrid (CUDA + OpenMP) PageRank: %d CPU threads\n", omp_get_max_threads());
+    printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
+
+    double t0 = omp_get_wtime();
+    double *pr = pagerank_hybrid(g, 0.85, 100, 1e-6);
+    double t1 = omp_get_wtime();
+    if (!pr) {
+        fprintf(stderr, "Hybrid PageRank failed. Ensure CUDA is available and nvcc is in PATH.\n");
+        graph_free(g);
+        return 1;
+    }
+    printf("PageRank time: %.4f ms\n", 1000.0 * (t1 - t0));
+
+    printf("PageRank (first 10): ");
+    for (int i = 0; i < 10 && i < g->num_vertices; i++)
+        printf("%.6f ", pr[i]);
+    printf("\n");
+
+    free(pr);
+    graph_free(g);
+    return 0;
+}
