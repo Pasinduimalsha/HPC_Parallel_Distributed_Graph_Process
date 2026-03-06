@@ -1,0 +1,6 @@
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/serial.dir
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/openmp.dir
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/generate_graph.dir
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/validation.dir
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/edit_cache.dir
+/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/build/CMakeFiles/rebuild_cache.dir

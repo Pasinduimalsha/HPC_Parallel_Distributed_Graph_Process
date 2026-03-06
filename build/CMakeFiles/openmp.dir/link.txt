@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/openmp.dir/main/main_openmp.c.o CMakeFiles/openmp.dir/src/graph.c.o CMakeFiles/openmp.dir/src/serial_pagerank.c.o CMakeFiles/openmp.dir/src/openmp_pagerank.c.o -o openmp  /opt/homebrew/opt/libomp/lib/libomp.dylib -lm

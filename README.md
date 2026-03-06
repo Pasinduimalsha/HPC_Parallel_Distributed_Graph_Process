@@ -28,6 +28,8 @@ See **[RUN.md](RUN.md)** for:
 
 ## Requirements
 
-- GCC, OpenMP (`brew install libomp` on macOS)
-- MPI (`brew install open-mpi`)
-- CUDA Toolkit (optional, for Hybrid)
+See **[SOFTWARE_REQUIREMENTS.md](SOFTWARE_REQUIREMENTS.md)** for software to install on macOS and Windows.
+
+- **macOS:** libomp, open-mpi, CMake (optional)
+- **Windows:** Visual Studio, MS-MPI, CMake
+- **CUDA** (optional, for Hybrid): Windows/Linux only; not supported on macOS

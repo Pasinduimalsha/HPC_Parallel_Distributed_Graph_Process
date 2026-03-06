@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/serial.dir/main/main_serial.c.o CMakeFiles/serial.dir/src/graph.c.o CMakeFiles/serial.dir/src/serial_pagerank.c.o -o serial  -lm
