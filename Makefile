@@ -10,6 +10,7 @@ NVCC = nvcc
 NVCCFLAGS = -O3 -I include -arch=sm_50
 
 # macOS: brew install libomp, then: make OMPFLAGS="-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp"
+# Windows: use CMake instead (see SOFTWARE_REQUIREMENTS.md)
 
 CORE_OBJ = build/graph.o build/serial_pagerank.o
 

@@ -1,0 +1,26 @@
+
+# Consider dependencies only in project.
+set(CMAKE_DEPENDS_IN_PROJECT_ONLY OFF)
+
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  )
+
+# The set of dependency files which are needed:
+set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/main/main_validation.c" "CMakeFiles/validation.dir/main/main_validation.c.o" "gcc" "CMakeFiles/validation.dir/main/main_validation.c.o.d"
+  "/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/src/graph.c" "CMakeFiles/validation.dir/src/graph.c.o" "gcc" "CMakeFiles/validation.dir/src/graph.c.o.d"
+  "/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/src/openmp_pagerank.c" "CMakeFiles/validation.dir/src/openmp_pagerank.c.o" "gcc" "CMakeFiles/validation.dir/src/openmp_pagerank.c.o.d"
+  "/Users/pasindumallawarachchi/Documents/Acadamic/7th sem/HPC/HPC_Parallel_Distributed_Graph_Process/src/serial_pagerank.c" "CMakeFiles/validation.dir/src/serial_pagerank.c.o" "gcc" "CMakeFiles/validation.dir/src/serial_pagerank.c.o.d"
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_LINKED_INFO_FILES
+  )
+
+# Targets to which this target links which contain Fortran sources.
+set(CMAKE_Fortran_TARGET_FORWARD_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

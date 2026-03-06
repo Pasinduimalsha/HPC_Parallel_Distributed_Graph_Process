@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/validation.dir/main/main_validation.c.o CMakeFiles/validation.dir/src/graph.c.o CMakeFiles/validation.dir/src/serial_pagerank.c.o CMakeFiles/validation.dir/src/openmp_pagerank.c.o -o validation  /opt/homebrew/opt/libomp/lib/libomp.dylib -lm

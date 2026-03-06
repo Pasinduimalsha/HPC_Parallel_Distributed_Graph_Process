@@ -20,14 +20,13 @@ This project implements the **PageRank algorithm** using four parallel programmi
 
 ## 2. Prerequisites
 
-- **GCC** (or Clang) with C support
-- **OpenMP:** `brew install libomp` (macOS) or use GCC with `-fopenmp` (Linux)
-- **MPI:** `brew install open-mpi` (macOS) or `apt install openmpi` (Linux)
-- **CUDA Toolkit** (optional, for Hybrid): [NVIDIA CUDA](https://developer.nvidia.com/cuda-downloads)
+See **[SOFTWARE_REQUIREMENTS.md](SOFTWARE_REQUIREMENTS.md)** for a detailed list of software to install on macOS and Windows.
 
 ---
 
 ## 3. Build Instructions
+
+### Option A: Makefile (macOS, Linux)
 
 ```bash
 # Build all implementations (Serial, OpenMP, MPI, Validation, Graph Generator)
@@ -46,42 +45,70 @@ brew install libomp
 make OMPFLAGS="-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp"
 ```
 
+### Option B: CMake (macOS, Windows, Linux)
+
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
+
+**Windows (Visual Studio):**
+```cmd
+mkdir build
+cd build
+cmake .. -G "Visual Studio 17 2022" -A x64
+cmake --build . --config Release
+```
+Executables will be in `build\Release\`. Or run `scripts\build_windows.bat`.
+
 ---
 
 ## 4. Running the Implementations
 
+Run from the **project root** (so `data/sample_graph.txt` is found).
+
 ### Serial (Baseline)
 ```bash
-./bin/serial [graph_file]
-# Example:
+# macOS/Linux (Makefile):
 ./bin/serial data/sample_graph.txt
+
+# Windows (CMake):
+build\Release\serial.exe data\sample_graph.txt
 ```
 
 ### OpenMP (Shared-Memory)
 ```bash
-./bin/openmp [graph_file] [num_threads]
-# Example:
+# macOS/Linux:
 ./bin/openmp data/sample_graph.txt 4
+
+# Windows:
+build\Release\openmp.exe data\sample_graph.txt 4
 ```
 
 ### MPI (Distributed-Memory)
 ```bash
-mpirun -np N ./bin/mpi [graph_file]
-# Example:
+# macOS/Linux:
 mpirun -np 2 ./bin/mpi data/sample_graph.txt
+
+# Windows:
+mpiexec -np 2 build\Release\mpi.exe data\sample_graph.txt
 ```
 
 ### Hybrid (CUDA + OpenMP)
 ```bash
-./bin/hybrid [graph_file] [num_threads]
-# Example (requires CUDA GPU):
+# macOS/Linux (Makefile):
 ./bin/hybrid data/sample_graph.txt 4
+
+# Windows:
+build\Release\hybrid.exe data\sample_graph.txt 4
 ```
+*Note: Hybrid not available on macOS (no CUDA support).*
 
 ### Validation (Correctness Check)
 ```bash
-./bin/validation [graph_file]
-# Compares Serial vs OpenMP PageRank (RMSE)
+./bin/validation data/sample_graph.txt
+# or on Windows: build\Release\validation.exe data\sample_graph.txt
 ```
 
 ---
