@@ -9,7 +9,7 @@ typedef struct {
     int *out_degree;        /* out_degree[i] = number of outgoing edges from vertex i */
     int *adjacency_index;   /* adjacency_index[i] = start index in adjacency_list for vertex i */
     int *adjacency_list;    /* compressed adjacency list (all neighbors concatenated) */
-} Graph;
+} Graph; 
 
 /* Create and initialize graph */
 Graph* graph_create(int num_vertices);
