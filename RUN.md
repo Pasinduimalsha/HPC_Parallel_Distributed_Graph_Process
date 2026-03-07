@@ -27,6 +27,19 @@ mkdir build && cd build && cmake .. && cmake --build .
 
 ---
 
+## 0. CUDA/Hybrid on Google Colab (macOS users)
+
+macOS does not support NVIDIA CUDA. To run the **Hybrid (CUDA + OpenMP)** implementation:
+
+1. Go to [colab.research.google.com](https://colab.research.google.com)
+2. **Runtime → Change runtime type → GPU**
+3. Clone or upload your project
+4. Run: `bash colab/build_colab.sh` then `./bin/hybrid data/sample_graph.txt 4`
+
+See **[colab/COLAB_GUIDE.md](colab/COLAB_GUIDE.md)** for full instructions. Open **colab/colab_notebook.ipynb** in Colab for a ready-to-run notebook.
+
+---
+
 ## 1. Serial Processing
 
 **Command (updates evaluation report by default):**
