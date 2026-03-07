@@ -1,0 +1,11 @@
+# HPC PageRank - Conda environment
+# Install: conda env create -f environment.yml
+# Activate: conda activate hpc-env
+
+name: hpc-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - llvm-openmp    # OpenMP runtime (libomp)
+  - openmpi        # MPI (mpicc, mpirun)

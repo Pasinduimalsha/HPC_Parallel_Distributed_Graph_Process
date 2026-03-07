@@ -9,7 +9,14 @@ MPIFLAGS = $(OMPFLAGS)
 NVCC = nvcc
 NVCCFLAGS = -O3 -I include -arch=sm_50
 
-# macOS: brew install libomp, then: make OMPFLAGS="-Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp"
+# Conda: create env with environment.yml, activate, then: make serial openmp mpi data
+ifdef CONDA_PREFIX
+  ifeq ($(shell uname), Darwin)
+    OMPFLAGS = -Xpreprocessor -fopenmp -I$(CONDA_PREFIX)/include -L$(CONDA_PREFIX)/lib -Wl,-rpath,$(CONDA_PREFIX)/lib -lomp
+  else
+    OMPFLAGS = -fopenmp -I$(CONDA_PREFIX)/include -L$(CONDA_PREFIX)/lib -Wl,-rpath,$(CONDA_PREFIX)/lib -lomp
+  endif
+endif
 # Windows: use CMake instead (see SOFTWARE_REQUIREMENTS.md)
 
 CORE_OBJ = build/graph.o build/serial_pagerank.o
