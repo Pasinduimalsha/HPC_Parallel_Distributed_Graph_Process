@@ -70,7 +70,7 @@ def load_results():
         with open(RESULTS_FILE, "r") as f:
             return json.load(f)
     return {
-        "graph": "data/sample_graph.txt",
+        "graph": None,
         "graph_vertices": None,
         "graph_edges": None,
         "last_updated": None,
