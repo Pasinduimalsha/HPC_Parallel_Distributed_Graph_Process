@@ -8,6 +8,13 @@ Run from the **project root**. Output is printed to **stdout** (terminal).
 
 ## Build First
 
+**Using Conda (recommended):**
+```bash
+conda env create -f environment.yml
+conda activate hpc-env
+make serial openmp mpi data
+```
+
 **Makefile (macOS/Linux):**
 ```bash
 make serial openmp mpi data

@@ -4,7 +4,26 @@
 
 ---
 
-## macOS – Software to Install
+## Conda (recommended – all platforms)
+
+Install dependencies in a conda environment (no system-wide install needed):
+
+```bash
+# New env: conda env create -f environment.yml
+# Or add to existing hpc-env: conda activate hpc-env && conda install -c conda-forge llvm-openmp openmpi
+conda activate hpc-env
+make serial openmp mpi data
+```
+
+**Packages installed:**
+| Package     | Purpose                    |
+|------------|----------------------------|
+| llvm-openmp| OpenMP runtime (libomp)    |
+| openmpi    | MPI (mpicc, mpirun)        |
+
+---
+
+## macOS – Software to Install (without Conda)
 
 | Software | Purpose | Install Command |
 |----------|---------|-----------------|
