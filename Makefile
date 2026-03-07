@@ -2,12 +2,16 @@
 # High-Performance Parallel PageRank for Large-Scale Graph Analytics
 
 CC = gcc
+PYTHON ?= python3
 CFLAGS = -Wall -O3 -I include
 OMPFLAGS ?= -fopenmp
 MPICC = mpicc
 MPIFLAGS = $(OMPFLAGS)
 NVCC = nvcc
 NVCCFLAGS = -O3 -I include -arch=sm_50
+
+# SCALE=1 adds scalability tests to run_* and report targets
+SCALE ?=
 
 # Conda: create env with environment.yml, activate, then: make serial openmp mpi data
 ifdef CONDA_PREFIX
@@ -21,7 +25,7 @@ endif
 
 CORE_OBJ = build/graph.o build/serial_pagerank.o
 
-.PHONY: all clean run_serial run_openmp run_mpi run_hybrid run_validation benchmark data
+.PHONY: all clean run_serial run_openmp run_mpi run_hybrid run_validation benchmark data report report-dirs
 
 all: serial openmp mpi generate_graph validation
 	@if command -v nvcc >/dev/null 2>&1; then $(MAKE) hybrid; fi
@@ -44,8 +48,8 @@ hybrid: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o 
 generate_graph: bin
 	$(CC) -O2 -o bin/generate_graph tools/generate_graph.c
 
-validation: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o
-	$(CC) $(CFLAGS) $(OMPFLAGS) -o bin/validation main/main_validation.c $(CORE_OBJ) build/openmp_pagerank.o -lm
+validation: build bin build/graph.o build/serial_pagerank.o build/openmp_pagerank.o build/mpi_pagerank.o
+	$(MPICC) $(CFLAGS) $(MPIFLAGS) -o bin/validation main/main_validation.c $(CORE_OBJ) build/openmp_pagerank.o build/mpi_pagerank.o -lm
 
 build:
 	mkdir -p build
@@ -66,19 +70,19 @@ build/mpi_pagerank.o: src/mpi_pagerank.c include/graph.h include/pagerank.h
 	$(MPICC) $(CFLAGS) -c src/mpi_pagerank.c -o build/mpi_pagerank.o
 
 run_serial: serial data
-	./bin/serial data/sample_graph.txt
+	$(if $(filter 1,$(SCALE)),$(PYTHON) scripts/run_and_report.py serial --scalability-graph,$(PYTHON) scripts/run_and_report.py serial)
 
 run_openmp: openmp data
-	./bin/openmp data/sample_graph.txt 4
+	$(if $(filter 1,$(SCALE)),$(PYTHON) scripts/run_and_report.py openmp --scalability-openmp,$(PYTHON) scripts/run_and_report.py openmp)
 
 run_mpi: mpi data
-	mpirun -np 2 ./bin/mpi data/sample_graph.txt
+	$(if $(filter 1,$(SCALE)),$(PYTHON) scripts/run_and_report.py mpi --scalability-mpi,$(PYTHON) scripts/run_and_report.py mpi)
 
 run_hybrid: hybrid data
 	./bin/hybrid data/sample_graph.txt 4
 
 run_validation: validation data
-	./bin/validation data/sample_graph.txt
+	mpirun -np 2 ./bin/validation data/sample_graph.txt
 
 benchmark: all data
 	@echo "=== Generating larger graph (5000 vertices) ==="
@@ -90,6 +94,12 @@ benchmark: all data
 	@echo "=== MPI (2 processes) ==="
 	mpirun -np 2 ./bin/mpi data/graph_5k.txt
 	@if [ -f ./bin/hybrid ]; then echo "=== Hybrid ==="; ./bin/hybrid data/graph_5k.txt 4; fi
+
+report-dirs:
+	mkdir -p results report
+
+report: all data report-dirs
+	$(if $(filter 1,$(SCALE)),$(PYTHON) scripts/run_and_report.py --all --scalability --scalability-graph,$(PYTHON) scripts/run_and_report.py --all)
 
 data:
 	mkdir -p data
