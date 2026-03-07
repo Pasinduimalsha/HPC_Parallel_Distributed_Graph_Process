@@ -25,7 +25,7 @@ endif
 
 CORE_OBJ = build/graph.o build/serial_pagerank.o
 
-.PHONY: all clean run_serial run_openmp run_mpi run_hybrid run_validation benchmark data report report-dirs
+.PHONY: all clean run_serial run_openmp run_mpi run_hybrid run_validation benchmark data report report-dirs ui
 
 all: serial openmp mpi generate_graph validation
 	@if command -v nvcc >/dev/null 2>&1; then $(MAKE) hybrid; fi
@@ -107,6 +107,10 @@ data:
 		echo "0 1\n0 2\n1 2\n1 3\n2 3\n2 4\n3 4\n3 5\n4 5\n4 0\n5 0\n5 1" > data/sample_graph.txt; \
 		echo "Created data/sample_graph.txt"; \
 	fi
+
+ui: serial openmp mpi data
+	@echo "Starting UI at http://127.0.0.1:5001"
+	$(PYTHON) ui/app.py
 
 clean:
 	rm -rf build bin

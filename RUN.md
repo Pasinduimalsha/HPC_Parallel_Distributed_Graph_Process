@@ -148,6 +148,34 @@ python3 scripts/run_and_report.py --scalability-graph # problem-size scaling (1k
 
 ---
 
+---
+
+## Web UI
+
+An interactive web UI lets you run Serial, OpenMP, and MPI PageRank separately and visualize the graph and results.
+
+**Install UI dependency:**
+```bash
+pip install flask
+```
+
+**Start the UI:**
+```bash
+make ui
+```
+*Or: `python3 ui/app.py`*
+
+Then open **http://127.0.0.1:5001** in your browser. (Port 5001 is used because macOS reserves 5000 for AirPlay.)
+
+**Features:**
+- Select a graph file from `data/`
+- Run **Serial**, **OpenMP**, or **MPI** with one click
+- Configure OpenMP threads and MPI processes
+- View graph visualization and PageRank bar chart
+- See execution time and raw output
+
+---
+
 ## Output Location
 
 | Where | Description |
