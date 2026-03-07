@@ -32,4 +32,4 @@ See **[SOFTWARE_REQUIREMENTS.md](SOFTWARE_REQUIREMENTS.md)** for software to ins
 
 - **macOS:** libomp, open-mpi, CMake (optional)
 - **Windows:** Visual Studio, MS-MPI, CMake
-- **CUDA** (optional, for Hybrid): Windows/Linux only; not supported on macOS
+- **CUDA** (optional, for Hybrid): Windows/Linux only; not supported on macOS. See **[CUDA_GUIDE.md](CUDA_GUIDE.md)** for setup.
