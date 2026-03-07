@@ -59,7 +59,7 @@ def generate_html(results):
 </head>
 <body>
     <h1>HPC PageRank - Evaluation Metrics</h1>
-    <p class="meta">Graph: {r.get('graph', '—')} | Vertices: {fmt(r.get('graph_vertices'))} | Edges: {fmt(r.get('graph_edges'))} | Last updated: {r.get('last_updated', '—')}</p>
+    <p class="meta">Graph: {r.get('graph') or '—'} | Vertices: {fmt(r.get('graph_vertices'))} | Edges: {fmt(r.get('graph_edges'))} | Last updated: {r.get('last_updated') or '—'}</p>
 
     <h2>Main Metrics</h2>
     <table>
