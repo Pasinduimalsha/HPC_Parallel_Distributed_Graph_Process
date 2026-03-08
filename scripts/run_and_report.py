@@ -28,6 +28,9 @@ METRICS_RMSE_RE = re.compile(r"METRICS_RMSE_(OpenMP|MPI)=([\d.e+-]+)")
 def run_cmd(cmd, cwd=None, capture=False):
     """Run command, print output if not capture, return (stdout, returncode)."""
     cwd = cwd or PROJECT_ROOT
+    # Windows: if mpirun is not available, try mpiexec
+    if sys.platform == "win32" and cmd[0] == "mpirun":
+        cmd[0] = "mpiexec"
     result = subprocess.run(
         cmd,
         cwd=cwd,
@@ -37,6 +40,15 @@ def run_cmd(cmd, cwd=None, capture=False):
     if not capture:
         return None, result.returncode
     return result.stdout + result.stderr, result.returncode
+
+
+def get_bin_path(name):
+    """Handle .exe on Windows."""
+    path = os.path.join(BIN_DIR, name)
+    if sys.platform == "win32" and not os.path.exists(path):
+        if os.path.exists(path + ".exe"):
+            return path + ".exe"
+    return path
 
 
 def parse_time(output):
@@ -95,9 +107,9 @@ def save_results(data):
 
 def run_serial(graph, results):
     """Run serial implementation."""
-    bin_path = os.path.join(BIN_DIR, "serial")
+    bin_path = get_bin_path("serial")
     if not os.path.exists(bin_path):
-        print(f"Error: {bin_path} not found. Run 'make serial' first.", file=sys.stderr)
+        print(f"Error: {bin_path} not found. Build first.", file=sys.stderr)
         return False
     out, _ = run_cmd([bin_path, graph], capture=True)
     print(out)
@@ -116,9 +128,9 @@ def run_serial(graph, results):
 
 def run_openmp(graph, threads, results):
     """Run OpenMP implementation."""
-    bin_path = os.path.join(BIN_DIR, "openmp")
+    bin_path = get_bin_path("openmp")
     if not os.path.exists(bin_path):
-        print(f"Error: {bin_path} not found. Run 'make openmp' first.", file=sys.stderr)
+        print(f"Error: {bin_path} not found. Build first.", file=sys.stderr)
         return False
     out, _ = run_cmd([bin_path, graph, str(threads)], capture=True)
     print(out)
@@ -137,9 +149,9 @@ def run_openmp(graph, threads, results):
 
 def run_mpi(graph, procs, results):
     """Run MPI implementation."""
-    bin_path = os.path.join(BIN_DIR, "mpi")
+    bin_path = get_bin_path("mpi")
     if not os.path.exists(bin_path):
-        print(f"Error: {bin_path} not found. Run 'make mpi' first.", file=sys.stderr)
+        print(f"Error: {bin_path} not found. Build first.", file=sys.stderr)
         return False
     out, _ = run_cmd(["mpirun", "-np", str(procs), bin_path, graph], capture=True)
     print(out)
@@ -158,9 +170,9 @@ def run_mpi(graph, procs, results):
 
 def run_hybrid(graph, threads, results):
     """Run Hybrid (CUDA + OpenMP) implementation."""
-    bin_path = os.path.join(BIN_DIR, "hybrid")
+    bin_path = get_bin_path("hybrid")
     if not os.path.exists(bin_path):
-        print(f"Error: {bin_path} not found. Run 'make hybrid' first (requires CUDA).", file=sys.stderr)
+        print(f"Error: {bin_path} not found. Build first (requires CUDA).", file=sys.stderr)
         return False
     out, _ = run_cmd([bin_path, graph, str(threads)], capture=True)
     print(out)
@@ -179,9 +191,9 @@ def run_hybrid(graph, threads, results):
 
 def run_validation(graph, results):
     """Run validation to get RMSE for OpenMP and MPI."""
-    bin_path = os.path.join(BIN_DIR, "validation")
+    bin_path = get_bin_path("validation")
     if not os.path.exists(bin_path):
-        print("Warning: validation binary not found. Run 'make validation' first.", file=sys.stderr)
+        print("Warning: validation binary not found.", file=sys.stderr)
         return
     out, _ = run_cmd(["mpirun", "-np", "2", bin_path, graph], capture=True)
     print(out)
@@ -194,9 +206,9 @@ def run_validation(graph, results):
 
 def run_scalability(graph, threads_list, procs_list, results):
     """Run scalability tests (thread and process scaling)."""
-    bin_serial = os.path.join(BIN_DIR, "serial")
-    bin_openmp = os.path.join(BIN_DIR, "openmp")
-    bin_mpi = os.path.join(BIN_DIR, "mpi")
+    bin_serial = get_bin_path("serial")
+    bin_openmp = get_bin_path("openmp")
+    bin_mpi = get_bin_path("mpi")
     if not os.path.exists(bin_serial):
         print("Error: serial binary not found.", file=sys.stderr)
         return
@@ -220,9 +232,9 @@ def run_scalability(graph, threads_list, procs_list, results):
 
 def run_scalability_graph(vertices_list, results):
     """Run problem-size scalability (generate graphs and run)."""
-    gen_path = os.path.join(BIN_DIR, "generate_graph")
-    bin_serial = os.path.join(BIN_DIR, "serial")
-    bin_openmp = os.path.join(BIN_DIR, "openmp")
+    gen_path = get_bin_path("generate_graph")
+    bin_serial = get_bin_path("serial")
+    bin_openmp = get_bin_path("openmp")
     if not os.path.exists(gen_path) or not os.path.exists(bin_serial):
         print("Error: generate_graph or serial not found.", file=sys.stderr)
         return

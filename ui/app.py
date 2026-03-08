@@ -28,6 +28,15 @@ PAGERANK_RE = re.compile(r"PageRank \(first 10\):\s+(.+)")
 LABEL_RE = re.compile(r"(Serial|OpenMP|MPI|Hybrid) PageRank")
 
 
+def _get_bin_path(name: str) -> Path:
+    """Handle .exe on Windows."""
+    path = BIN_DIR / name
+    if os.name == "nt" and not path.exists():
+        if (BIN_DIR / (name + ".exe")).exists():
+            return BIN_DIR / (name + ".exe")
+    return path
+
+
 def parse_output(output: str) -> dict:
     """Parse binary output into structured data."""
     result = {"raw": output, "time_ms": None, "vertices": None, "edges": None, "pagerank": [], "label": None}
@@ -49,9 +58,9 @@ def parse_output(output: str) -> dict:
 
 def run_serial(graph_path: str) -> dict:
     """Run serial PageRank."""
-    bin_path = BIN_DIR / "serial"
+    bin_path = _get_bin_path("serial")
     if not bin_path.exists():
-        return {"error": f"Binary not found. Run 'make serial' first.", "raw": ""}
+        return {"error": f"Binary not found: {bin_path}. Build first.", "raw": ""}
     result = subprocess.run(
         [str(bin_path), graph_path],
         cwd=PROJECT_ROOT,
@@ -67,9 +76,9 @@ def run_serial(graph_path: str) -> dict:
 
 def run_openmp(graph_path: str, threads: int = 4) -> dict:
     """Run OpenMP PageRank."""
-    bin_path = BIN_DIR / "openmp"
+    bin_path = _get_bin_path("openmp")
     if not bin_path.exists():
-        return {"error": f"Binary not found. Run 'make openmp' first.", "raw": ""}
+        return {"error": f"Binary not found: {bin_path}. Build first.", "raw": ""}
     result = subprocess.run(
         [str(bin_path), graph_path, str(threads)],
         cwd=PROJECT_ROOT,
@@ -85,11 +94,16 @@ def run_openmp(graph_path: str, threads: int = 4) -> dict:
 
 def run_mpi(graph_path: str, procs: int = 2) -> dict:
     """Run MPI PageRank."""
-    bin_path = BIN_DIR / "mpi"
+    bin_path = _get_bin_path("mpi")
     if not bin_path.exists():
-        return {"error": f"Binary not found. Run 'make mpi' first.", "raw": ""}
+        return {"error": f"Binary not found: {bin_path}. Build first.", "raw": ""}
+    
+    mpi_cmd = "mpirun"
+    if os.name == "nt":
+        mpi_cmd = "mpiexec"
+
     result = subprocess.run(
-        ["mpirun", "-np", str(procs), str(bin_path), graph_path],
+        [mpi_cmd, "-np", str(procs), str(bin_path), graph_path],
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
@@ -103,9 +117,9 @@ def run_mpi(graph_path: str, procs: int = 2) -> dict:
 
 def run_hybrid(graph_path: str, threads: int = 4) -> dict:
     """Run Hybrid (CUDA + OpenMP) PageRank. Requires NVIDIA GPU."""
-    bin_path = BIN_DIR / "hybrid"
+    bin_path = _get_bin_path("hybrid")
     if not bin_path.exists():
-        return {"error": "Binary not found. Run 'make hybrid' first (requires CUDA).", "raw": ""}
+        return {"error": f"Binary not found: {bin_path}. Build first (requires CUDA).", "raw": ""}
     result = subprocess.run(
         [str(bin_path), graph_path, str(threads)],
         cwd=PROJECT_ROOT,
@@ -201,10 +215,10 @@ def get_results():
 def available_impls():
     """Return which implementations are available (hybrid requires CUDA)."""
     return jsonify({
-        "serial": (BIN_DIR / "serial").exists(),
-        "openmp": (BIN_DIR / "openmp").exists(),
-        "mpi": (BIN_DIR / "mpi").exists(),
-        "hybrid": (BIN_DIR / "hybrid").exists(),
+        "serial": _get_bin_path("serial").exists(),
+        "openmp": _get_bin_path("openmp").exists(),
+        "mpi": _get_bin_path("mpi").exists(),
+        "hybrid": _get_bin_path("hybrid").exists(),
     })
 
 
