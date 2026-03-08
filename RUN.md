@@ -46,7 +46,7 @@ See **[colab/COLAB_GUIDE.md](colab/COLAB_GUIDE.md)** for full instructions. Open
 ```bash
 make run_serial
 ```
-*Runs serial and updates `report/report.html` with metrics.*
+*Runs serial and updates `results/results.json` with metrics.*
 
 **Direct run (no report update):**
 ```bash
@@ -71,7 +71,7 @@ PageRank (first 10): 0.166667 0.166667 0.166667 0.166667 0.166667 0.166667
 ```bash
 make run_openmp
 ```
-*Runs OpenMP (4 threads) and updates the report.*
+*Runs OpenMP (4 threads) and updates results.json.*
 
 **Direct run (no report update):**
 ```bash
@@ -96,7 +96,7 @@ PageRank (first 10): 0.166667 0.166667 0.166667 0.166667 0.166667 0.166667
 ```bash
 make run_mpi
 ```
-*Runs MPI (2 processes) and updates the report.*
+*Runs MPI (2 processes) and updates results.json.*
 
 **Direct run (no report update):**
 ```bash
@@ -116,13 +116,13 @@ PageRank (first 10): 0.166667 0.166667 0.166667 0.166667 0.166667 0.166667
 
 ---
 
-## Evaluation Metrics Report
+## Evaluation Metrics
 
-Running `make run_serial`, `make run_openmp`, or `make run_mpi` automatically updates an HTML dashboard with evaluation metrics: **Execution Time**, **Speedup**, **Efficiency**, **Scalability**, and **Accuracy**.
+Running `make run_serial`, `make run_openmp`, or `make run_mpi` automatically updates `results/results.json` with evaluation metrics: **Execution Time**, **Speedup**, **Efficiency**, **Scalability**, and **Accuracy**.
 
-**View the report:** Open `report/report.html` in a web browser (e.g. `open report/report.html` on macOS).
+**View metrics:** Use the **Web UI** (`make ui`) — it displays the Evaluation Metrics section with Main Metrics, Speedup, Efficiency, and Scalability tables.
 
-**Run all and update report:**
+**Run all and update results:**
 ```bash
 make report
 ```
@@ -146,13 +146,14 @@ make run_mpi             # MPI (2 processes) only
 make run_mpi SCALE=1     # MPI + process scaling (2,4)
 ```
 
-**Manual usage of the report script:**
+**Manual usage of the run script:**
 ```bash
 python3 scripts/run_and_report.py serial              # run serial only
 python3 scripts/run_and_report.py openmp             # run openmp (4 threads)
 python3 scripts/run_and_report.py mpi                # run mpi (2 processes)
+python3 scripts/run_and_report.py hybrid             # run hybrid (CUDA+OpenMP, requires GPU)
 python3 scripts/run_and_report.py serial openmp mpi  # run all three
-python3 scripts/run_and_report.py --all              # same as above
+python3 scripts/run_and_report.py --all              # serial, openmp, mpi (and hybrid if built)
 python3 scripts/run_and_report.py --scalability      # thread/process scaling (2,4,8)
 python3 scripts/run_and_report.py --scalability-graph # problem-size scaling (1k,5k,10k)
 ```
@@ -165,7 +166,7 @@ python3 scripts/run_and_report.py --scalability-graph # problem-size scaling (1k
 
 ## Web UI
 
-An interactive web UI lets you run Serial, OpenMP, and MPI PageRank separately and visualize the graph and results.
+An interactive web UI lets you run Serial, OpenMP, MPI, and **Hybrid** PageRank and view evaluation metrics.
 
 **Install UI dependency:**
 ```bash
@@ -182,10 +183,13 @@ Then open **http://127.0.0.1:5001** in your browser. (Port 5001 is used because 
 
 **Features:**
 - Select a graph file from `data/`
-- Run **Serial**, **OpenMP**, or **MPI** with one click
-- Configure OpenMP threads and MPI processes
+- Run **Serial**, **OpenMP**, **MPI**, or **Hybrid** (CUDA+OpenMP) with one click
+- Configure OpenMP/Hybrid threads and MPI processes
 - View graph visualization and PageRank bar chart
+- **Evaluation Metrics**: Main Metrics table (Time, Speedup, Efficiency, RMSE), Scalability tables
 - See execution time and raw output
+
+**Hybrid on Colab:** When running the UI on Google Colab (see colab/COLAB_GUIDE.md), the **Run Hybrid** button runs PageRank on the GPU.
 
 ---
 
@@ -195,4 +199,4 @@ Then open **http://127.0.0.1:5001** in your browser. (Port 5001 is used because 
 |-------|-------------|
 | **Terminal (stdout)** | Default; output appears in the terminal |
 | **Redirect to file** | `./bin/serial data/sample_graph.txt > output.txt` |
-| **Report** | `report/report.html` – evaluation metrics dashboard |
+| **Results** | `results/results.json` – evaluation metrics (view in Web UI) |

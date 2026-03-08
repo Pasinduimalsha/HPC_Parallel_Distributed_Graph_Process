@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-HPC PageRank - Run implementations and update evaluation metrics report.
-Usage: python scripts/run_and_report.py [serial] [openmp] [mpi] [--all] [--scalability] [--scalability-graph]
+HPC PageRank - Run implementations and update evaluation metrics (results.json).
+Usage: python scripts/run_and_report.py [serial] [openmp] [mpi] [hybrid] [--all] [--scalability] [--scalability-graph]
         [--graph FILE] [--threads N] [--procs N]
 """
 
@@ -17,7 +17,6 @@ from datetime import datetime
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 RESULTS_FILE = os.path.join(PROJECT_ROOT, "results", "results.json")
-REPORT_FILE = os.path.join(PROJECT_ROOT, "report", "report.html")
 BIN_DIR = os.path.join(PROJECT_ROOT, "bin")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
@@ -77,6 +76,7 @@ def load_results():
         "serial": None,
         "openmp": None,
         "mpi": None,
+        "hybrid": None,
         "scalability": {
             "openmp": [],
             "mpi": [],
@@ -156,6 +156,27 @@ def run_mpi(graph, procs, results):
     return False
 
 
+def run_hybrid(graph, threads, results):
+    """Run Hybrid (CUDA + OpenMP) implementation."""
+    bin_path = os.path.join(BIN_DIR, "hybrid")
+    if not os.path.exists(bin_path):
+        print(f"Error: {bin_path} not found. Run 'make hybrid' first (requires CUDA).", file=sys.stderr)
+        return False
+    out, _ = run_cmd([bin_path, graph, str(threads)], capture=True)
+    print(out)
+    t = parse_time(out)
+    v, e = parse_graph_info(out)
+    if t is not None:
+        results["hybrid"] = {"time_ms": t, "threads": threads}
+        if v is not None:
+            results["graph_vertices"] = v
+        if e is not None:
+            results["graph_edges"] = e
+        results["graph"] = os.path.relpath(graph, PROJECT_ROOT) if graph.startswith(PROJECT_ROOT) else graph
+        return True
+    return False
+
+
 def run_validation(graph, results):
     """Run validation to get RMSE for OpenMP and MPI."""
     bin_path = os.path.join(BIN_DIR, "validation")
@@ -223,21 +244,11 @@ def run_scalability_graph(vertices_list, results):
             results["scalability"]["problem_size"].append(entry)
 
 
-def generate_report(results):
-    """Generate HTML report from results."""
-    from generate_report import generate_html
-    os.makedirs(os.path.dirname(REPORT_FILE), exist_ok=True)
-    html = generate_html(results)
-    with open(REPORT_FILE, "w") as f:
-        f.write(html)
-    print(f"\nReport updated: {REPORT_FILE}")
-
-
 def main():
     parser = argparse.ArgumentParser(description="Run PageRank implementations and update metrics report")
-    parser.add_argument("impls", nargs="*", choices=["serial", "openmp", "mpi"],
+    parser.add_argument("impls", nargs="*", choices=["serial", "openmp", "mpi", "hybrid"],
                         help="Implementations to run")
-    parser.add_argument("--all", action="store_true", help="Run serial, openmp, mpi")
+    parser.add_argument("--all", action="store_true", help="Run serial, openmp, mpi (hybrid if available)")
     parser.add_argument("--scalability", action="store_true",
                         help="Run scalability (2,4,8 threads; 2,4 procs)")
     parser.add_argument("--scalability-openmp", action="store_true",
@@ -254,6 +265,8 @@ def main():
     impls = list(args.impls) if args.impls else []
     if args.all:
         impls = ["serial", "openmp", "mpi"]
+        if os.path.exists(os.path.join(BIN_DIR, "hybrid")):
+            impls.append("hybrid")
 
     graph_path = args.graph
     if not os.path.isabs(graph_path):
@@ -276,6 +289,8 @@ def main():
                 run_openmp(graph_path, args.threads, results)
             elif impl == "mpi":
                 run_mpi(graph_path, args.procs, results)
+            elif impl == "hybrid":
+                run_hybrid(graph_path, args.threads, results)
         if (ran_serial and (ran_openmp or ran_mpi)):
             run_validation(graph_path, results)
         ran_impls = True
@@ -298,10 +313,8 @@ def main():
         sys.exit(1)
 
     save_results(results)
-    generate_report(results)
+    print(f"\nResults saved to: {RESULTS_FILE}")
 
 
 if __name__ == "__main__":
-    # Add scripts dir to path for generate_report import
-    sys.path.insert(0, SCRIPT_DIR)
     main()

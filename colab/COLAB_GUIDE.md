@@ -62,6 +62,27 @@ macOS does not support NVIDIA CUDA. Use **Google Colab** to run the **Hybrid (CU
 !./bin/hybrid data/sample_graph.txt 4
 ```
 
+### Step 5: Web UI with Hybrid (optional)
+
+The project includes a Flask Web UI. On Colab, use pyngrok to expose it:
+
+```python
+!pip install -q flask pyngrok
+from pyngrok import ngrok
+import threading, subprocess, time
+
+def run_flask():
+    subprocess.run(["python3", "ui/app.py"], cwd=".", capture_output=True)
+
+thread = threading.Thread(target=run_flask, daemon=True)
+thread.start()
+time.sleep(3)
+public_url = ngrok.connect(5001)
+print(f"Open: {public_url}")
+```
+
+The UI includes a **Run Hybrid** button to run PageRank on the GPU, plus Evaluation Metrics (Time, Speedup, Efficiency, Scalability).
+
 ---
 
 ## Full Colab Notebook Cells

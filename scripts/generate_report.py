@@ -20,17 +20,22 @@ def generate_html(results):
     serial = r.get("serial") or {}
     openmp = r.get("openmp") or {}
     mpi = r.get("mpi") or {}
+    hybrid = r.get("hybrid") or {}
 
     t_serial = serial.get("time_ms")
     t_openmp = openmp.get("time_ms")
     t_mpi = mpi.get("time_ms")
+    t_hybrid = hybrid.get("time_ms")
     threads = openmp.get("threads", 4)
     procs = mpi.get("processes", 2)
+    hybrid_threads = hybrid.get("threads", 4)
 
     speedup_omp = t_serial / t_openmp if t_serial and t_openmp and t_openmp > 0 else None
     speedup_mpi = t_serial / t_mpi if t_serial and t_mpi and t_mpi > 0 else None
+    speedup_hybrid = t_serial / t_hybrid if t_serial and t_hybrid and t_hybrid > 0 else None
     eff_omp = speedup_omp / threads if speedup_omp and threads else None
     eff_mpi = speedup_mpi / procs if speedup_mpi and procs else None
+    eff_hybrid = speedup_hybrid / hybrid_threads if speedup_hybrid and hybrid_threads else None
 
     scal = r.get("scalability") or {}
     scal_omp = scal.get("openmp") or []
@@ -93,6 +98,13 @@ def generate_html(results):
                 <td>{fmt(speedup_mpi) if speedup_mpi else 'N/A (run serial first)'}</td>
                 <td>{fmt(eff_mpi) if eff_mpi else '—'}</td>
                 <td>{fmt(mpi.get('rmse'), 2) if mpi.get('rmse') is not None else 'N/A'}</td>
+            </tr>
+            <tr>
+                <td>Hybrid ({hybrid_threads} threads)</td>
+                <td>{fmt(t_hybrid)}</td>
+                <td>{fmt(speedup_hybrid) if speedup_hybrid else 'N/A (run serial first)'}</td>
+                <td>{fmt(eff_hybrid) if eff_hybrid else '—'}</td>
+                <td>—</td>
             </tr>
         </tbody>
     </table>
