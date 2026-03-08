@@ -17,12 +17,6 @@ Graph* graph_create(int num_vertices);
 /* Free graph memory */
 void graph_free(Graph *g);
 
-/* Add edge from u to v */
-void graph_add_edge(Graph *g, int u, int v);
-
-/* Finalize graph after adding all edges (build compressed adjacency list) */
-void graph_finalize(Graph *g);
-
 /* Load graph from edge list file (format: one "u v" per line) */
 Graph* graph_load_from_file(const char *filename);
 
