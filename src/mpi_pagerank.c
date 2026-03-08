@@ -1,8 +1,8 @@
 #include "graph.h"
 #include "pagerank.h"
+#include <mpi.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mpi.h>
 
 double* pagerank_mpi(const Graph *g, double df, int max_iter, double tol, int mpi_rank, int mpi_size) {
     int n = g->num_vertices;
@@ -12,30 +12,30 @@ double* pagerank_mpi(const Graph *g, double df, int max_iter, double tol, int mp
     if (end > n) end = n;
     int my_n = end - start;
 
-    double *rank = (double*)malloc(n * sizeof(double));
-    double *new_rank = (double*)malloc(n * sizeof(double));
-    double *my_new_rank = (double*)malloc(my_n * sizeof(double));
-    if (!rank || !new_rank || !my_new_rank) {
-        free(rank); free(new_rank); free(my_new_rank);
+    double *pr = (double*)malloc(n * sizeof(double));
+    double *new_pr = (double*)malloc(n * sizeof(double));
+    double *my_new_pr = (double*)malloc(my_n * sizeof(double));
+    if (!pr || !new_pr || !my_new_pr) {
+        free(pr); free(new_pr); free(my_new_pr);
         return NULL;
     }
 
     double initial = 1.0 / n;
-    for (int i = 0; i < n; i++) rank[i] = initial;
+    for (int i = 0; i < n; i++) pr[i] = initial;
 
     for (int iter = 0; iter < max_iter; iter++) {
         for (int i = 0; i < my_n; i++)
-            my_new_rank[i] = (1.0 - df) / n;
+            my_new_pr[i] = (1.0 - df) / n;
 
         for (int j = 0; j < n; j++) {
             int count = g->out_degree[j];
             if (count <= 0) continue;
-            double contrib = df * rank[j] / count;
+            double contrib = df * pr[j] / count;
             const int *nb = g->adjacency_list + g->adjacency_index[j];
             for (int k = 0; k < count; k++) {
                 int target = nb[k];
                 if (target >= start && target < end)
-                    my_new_rank[target - start] += contrib;
+                    my_new_pr[target - start] += contrib;
             }
         }
 
@@ -48,21 +48,21 @@ double* pagerank_mpi(const Graph *g, double df, int max_iter, double tol, int mp
             recvcounts[i] = e - s;
             displs[i] = (i == 0) ? 0 : displs[i-1] + recvcounts[i-1];
         }
-        MPI_Allgatherv(my_new_rank, my_n, MPI_DOUBLE, new_rank, recvcounts, displs, MPI_DOUBLE, MPI_COMM_WORLD);
+        MPI_Allgatherv(my_new_pr, my_n, MPI_DOUBLE, new_pr, recvcounts, displs, MPI_DOUBLE, MPI_COMM_WORLD);
         free(recvcounts);
         free(displs);
 
         double diff = 0.0;
         for (int i = 0; i < n; i++) {
-            double d = new_rank[i] - rank[i];
+            double d = new_pr[i] - pr[i];
             if (d < 0) d = -d;
             if (d > diff) diff = d;
         }
-        memcpy(rank, new_rank, n * sizeof(double));
+        memcpy(pr, new_pr, n * sizeof(double));
         if (diff < tol) break;
     }
 
-    free(new_rank);
-    free(my_new_rank);
-    return rank;
+    free(new_pr);
+    free(my_new_pr);
+    return pr;
 }
