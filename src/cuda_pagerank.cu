@@ -58,7 +58,6 @@ __global__ void pagerank_diff_kernel(const double *rank, const double *new_rank,
 }
 #endif
 
-extern "C"
 double* pagerank_hybrid(const Graph *g, double damping_factor, int max_iterations, double tolerance) {
 #ifdef __CUDACC__
     int n = g->num_vertices;
