@@ -1,8 +1,8 @@
 #include "graph.h"
 #include "pagerank.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
     int mpi_rank, mpi_size;
