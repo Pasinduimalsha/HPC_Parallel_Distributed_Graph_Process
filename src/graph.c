@@ -1,15 +1,6 @@
 #include "graph.h"
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-
-#define INITIAL_CAPACITY 8
-
-typedef struct {
-    int *edges;
-    int count;
-    int capacity;
-} VertexEdges;
+#include <stdlib.h>
 
 Graph* graph_create(int num_vertices) {
     Graph *g = (Graph*)malloc(sizeof(Graph));
@@ -32,18 +23,6 @@ void graph_free(Graph *g) {
     free(g->adjacency_index);
     free(g->adjacency_list);
     free(g);
-}
-
-void graph_add_edge(Graph *g, int u, int v) {
-    if (u < 0 || u >= g->num_vertices || v < 0 || v >= g->num_vertices) return;
-    g->out_degree[u]++;
-    g->num_edges++;
-}
-
-void graph_finalize(Graph *g) {
-    /* For edge list we need to build. This is called after loading.
-     * We'll use a two-pass approach in load. */
-    (void)g;
 }
 
 Graph* graph_load_from_file(const char *filename) {
