@@ -4,22 +4,24 @@
 #include <stdio.h>
 #include <omp.h>
 
+//Argument count and argument values
 int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
     int num_threads = (argc > 2) ? atoi(argv[2]) : 0;
     if (num_threads > 0) omp_set_num_threads(num_threads);
 
+    // Read the edge list and build the graph
     Graph *g = graph_load_from_file(graph_file);
     if (!g) return 1;
 
     printf("OpenMP PageRank: %d threads\n", omp_get_max_threads());
     printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
 
-    double t0 = omp_get_wtime();
-    double *pr = pagerank_openmp(g, 0.85, 100, 1e-6);
-    double t1 = omp_get_wtime();
+    double t0 = omp_get_wtime(); // Start timing
+    double *pr = pagerank_openmp(g, 0.85, 100, 1e-6); // Damping factor, max iterations, tolerance
+    double t1 = omp_get_wtime(); // End timing
     if (!pr) {
-        graph_free(g);
+        graph_free(g); // Clean up graph memory
         return 1;
     }
     printf("PageRank time: %.4f ms\n", 1000.0 * (t1 - t0));
@@ -29,7 +31,7 @@ int main(int argc, char **argv) {
         printf("%.6f ", pr[i]);
     printf("\n");
 
-    free(pr);
+    free(pr); // Clean up PageRank memory
     graph_free(g);
     return 0;
 }
