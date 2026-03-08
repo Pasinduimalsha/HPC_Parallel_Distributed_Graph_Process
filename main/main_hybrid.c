@@ -1,8 +1,8 @@
 #include "graph.h"
 #include "pagerank.h"
-#include <stdlib.h>
-#include <stdio.h>
 #include <omp.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
