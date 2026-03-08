@@ -96,7 +96,7 @@ benchmark: all data
 	@if [ -f ./bin/hybrid ]; then echo "=== Hybrid ==="; ./bin/hybrid data/graph_5k.txt 4; fi
 
 report-dirs:
-	mkdir -p results report
+	mkdir -p results
 
 report: all data report-dirs
 	$(if $(filter 1,$(SCALE)),$(PYTHON) scripts/run_and_report.py --all --scalability --scalability-graph,$(PYTHON) scripts/run_and_report.py --all)

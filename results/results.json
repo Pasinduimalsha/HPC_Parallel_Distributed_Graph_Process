@@ -1,15 +1,14 @@
 {
-  "graph": "data/sample_graph.txt",
-  "graph_vertices": 6,
-  "graph_edges": 12,
-  "last_updated": "2026-03-07T20:05:00.490216",
+  "graph": "data/graph_1000.txt",
+  "graph_vertices": 1000,
+  "graph_edges": 9998,
+  "last_updated": "2026-03-08T09:58:05.912123",
   "serial": {
-    "time_ms": 0.002
+    "time_ms": 0.154
   },
   "openmp": {
-    "time_ms": 0.2251,
-    "threads": 4,
-    "rmse": 0.0
+    "time_ms": 0.953,
+    "threads": 4
   },
   "mpi": {
     "time_ms": 0.023,
