@@ -7,8 +7,8 @@
 int main(int argc, char **argv) {
     int mpi_rank, mpi_size;
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank); // Gets the rank of the current process
+    MPI_Comm_size(MPI_COMM_WORLD, &mpi_size); // Gets the total number of processes
 
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
 
