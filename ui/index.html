@@ -294,6 +294,18 @@
             color: var(--text);
             border-radius: 6px;
         }
+
+        .param-row input[type="checkbox"] {
+            width: auto;
+        }
+
+        .param-row.muted label {
+            color: var(--muted);
+        }
+
+        .param-row.muted input[type="number"] {
+            opacity: 0.5;
+        }
     </style>
 </head>
 
@@ -315,12 +327,15 @@
                     <button class="btn btn-hybrid" id="btnHybrid">Run Hybrid</button>
                 </div>
                 <div class="param-row">
-                    <label>OpenMP/Hybrid threads:</label>
-                    <input type="number" id="threads" value="4" min="1" max="64">
+                    <label><input type="checkbox" id="useCustomParams"> Use custom threads/processes</label>
                 </div>
-                <div class="param-row">
+                <div class="param-row muted" id="threadsRow">
+                    <label>OpenMP/Hybrid threads:</label>
+                    <input type="number" id="threads" value="4" min="1" max="64" disabled>
+                </div>
+                <div class="param-row muted" id="procsRow">
                     <label>MPI processes:</label>
-                    <input type="number" id="procs" value="2" min="1" max="16">
+                    <input type="number" id="procs" value="2" min="1" max="16" disabled>
                 </div>
                 <div class="graph-container" id="graph"></div>
             </div>
@@ -379,9 +394,15 @@
         const btnOpenMP = document.getElementById('btnOpenMP');
         const btnMPI = document.getElementById('btnMPI');
         const btnHybrid = document.getElementById('btnHybrid');
+        const useCustomParams = document.getElementById('useCustomParams');
+        const threadsInput = document.getElementById('threads');
+        const procsInput = document.getElementById('procs');
+        const threadsRow = document.getElementById('threadsRow');
+        const procsRow = document.getElementById('procsRow');
 
         let network = null;
         let pagerankValues = [];
+        const ranImpls = { serial: false, openmp: false, mpi: false, hybrid: false };
 
         function fmt(val, decimals = 4) {
             if (val == null) return '—';
@@ -397,18 +418,21 @@
             meta.textContent = `Graph: ${data.graph || '—'} | Vertices: ${fmt(data.graph_vertices)} | Edges: ${fmt(data.graph_edges)} | Last updated: ${data.last_updated || '—'}`;
 
             const rows = [];
-            rows.push(['Serial', fmt(t_serial), '1.0 (baseline)', '—', '—']);
-            if (data.openmp) {
+            if (data.serial && t_serial != null) {
+                ranImpls.serial = true;
+                rows.push(['Serial', fmt(t_serial), '1.0 (baseline)', '—', '—']);
+            }
+            if (data.openmp && ranImpls.openmp) {
                 const sp = t_serial && data.openmp.time_ms ? (t_serial / data.openmp.time_ms) : null;
                 const eff = sp && data.openmp.threads ? (sp / data.openmp.threads) : null;
                 rows.push([`OpenMP (${data.openmp.threads} threads)`, fmt(data.openmp.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.openmp.rmse != null ? fmt(data.openmp.rmse, 2) : 'N/A']);
             }
-            if (data.mpi) {
+            if (data.mpi && ranImpls.mpi) {
                 const sp = t_serial && data.mpi.time_ms ? (t_serial / data.mpi.time_ms) : null;
                 const eff = sp && data.mpi.processes ? (sp / data.mpi.processes) : null;
                 rows.push([`MPI (${data.mpi.processes} processes)`, fmt(data.mpi.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.mpi.rmse != null ? fmt(data.mpi.rmse, 2) : 'N/A']);
             }
-            if (data.hybrid) {
+            if (data.hybrid && ranImpls.hybrid) {
                 const sp = t_serial && data.hybrid.time_ms ? (t_serial / data.hybrid.time_ms) : null;
                 const eff = sp && data.hybrid.threads ? (sp / data.hybrid.threads) : null;
                 rows.push([`Hybrid (${data.hybrid.threads} threads)`, fmt(data.hybrid.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', '—']);
@@ -483,8 +507,10 @@
             outputDiv.classList.remove('empty');
 
             const body = { impl, graph };
-            if (impl === 'openmp' || impl === 'hybrid') body.threads = parseInt(document.getElementById('threads').value) || 4;
-            if (impl === 'mpi') body.procs = parseInt(document.getElementById('procs').value) || 2;
+            if (useCustomParams.checked) {
+                if (impl === 'openmp' || impl === 'hybrid') body.threads = parseInt(threadsInput.value) || 4;
+                if (impl === 'mpi') body.procs = parseInt(procsInput.value) || 2;
+            }
 
             try {
                 const r = await fetch('/api/run', {
@@ -502,6 +528,7 @@
                 } else {
                     outputDiv.textContent = data.raw || '';
                     outputDiv.classList.remove('error');
+                    ranImpls[impl] = true;
                     loadResults();
 
                     if (data.time_ms != null) {
@@ -509,6 +536,8 @@
                             <div class="metric"><span>Time:</span> <strong>${data.time_ms.toFixed(4)} ms</strong></div>
                             ${data.vertices != null ? `<div class="metric"><span>Vertices:</span> <strong>${data.vertices}</strong></div>` : ''}
                             ${data.edges != null ? `<div class="metric"><span>Edges:</span> <strong>${data.edges}</strong></div>` : ''}
+                            ${data.threads != null ? `<div class="metric"><span>Threads:</span> <strong>${data.threads}</strong></div>` : ''}
+                            ${data.processes != null ? `<div class="metric"><span>Processes:</span> <strong>${data.processes}</strong></div>` : ''}
                         `;
                         metricsDiv.style.display = 'flex';
                     } else {
@@ -545,6 +574,14 @@
 
             [btnSerial, btnOpenMP, btnMPI, btnHybrid].forEach(b => b && (b.disabled = false));
         }
+
+        useCustomParams.addEventListener('change', () => {
+            const enabled = useCustomParams.checked;
+            threadsInput.disabled = !enabled;
+            procsInput.disabled = !enabled;
+            threadsRow.classList.toggle('muted', !enabled);
+            procsRow.classList.toggle('muted', !enabled);
+        });
 
         graphSelect.addEventListener('change', () => loadGraphViz(graphSelect.value));
         btnSerial.addEventListener('click', () => run('serial'));

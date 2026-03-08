@@ -80,7 +80,9 @@ def run_openmp(graph_path: str, threads: int = 4) -> dict:
     output = result.stdout + result.stderr
     if result.returncode != 0:
         return {"error": f"Exit code {result.returncode}", "raw": output}
-    return parse_output(output)
+    out = parse_output(output)
+    out["threads"] = threads
+    return out
 
 
 def run_mpi(graph_path: str, procs: int = 2) -> dict:
@@ -98,7 +100,9 @@ def run_mpi(graph_path: str, procs: int = 2) -> dict:
     output = result.stdout + result.stderr
     if result.returncode != 0:
         return {"error": f"Exit code {result.returncode}", "raw": output}
-    return parse_output(output)
+    out = parse_output(output)
+    out["processes"] = procs
+    return out
 
 
 def run_hybrid(graph_path: str, threads: int = 4) -> dict:
@@ -118,6 +122,7 @@ def run_hybrid(graph_path: str, threads: int = 4) -> dict:
         return {"error": f"Exit code {result.returncode}", "raw": output}
     out = parse_output(output)
     out["label"] = "Hybrid"
+    out["threads"] = threads
     return out
 
 
@@ -138,6 +143,17 @@ def _load_results() -> dict:
 def _update_results(impl: str, graph_path: str, result: dict, threads: int, procs: int):
     """Update results.json after a run."""
     data = _load_results()
+
+    previous_graph = data.get("graph")
+    if previous_graph is not None and previous_graph != graph_path:
+        data["serial"] = None
+        data["openmp"] = None
+        data["mpi"] = None
+        data["hybrid"] = None
+        data["scalability"] = {"openmp": [], "mpi": [], "problem_size": []}
+    elif "scalability" not in data:
+        data["scalability"] = {"openmp": [], "mpi": [], "problem_size": []}
+
     data["last_updated"] = datetime.now().isoformat()
     data["graph"] = graph_path
     if result.get("vertices") is not None:
