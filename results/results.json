@@ -2,16 +2,16 @@
   "graph": "data/graph_1000.txt",
   "graph_vertices": 1000,
   "graph_edges": 9998,
-  "last_updated": "2026-03-08T22:51:59.419997",
+  "last_updated": "2026-03-08T23:08:33.724931",
   "serial": {
-    "time_ms": 0.134
+    "time_ms": 0.164
   },
   "openmp": {
-    "time_ms": 1.945,
+    "time_ms": 2.7308,
     "threads": 8
   },
   "mpi": {
-    "time_ms": 2.449,
+    "time_ms": 12.999,
     "processes": 8
   },
   "scalability": {

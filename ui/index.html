@@ -402,6 +402,7 @@
 
         let network = null;
         let pagerankValues = [];
+        /** Only show metrics for implementations run this session */
         const ranImpls = { serial: false, openmp: false, mpi: false, hybrid: false };
 
         function fmt(val, decimals = 4) {
@@ -411,40 +412,49 @@
         }
 
         async function loadResults() {
-            const r = await fetch('/api/results');
+            const r = await fetch('/api/results?t=' + Date.now());
             const data = await r.json();
             const t_serial = data.serial?.time_ms;
             const meta = document.getElementById('metaInfo');
             meta.textContent = `Graph: ${data.graph || '—'} | Vertices: ${fmt(data.graph_vertices)} | Edges: ${fmt(data.graph_edges)} | Last updated: ${data.last_updated || '—'}`;
 
             const rows = [];
-            if (data.serial && t_serial != null) {
-                ranImpls.serial = true;
+            if (ranImpls.serial && data.serial && t_serial != null) {
                 rows.push(['Serial', fmt(t_serial), '1.0 (baseline)', '—', '—']);
             }
-            if (data.openmp && ranImpls.openmp) {
+            if (ranImpls.openmp && data.openmp && data.openmp.time_ms != null) {
                 const sp = t_serial && data.openmp.time_ms ? (t_serial / data.openmp.time_ms) : null;
                 const eff = sp && data.openmp.threads ? (sp / data.openmp.threads) : null;
-                rows.push([`OpenMP (${data.openmp.threads} threads)`, fmt(data.openmp.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.openmp.rmse != null ? fmt(data.openmp.rmse, 2) : 'N/A']);
+                const threadsLabel = data.openmp.threads != null ? `${data.openmp.threads} threads` : 'threads';
+                rows.push([`OpenMP (${threadsLabel})`, fmt(data.openmp.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.openmp.rmse != null ? fmt(data.openmp.rmse, 2) : 'N/A']);
             }
-            if (data.mpi && ranImpls.mpi) {
+            if (ranImpls.mpi && data.mpi && data.mpi.time_ms != null) {
                 const sp = t_serial && data.mpi.time_ms ? (t_serial / data.mpi.time_ms) : null;
                 const eff = sp && data.mpi.processes ? (sp / data.mpi.processes) : null;
-                rows.push([`MPI (${data.mpi.processes} processes)`, fmt(data.mpi.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.mpi.rmse != null ? fmt(data.mpi.rmse, 2) : 'N/A']);
+                const procsLabel = data.mpi.processes != null ? `${data.mpi.processes} processes` : 'processes';
+                rows.push([`MPI (${procsLabel})`, fmt(data.mpi.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.mpi.rmse != null ? fmt(data.mpi.rmse, 2) : 'N/A']);
             }
-            if (data.hybrid && ranImpls.hybrid) {
+            if (ranImpls.hybrid && data.hybrid && data.hybrid.time_ms != null) {
                 const sp = t_serial && data.hybrid.time_ms ? (t_serial / data.hybrid.time_ms) : null;
                 const eff = sp && data.hybrid.threads ? (sp / data.hybrid.threads) : null;
-                rows.push([`Hybrid (${data.hybrid.threads} threads)`, fmt(data.hybrid.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', '—']);
+                const threadsLabel = data.hybrid.threads != null ? `${data.hybrid.threads} threads` : 'threads';
+                rows.push([`Hybrid (${threadsLabel})`, fmt(data.hybrid.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', '—']);
             }
 
-            document.getElementById('metricsTableBody').innerHTML = rows.length > 1
+            document.getElementById('metricsTableBody').innerHTML = rows.length
                 ? rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('')
                 : '<tr><td colspan="5" class="na">Run implementations to populate metrics.</td></tr>';
 
             const scalOmp = data.scalability?.openmp || [];
             const scalMpi = data.scalability?.mpi || [];
             const scalProb = data.scalability?.problem_size || [];
+
+            const scalOmpEl = document.getElementById('scalOmpBody').closest('div');
+            const scalMpiEl = document.getElementById('scalMpiBody').closest('div');
+            const scalProbEl = document.getElementById('scalProbBody').closest('div');
+            scalOmpEl.style.display = ranImpls.openmp ? '' : 'none';
+            scalMpiEl.style.display = ranImpls.mpi ? '' : 'none';
+            scalProbEl.style.display = ranImpls.serial ? '' : 'none';
 
             document.getElementById('scalOmpBody').innerHTML = scalOmp.length
                 ? scalOmp.map(row => { const sp = t_serial && row.time_ms ? (t_serial / row.time_ms) : null; return `<tr><td>${row.threads}</td><td>${fmt(row.time_ms)}</td><td>${sp ? fmt(sp) : '—'}</td></tr>`; }).join('')

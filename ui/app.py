@@ -165,11 +165,12 @@ def _load_results() -> dict:
         return {}
 
 def _update_results(impl: str, graph_path: str, result: dict, threads: int | None, procs: int | None):
-    """Update results.json after a run."""
+    """Update results.json after a run. Only the implementation that was run is updated; others are left unchanged."""
     data = _load_results()
 
     previous_graph = data.get("graph")
     if previous_graph is not None and previous_graph != graph_path:
+        # Different graph: clear all implementation results for the new graph
         data["serial"] = None
         data["openmp"] = None
         data["mpi"] = None
@@ -184,6 +185,7 @@ def _update_results(impl: str, graph_path: str, result: dict, threads: int | Non
         data["graph_vertices"] = result["vertices"]
     if result.get("edges") is not None:
         data["graph_edges"] = result["edges"]
+    # Update only this implementation's metrics; do not touch serial/openmp/mpi/hybrid for others
     if result.get("time_ms") is not None:
         if impl == "serial":
             data["serial"] = {"time_ms": result["time_ms"]}
@@ -238,7 +240,7 @@ def index():
 
 @app.route("/api/results")
 def get_results():
-    """Get evaluation metrics (results.json) for display in UI."""
+    """Get evaluation metrics (results.json) for display in UI. No cache so UI always sees latest after a run."""
     data = _load_results()
     if not data:
         data = {
@@ -246,7 +248,10 @@ def get_results():
             "serial": None, "openmp": None, "mpi": None, "hybrid": None,
             "scalability": {"openmp": [], "mpi": [], "problem_size": []},
         }
-    return jsonify(data)
+    resp = jsonify(data)
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    return resp
 
 
 @app.route("/api/available")
