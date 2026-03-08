@@ -26,11 +26,22 @@ TIME_RE = re.compile(r"PageRank time:\s+([\d.]+)\s+ms")
 GRAPH_RE = re.compile(r"Graph:\s+(\d+)\s+vertices,\s+(\d+)\s+edges")
 PAGERANK_RE = re.compile(r"PageRank \(first 10\):\s+(.+)")
 LABEL_RE = re.compile(r"(Serial|OpenMP|MPI|Hybrid) PageRank")
+OMP_THREADS_RE = re.compile(r"OpenMP PageRank:\s+(\d+)\s+threads")
+MPI_PROCS_RE = re.compile(r"MPI PageRank:\s+(\d+)\s+processes")
 
 
 def parse_output(output: str) -> dict:
     """Parse binary output into structured data."""
-    result = {"raw": output, "time_ms": None, "vertices": None, "edges": None, "pagerank": [], "label": None}
+    result = {
+        "raw": output,
+        "time_ms": None,
+        "vertices": None,
+        "edges": None,
+        "pagerank": [],
+        "label": None,
+        "threads": None,
+        "processes": None,
+    }
     m = TIME_RE.search(output)
     if m:
         result["time_ms"] = float(m.group(1))
@@ -44,6 +55,12 @@ def parse_output(output: str) -> dict:
     m = LABEL_RE.search(output)
     if m:
         result["label"] = m.group(1)
+    m = OMP_THREADS_RE.search(output)
+    if m:
+        result["threads"] = int(m.group(1))
+    m = MPI_PROCS_RE.search(output)
+    if m:
+        result["processes"] = int(m.group(1))
     return result
 
 
@@ -65,13 +82,16 @@ def run_serial(graph_path: str) -> dict:
     return parse_output(output)
 
 
-def run_openmp(graph_path: str, threads: int = 4) -> dict:
+def run_openmp(graph_path: str, threads: int | None = None) -> dict:
     """Run OpenMP PageRank."""
     bin_path = BIN_DIR / "openmp"
     if not bin_path.exists():
         return {"error": f"Binary not found. Run 'make openmp' first.", "raw": ""}
+    cmd = [str(bin_path), graph_path]
+    if threads is not None:
+        cmd.append(str(threads))
     result = subprocess.run(
-        [str(bin_path), graph_path, str(threads)],
+        cmd,
         cwd=PROJECT_ROOT,
         capture_output=True,
         text=True,
@@ -81,15 +101,18 @@ def run_openmp(graph_path: str, threads: int = 4) -> dict:
     if result.returncode != 0:
         return {"error": f"Exit code {result.returncode}", "raw": output}
     out = parse_output(output)
-    out["threads"] = threads
+    if out.get("threads") is None and threads is not None:
+        out["threads"] = threads
     return out
 
 
-def run_mpi(graph_path: str, procs: int = 2) -> dict:
+def run_mpi(graph_path: str, procs: int | None = None) -> dict:
     """Run MPI PageRank."""
     bin_path = BIN_DIR / "mpi"
     if not bin_path.exists():
         return {"error": f"Binary not found. Run 'make mpi' first.", "raw": ""}
+    if procs is None:
+        procs = max(1, os.cpu_count() or 2)
     result = subprocess.run(
         ["mpirun", "-np", str(procs), str(bin_path), graph_path],
         cwd=PROJECT_ROOT,
@@ -101,7 +124,8 @@ def run_mpi(graph_path: str, procs: int = 2) -> dict:
     if result.returncode != 0:
         return {"error": f"Exit code {result.returncode}", "raw": output}
     out = parse_output(output)
-    out["processes"] = procs
+    if out.get("processes") is None and procs is not None:
+        out["processes"] = procs
     return out
 
 
@@ -140,7 +164,7 @@ def _load_results() -> dict:
     except Exception:
         return {}
 
-def _update_results(impl: str, graph_path: str, result: dict, threads: int, procs: int):
+def _update_results(impl: str, graph_path: str, result: dict, threads: int | None, procs: int | None):
     """Update results.json after a run."""
     data = _load_results()
 
@@ -164,11 +188,23 @@ def _update_results(impl: str, graph_path: str, result: dict, threads: int, proc
         if impl == "serial":
             data["serial"] = {"time_ms": result["time_ms"]}
         elif impl == "openmp":
-            data["openmp"] = {"time_ms": result["time_ms"], "threads": threads}
+            t_val = result.get("threads", threads)
+            entry = {"time_ms": result["time_ms"]}
+            if t_val is not None:
+                entry["threads"] = t_val
+            data["openmp"] = entry
         elif impl == "mpi":
-            data["mpi"] = {"time_ms": result["time_ms"], "processes": procs}
+            p_val = result.get("processes", procs)
+            entry = {"time_ms": result["time_ms"]}
+            if p_val is not None:
+                entry["processes"] = p_val
+            data["mpi"] = entry
         elif impl == "hybrid":
-            data["hybrid"] = {"time_ms": result["time_ms"], "threads": threads}
+            t_val = result.get("threads", threads)
+            entry = {"time_ms": result["time_ms"]}
+            if t_val is not None:
+                entry["threads"] = t_val
+            data["hybrid"] = entry
     RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(RESULTS_FILE, "w") as f:
         json.dump(data, f, indent=2)
@@ -249,8 +285,10 @@ def run_pagerank():
     data = request.get_json() or {}
     impl = data.get("impl", "serial")
     graph_path = data.get("graph", "data/sample_graph.txt")
-    threads = int(data.get("threads", 4))
-    procs = int(data.get("procs", 2))
+    threads_val = data.get("threads")
+    procs_val = data.get("procs")
+    threads = int(threads_val) if threads_val is not None else None
+    procs = int(procs_val) if procs_val is not None else None
 
     full_path = PROJECT_ROOT / graph_path if not (graph_path.startswith("/") or (len(graph_path) > 1 and graph_path[1] == ":")) else Path(graph_path)
     if not full_path.exists():
@@ -264,7 +302,8 @@ def run_pagerank():
     elif impl == "mpi":
         result = run_mpi(graph_str, procs)
     elif impl == "hybrid":
-        result = run_hybrid(graph_str, threads)
+        # Hybrid binary requires an explicit thread count; default to 4 if not provided
+        result = run_hybrid(graph_str, threads if threads is not None else 4)
     else:
         return jsonify({"error": f"Unknown implementation: {impl}"}), 400
 
