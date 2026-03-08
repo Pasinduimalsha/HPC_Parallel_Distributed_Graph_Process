@@ -1,6 +1,3 @@
-/* Hybrid PageRank: CUDA kernels for GPU acceleration + OpenMP for CPU multithreading
- * EE7218/EC7207 HPC Project - Group 24 */
-
 #include "graph.h"
 #include "pagerank.h"
 #include <stdlib.h>
