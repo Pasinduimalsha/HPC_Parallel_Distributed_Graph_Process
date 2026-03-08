@@ -3,6 +3,10 @@
 
 #include "graph.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Serial PageRank - baseline implementation */
 double* pagerank_serial(const Graph *g, double damping_factor, int max_iterations, double tolerance);
 
@@ -18,5 +22,9 @@ double* pagerank_hybrid(const Graph *g, double damping_factor, int max_iteration
 
 /* Compute RMSE between two PageRank arrays (for validation) */
 double pagerank_rmse(const double *a, const double *b, int n);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* PAGERANK_H */
