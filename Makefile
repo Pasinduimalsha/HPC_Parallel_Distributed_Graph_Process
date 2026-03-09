@@ -1,6 +1,3 @@
-# EE7218/EC7207 HPC Project - Group 24
-# High-Performance Parallel PageRank for Large-Scale Graph Analytics
-
 CC = gcc
 PYTHON ?= python3
 CFLAGS = -Wall -O3 -I include

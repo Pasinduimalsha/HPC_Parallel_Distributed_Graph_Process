@@ -157,7 +157,8 @@
             margin: 0.5rem 0;
         }
 
-        .metrics-table th, .metrics-table td {
+        .metrics-table th,
+        .metrics-table td {
             border: 1px solid var(--border);
             padding: 0.4rem 0.6rem;
             text-align: left;
@@ -169,10 +170,12 @@
         }
 
         .metrics-table tr:nth-child(even) {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
         }
 
-        .na { color: var(--muted); }
+        .na {
+            color: var(--muted);
+        }
 
         .meta {
             font-size: 0.85rem;
@@ -180,7 +183,8 @@
             margin-bottom: 0.75rem;
         }
 
-        .metrics-card h3, .metrics-card h4 {
+        .metrics-card h3,
+        .metrics-card h4 {
             font-size: 0.95rem;
             margin: 1rem 0 0.5rem 0;
             color: var(--text);
@@ -313,7 +317,8 @@
     <div class="container">
         <header>
             <h1>HPC PageRank</h1>
-            <p class="subtitle">Run Serial, OpenMP, MPI, and Hybrid (CUDA+OpenMP) — visualize the graph and evaluation metrics</p>
+            <p class="subtitle">Run Serial, OpenMP, MPI, and Hybrid (CUDA+OpenMP) — visualize the graph and evaluation
+                metrics</p>
         </header>
 
         <div class="grid">
@@ -363,22 +368,64 @@
                     </tr>
                 </thead>
                 <tbody id="metricsTableBody">
-                    <tr><td colspan="5" class="na">Run implementations to populate metrics.</td></tr>
+                    <tr>
+                        <td colspan="5" class="na">Run implementations to populate metrics.</td>
+                    </tr>
                 </tbody>
             </table>
             <h3>Scalability</h3>
             <div class="scalability-grid">
                 <div>
                     <h4>Thread Scaling (OpenMP)</h4>
-                    <table class="metrics-table"><thead><tr><th>Threads</th><th>Time (ms)</th><th>Speedup</th></tr></thead><tbody id="scalOmpBody"><tr><td colspan="3" class="na">Run with --scalability to populate</td></tr></tbody></table>
+                    <table class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Threads</th>
+                                <th>Time (ms)</th>
+                                <th>Speedup</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scalOmpBody">
+                            <tr>
+                                <td colspan="3" class="na">Run with --scalability to populate</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div>
                     <h4>Process Scaling (MPI)</h4>
-                    <table class="metrics-table"><thead><tr><th>Processes</th><th>Time (ms)</th><th>Speedup</th></tr></thead><tbody id="scalMpiBody"><tr><td colspan="3" class="na">Run with --scalability to populate</td></tr></tbody></table>
+                    <table class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Processes</th>
+                                <th>Time (ms)</th>
+                                <th>Speedup</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scalMpiBody">
+                            <tr>
+                                <td colspan="3" class="na">Run with --scalability to populate</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div>
                     <h4>Problem Size Scaling</h4>
-                    <table class="metrics-table"><thead><tr><th>Vertices</th><th>Serial (ms)</th><th>OpenMP (ms)</th><th>Speedup</th></tr></thead><tbody id="scalProbBody"><tr><td colspan="4" class="na">Run with --scalability-graph to populate</td></tr></tbody></table>
+                    <table class="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Vertices</th>
+                                <th>Serial (ms)</th>
+                                <th>OpenMP (ms)</th>
+                                <th>Speedup</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scalProbBody">
+                            <tr>
+                                <td colspan="4" class="na">Run with --scalability-graph to populate</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
