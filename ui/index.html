@@ -363,8 +363,8 @@
                         <th>Implementation</th>
                         <th>Execution Time (ms)</th>
                         <th>Speedup</th>
-                        <th>Efficiency</th>
-                        <th>Accuracy (RMSE)</th>
+                        <th>Efficiency (%)</th>
+                        <th>Accuracy (%)</th>
                     </tr>
                 </thead>
                 <tbody id="metricsTableBody">
@@ -466,26 +466,40 @@
             meta.textContent = `Graph: ${data.graph || '—'} | Vertices: ${fmt(data.graph_vertices)} | Edges: ${fmt(data.graph_edges)} | Last updated: ${data.last_updated || '—'}`;
 
             const rows = [];
+            /* Helper: convert RMSE to accuracy percentage.
+               RMSE=0 → 100%, larger RMSE → lower %.  */
+            function rmseToAccuracy(rmse) {
+                if (rmse == null) return null;
+                if (rmse === 0) return 100.0;
+                return Math.max(0, (1.0 - rmse) * 100.0);
+            }
+            function fmtPct(val) {
+                if (val == null) return 'N/A';
+                return val.toFixed(2) + '%';
+            }
+
             if (ranImpls.serial && data.serial && t_serial != null) {
-                rows.push(['Serial', fmt(t_serial), '1.0 (baseline)', '—', '—']);
+                rows.push(['Serial', fmt(t_serial), '1.00× (baseline)', '100.00%', '100.00% (reference)']);
             }
             if (ranImpls.openmp && data.openmp && data.openmp.time_ms != null) {
                 const sp = t_serial && data.openmp.time_ms ? (t_serial / data.openmp.time_ms) : null;
-                const eff = sp && data.openmp.threads ? (sp / data.openmp.threads) : null;
+                const eff = sp && data.openmp.threads ? (sp / data.openmp.threads * 100) : null;
+                const acc = rmseToAccuracy(data.openmp.rmse);
                 const threadsLabel = data.openmp.threads != null ? `${data.openmp.threads} threads` : 'threads';
-                rows.push([`OpenMP (${threadsLabel})`, fmt(data.openmp.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.openmp.rmse != null ? fmt(data.openmp.rmse, 2) : 'N/A']);
+                rows.push([`OpenMP (${threadsLabel})`, fmt(data.openmp.time_ms), sp ? fmt(sp, 2) + '×' : 'N/A', fmtPct(eff), fmtPct(acc)]);
             }
             if (ranImpls.mpi && data.mpi && data.mpi.time_ms != null) {
                 const sp = t_serial && data.mpi.time_ms ? (t_serial / data.mpi.time_ms) : null;
-                const eff = sp && data.mpi.processes ? (sp / data.mpi.processes) : null;
+                const eff = sp && data.mpi.processes ? (sp / data.mpi.processes * 100) : null;
+                const acc = rmseToAccuracy(data.mpi.rmse);
                 const procsLabel = data.mpi.processes != null ? `${data.mpi.processes} processes` : 'processes';
-                rows.push([`MPI (${procsLabel})`, fmt(data.mpi.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', data.mpi.rmse != null ? fmt(data.mpi.rmse, 2) : 'N/A']);
+                rows.push([`MPI (${procsLabel})`, fmt(data.mpi.time_ms), sp ? fmt(sp, 2) + '×' : 'N/A', fmtPct(eff), fmtPct(acc)]);
             }
             if (ranImpls.hybrid && data.hybrid && data.hybrid.time_ms != null) {
                 const sp = t_serial && data.hybrid.time_ms ? (t_serial / data.hybrid.time_ms) : null;
-                const eff = sp && data.hybrid.threads ? (sp / data.hybrid.threads) : null;
+                const eff = sp && data.hybrid.threads ? (sp / data.hybrid.threads * 100) : null;
                 const threadsLabel = data.hybrid.threads != null ? `${data.hybrid.threads} threads` : 'threads';
-                rows.push([`Hybrid (${threadsLabel})`, fmt(data.hybrid.time_ms), sp ? fmt(sp) : 'N/A', eff ? fmt(eff) : '—', '—']);
+                rows.push([`Hybrid (${threadsLabel})`, fmt(data.hybrid.time_ms), sp ? fmt(sp, 2) + '×' : 'N/A', fmtPct(eff), 'N/A']);
             }
 
             document.getElementById('metricsTableBody').innerHTML = rows.length

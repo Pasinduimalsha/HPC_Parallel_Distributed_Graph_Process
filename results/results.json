@@ -1,18 +1,18 @@
 {
-  "graph": "data/graph_1000000.txt",
-  "graph_vertices": 1000000,
-  "graph_edges": 19999979,
-  "last_updated": "2026-03-09T11:21:14.405562",
+  "graph": "data/graph_100000.txt",
+  "graph_vertices": 100000,
+  "graph_edges": 1999971,
+  "last_updated": "2026-03-09T11:28:24.063501",
   "serial": {
-    "time_ms": 57.913
+    "time_ms": 6.423
   },
   "openmp": {
-    "time_ms": 21.049,
+    "time_ms": 2.7761,
     "threads": 8,
-    "rmse": 1.9800009458e-22
+    "rmse": 1.9741756035e-21
   },
   "mpi": {
-    "time_ms": 368.375,
+    "time_ms": 55.529,
     "processes": 8,
     "rmse": 0.0
   },
