@@ -207,6 +207,24 @@ def _update_results(impl: str, graph_path: str, result: dict, threads: int | Non
             if t_val is not None:
                 entry["threads"] = t_val
             data["hybrid"] = entry
+
+    # Auto-run validation to compute RMSE when serial + parallel results exist
+    validation_bin = BIN_DIR / "validation"
+    if validation_bin.exists() and data.get("serial") and (data.get("openmp") or data.get("mpi")):
+        try:
+            vr = subprocess.run(
+                [str(validation_bin), str(PROJECT_ROOT / graph_path)],
+                capture_output=True, text=True, timeout=30
+            )
+            if vr.returncode == 0:
+                for line in vr.stdout.splitlines():
+                    if line.startswith("METRICS_RMSE_OpenMP=") and data.get("openmp"):
+                        data["openmp"]["rmse"] = float(line.split("=", 1)[1])
+                    elif line.startswith("METRICS_RMSE_MPI=") and data.get("mpi"):
+                        data["mpi"]["rmse"] = float(line.split("=", 1)[1])
+        except Exception:
+            pass  # Validation is best-effort; don't block the response
+
     RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(RESULTS_FILE, "w") as f:
         json.dump(data, f, indent=2)

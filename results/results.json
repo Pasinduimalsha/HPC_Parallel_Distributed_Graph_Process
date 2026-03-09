@@ -1,22 +1,25 @@
 {
-  "graph": "data/graph_1000.txt",
-  "graph_vertices": 1000,
-  "graph_edges": 9993,
-  "last_updated": "2026-03-09T06:40:25.219302",
+  "graph": "data/graph_1000000.txt",
+  "graph_vertices": 1000000,
+  "graph_edges": 19999979,
+  "last_updated": "2026-03-09T11:21:14.405562",
   "serial": {
-    "time_ms": 0.154
+    "time_ms": 57.913
   },
   "openmp": {
-    "time_ms": 1.677,
-    "threads": 8
+    "time_ms": 21.049,
+    "threads": 8,
+    "rmse": 1.9800009458e-22
   },
   "mpi": {
-    "time_ms": 8.384,
-    "processes": 8
+    "time_ms": 368.375,
+    "processes": 8,
+    "rmse": 0.0
   },
   "scalability": {
     "openmp": [],
     "mpi": [],
     "problem_size": []
-  }
+  },
+  "hybrid": null
 }

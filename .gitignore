@@ -1,1 +1,16 @@
 .vscode/
+
+# Large generated graph files (exceed GitHub 100MB limit)
+data/graph_500000.txt
+data/graph_1000000.txt
+
+# Build artifacts
+build/
+bin/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
