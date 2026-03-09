@@ -1,60 +1,22 @@
 {
   "graph": "data/graph_1000.txt",
   "graph_vertices": 1000,
-  "graph_edges": 9998,
-  "last_updated": "2026-03-08T23:08:33.724931",
+  "graph_edges": 9993,
+  "last_updated": "2026-03-09T06:40:25.219302",
   "serial": {
-    "time_ms": 0.164
+    "time_ms": 0.154
   },
   "openmp": {
-    "time_ms": 2.7308,
+    "time_ms": 1.677,
     "threads": 8
   },
   "mpi": {
-    "time_ms": 12.999,
+    "time_ms": 8.384,
     "processes": 8
   },
   "scalability": {
-    "openmp": [
-      {
-        "threads": 2,
-        "time_ms": 0.0329
-      },
-      {
-        "threads": 4,
-        "time_ms": 0.0591
-      },
-      {
-        "threads": 8,
-        "time_ms": 0.195
-      }
-    ],
-    "mpi": [
-      {
-        "processes": 2,
-        "time_ms": 0.014
-      },
-      {
-        "processes": 4,
-        "time_ms": 0.304
-      }
-    ],
-    "problem_size": [
-      {
-        "vertices": 1000,
-        "serial_ms": 0.127,
-        "openmp_ms": 1.2028
-      },
-      {
-        "vertices": 5000,
-        "serial_ms": 0.429,
-        "openmp_ms": 1.8799
-      },
-      {
-        "vertices": 10000,
-        "serial_ms": 0.618,
-        "openmp_ms": 2.872
-      }
-    ]
+    "openmp": [],
+    "mpi": [],
+    "problem_size": []
   }
 }
