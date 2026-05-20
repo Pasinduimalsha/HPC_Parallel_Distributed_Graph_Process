@@ -277,7 +277,7 @@
     "vertices": 1000,
     "edges": 9989,
     "serial": {
-      "time_ms": 0.099,
+      "time_ms": 0.096,
       "pagerank": [
         0.001867,
         0.000909,
@@ -292,11 +292,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 1.029,
-      "threads": 8,
+      "time_ms": 1.236,
+      "threads": 4,
       "schedule": "static",
-      "speedup": 0.1,
-      "efficiency": 0.01,
+      "speedup": 0.08,
+      "efficiency": 0.02,
       "pagerank": [
         0.001867,
         0.000909,
@@ -388,7 +388,7 @@
         }
       ]
     },
-    "last_updated": "2026-05-20T17:32:09.523414",
+    "last_updated": "2026-05-20T20:06:22.084836",
     "cache_sim": {
       "push": {
         "l1_hits": 21663,
