@@ -2240,6 +2240,9 @@
                 statusBadge.style.color = "var(--accent-rose)";
                 document.querySelectorAll('.pipeline-step').forEach(s => s.classList.remove('active'));
             } finally {
+                // Ensure minimum animation time so the user can actually see it!
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                
                 document.getElementById(`${impl}-label`).innerHTML = originalLabel;
                 document.querySelectorAll('.btn').forEach(b => b.disabled = false);
                 animateHPCExecution(impl, 'idle');
@@ -2299,6 +2302,9 @@
                 statusBadge.textContent = "FAILED";
                 statusBadge.style.color = "var(--accent-rose)";
             } finally {
+                // Ensure minimum animation time
+                await new Promise(resolve => setTimeout(resolve, 3500));
+                
                 document.getElementById('sweep-label').innerHTML = originalLabel;
                 document.querySelectorAll('.btn').forEach(b => b.disabled = false);
                 animateHPCExecution('openmp', 'idle');
