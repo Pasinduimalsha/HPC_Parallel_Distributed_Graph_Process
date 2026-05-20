@@ -1,5 +1,5 @@
-#include "graph.h"
-#include "pagerank.h"
+#include "../include/graph.h"
+#include "../include/pagerank.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <mpi.h>

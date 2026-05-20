@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPC PageRank Performance Dashboard</title>
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- ChartJS for visual analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --card-bg: rgba(18, 18, 24, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --primary: #8b5cf6;
+            --primary-glow: rgba(139, 92, 246, 0.15);
+            --accent-blue: #3b82f6;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-main);
+            line-height: 1.5;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        header {
+            max-width: 1400px;
+            margin: 0 auto 2rem auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .title-group h1 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .title-group p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .selector-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .selector-box label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .selector-box select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.5rem 2rem 0.5rem 1rem;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+        }
+
+        .dashboard-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(139, 92, 246, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(139, 92, 246, 0.05);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title span {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        /* Parameter Configuration Styles */
+        .controls-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .control-group select, .control-group input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.6rem;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-weight: 500;
+            outline: none;
+        }
+
+        /* Benchmark Buttons */
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-family: var(--font-main);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-serial:hover { background-color: var(--text-muted); border-color: var(--text-muted); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .btn-openmp:hover { background-color: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
+        .btn-mpi:hover { background-color: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            background: rgba(255, 255, 255, 0.02) !important;
+            border-color: var(--card-border) !important;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-unit {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-left: 0.1rem;
+        }
+
+        /* Results table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .highlight-emerald { color: var(--accent-emerald); font-weight: 600; }
+        .highlight-blue { color: var(--accent-blue); font-weight: 600; }
+        .highlight-purple { color: var(--primary); font-weight: 600; }
+
+        /* Terminal Console */
+        .terminal {
+            background: #040406;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #38bdf8;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 1rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-family: var(--font-main);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* Graph Info Badge */
+        .info-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            font-size: 0.85rem;
+        }
+
+        .info-item span {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-item strong {
+            color: var(--text-main);
+            margin-left: 0.25rem;
+        }
+
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border-left-color: var(--text-main);
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="title-group">
+            <h1>PageRank Performance Analytics</h1>
+            <p>HPC Parallel Processing Execution & Scalability Metrics Dashboard</p>
+        </div>
+        <div class="selector-box">
+            <label for="graph-select">Graph File</label>
+            <select id="graph-select">
+                <!-- Loaded dynamically -->
+            </select>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        
+        <!-- Left Side: Controls and Summary statistics -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- Execution Card -->
+            <div class="card">
+                <div class="card-title">
+                    Benchmark Execution Control
+                    <span id="active-env-badge">Conda Environment Active</span>
+                </div>
+                
+                <div class="info-row">
+                    <div class="info-item"><span>Vertices:</span><strong id="info-vertices">0</strong></div>
+                    <div class="info-item"><span>Edges:</span><strong id="info-edges">0</strong></div>
+                    <div class="info-item"><span>Last run:</span><strong id="info-updated">Never</strong></div>
+                </div>
+
+                <div class="controls-row">
+                    <div class="control-group">
+                        <label for="threads-select">OpenMP Threads</label>
+                        <select id="threads-select">
+                            <option value="2">2 Threads</option>
+                            <option value="4" selected>4 Threads</option>
+                            <option value="8">8 Threads</option>
+                            <option value="12">12 Threads</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="procs-select">MPI Processes</label>
+                        <select id="procs-select">
+                            <option value="1">1 Process</option>
+                            <option value="2" selected>2 Processes</option>
+                            <option value="4">4 Processes</option>
+                            <option value="8">8 Processes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-grid">
+                    <button class="btn btn-serial" onclick="runBenchmark('serial')">
+                        <span id="serial-label">Run Serial</span>
+                    </button>
+                    <button class="btn btn-openmp" onclick="runBenchmark('openmp')">
+                        <span id="openmp-label">Run OpenMP</span>
+                    </button>
+                    <button class="btn btn-mpi" onclick="runBenchmark('mpi')">
+                        <span id="mpi-label">Run MPI</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Logged Stats Summary Table -->
+            <div class="card">
+                <div class="card-title">Performance Summary Table</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Time</th>
+                            <th>Speedup</th>
+                            <th>Efficiency</th>
+                            <th>Parallel Resource</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Serial Baseline</td>
+                            <td id="tbl-serial-time">-</td>
+                            <td>1.00x</td>
+                            <td>1.00</td>
+                            <td>1 Thread</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-blue">OpenMP</td>
+                            <td id="tbl-openmp-time">-</td>
+                            <td id="tbl-openmp-speedup">-</td>
+                            <td id="tbl-openmp-efficiency">-</td>
+                            <td id="tbl-openmp-resource">-</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-purple">MPI</td>
+                            <td id="tbl-mpi-time">-</td>
+                            <td id="tbl-mpi-speedup">-</td>
+                            <td id="tbl-mpi-efficiency">-</td>
+                            <td id="tbl-mpi-resource">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PageRank Side-by-Side Values -->
+            <div class="card">
+                <div class="card-title">Top 10 PageRank Values (Convergence Check)</div>
+                <div style="max-height: 250px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Vertex</th>
+                                <th>Serial</th>
+                                <th>OpenMP</th>
+                                <th>MPI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pr-values-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: var(--text-muted);">No data available. Run benchmark to populate.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Side: Visualization and Outputs -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <!-- Execution Time Chart -->
+            <div class="card">
+                <div class="card-title">Execution Time Comparison (Lower is Better)</div>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Speedup Chart -->
+            <div class="card">
+                <div class="card-title">Parallel Speedup Comparison (Higher is Better)</div>
+                <div class="chart-container">
+                    <canvas id="speedupChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Terminal Output Console -->
+            <div class="card">
+                <div class="terminal-header">
+                    <span>Terminal output logs</span>
+                    <span id="log-status" style="color: var(--accent-emerald);">IDLE</span>
+                </div>
+                <div class="terminal" id="console">Terminal waiting... Ready to run benchmarks.</div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let timeChart = null;
+        let speedupChart = null;
+        let graphs = [];
+        let currentGraph = "";
+
+        // Initialize Charts
+        function initCharts() {
+            const timeCtx = document.getElementById('timeChart').getContext('2d');
+            timeChart = new Chart(timeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Serial', 'OpenMP', 'MPI'],
+                    datasets: [{
+                        label: 'Execution Time (ms)',
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(161, 161, 170, 0.6)', // Serial
+                            'rgba(59, 130, 246, 0.6)',  // OpenMP
+                            'rgba(139, 92, 246, 0.6)'   // MPI
+                        ],
+                        borderColor: [
+                            '#a1a1aa',
+                            '#3b82f6',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a1a1aa' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#a1a1aa' }
+                        }
+                    }
+                }
+            });
+
+            const speedupCtx = document.getElementById('speedupChart').getContext('2d');
+            speedupChart = new Chart(speedupCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Serial', 'OpenMP', 'MPI'],
+                    datasets: [{
+                        label: 'Speedup Factor',
+                        data: [1, 0, 0],
+                        backgroundColor: [
+                            'rgba(161, 161, 170, 0.4)',
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(139, 92, 246, 0.6)'
+                        ],
+                        borderColor: [
+                            '#a1a1aa',
+                            '#3b82f6',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a1a1aa' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#a1a1aa' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Fetch available graphs
+        async function fetchGraphs() {
+            try {
+                const response = await fetch('/api/graphs');
+                graphs = await response.json();
+                const select = document.getElementById('graph-select');
+                select.innerHTML = '';
+                graphs.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g.path;
+                    opt.textContent = g.name;
+                    select.appendChild(opt);
+                });
+                
+                if (graphs.length > 0) {
+                    currentGraph = graphs[0].path;
+                    fetchResults(currentGraph);
+                }
+            } catch (err) {
+                console.error("Error loading graphs:", err);
+            }
+        }
+
+        // Fetch statistics for specific graph
+        async function fetchResults(graphPath) {
+            try {
+                const response = await fetch(`/api/results?graph=${encodeURIComponent(graphPath)}`);
+                const data = await response.json();
+                updateUI(data);
+            } catch (err) {
+                console.error("Error loading results:", err);
+            }
+        }
+
+        // Update Dashboard GUI based on loaded JSON stats
+        function updateUI(data) {
+            document.getElementById('info-vertices').textContent = data.vertices || 0;
+            document.getElementById('info-edges').textContent = data.edges || 0;
+            
+            if (data.last_updated) {
+                const date = new Date(data.last_updated);
+                document.getElementById('info-updated').textContent = date.toLocaleTimeString();
+            } else {
+                document.getElementById('info-updated').textContent = "Never";
+            }
+
+            // Fill Table and Charts
+            const times = [0, 0, 0];
+            const speedups = [1, 0, 0];
+
+            // Serial baseline
+            if (data.serial) {
+                document.getElementById('tbl-serial-time').textContent = data.serial.time_ms.toFixed(4) + " ms";
+                times[0] = data.serial.time_ms;
+            } else {
+                document.getElementById('tbl-serial-time').textContent = "-";
+            }
+
+            // OpenMP
+            if (data.openmp) {
+                document.getElementById('tbl-openmp-time').textContent = data.openmp.time_ms.toFixed(4) + " ms";
+                document.getElementById('tbl-openmp-speedup').textContent = data.openmp.speedup ? data.openmp.speedup.toFixed(2) + "x" : "-";
+                document.getElementById('tbl-openmp-efficiency').textContent = data.openmp.efficiency ? data.openmp.efficiency.toFixed(2) : "-";
+                document.getElementById('tbl-openmp-resource').textContent = data.openmp.threads + " Threads";
+                times[1] = data.openmp.time_ms;
+                if (data.openmp.speedup) speedups[1] = data.openmp.speedup;
+            } else {
+                document.getElementById('tbl-openmp-time').textContent = "-";
+                document.getElementById('tbl-openmp-speedup').textContent = "-";
+                document.getElementById('tbl-openmp-efficiency').textContent = "-";
+                document.getElementById('tbl-openmp-resource').textContent = "-";
+            }
+
+            // MPI
+            if (data.mpi) {
+                document.getElementById('tbl-mpi-time').textContent = data.mpi.time_ms.toFixed(4) + " ms";
+                document.getElementById('tbl-mpi-speedup').textContent = data.mpi.speedup ? data.mpi.speedup.toFixed(2) + "x" : "-";
+                document.getElementById('tbl-mpi-efficiency').textContent = data.mpi.efficiency ? data.mpi.efficiency.toFixed(2) : "-";
+                document.getElementById('tbl-mpi-resource').textContent = data.mpi.processes + " Processes";
+                times[2] = data.mpi.time_ms;
+                if (data.mpi.speedup) speedups[2] = data.mpi.speedup;
+            } else {
+                document.getElementById('tbl-mpi-time').textContent = "-";
+                document.getElementById('tbl-mpi-speedup').textContent = "-";
+                document.getElementById('tbl-mpi-efficiency').textContent = "-";
+                document.getElementById('tbl-mpi-resource').textContent = "-";
+            }
+
+            // Update Charts
+            timeChart.data.datasets[0].data = times;
+            timeChart.update();
+
+            speedupChart.data.datasets[0].data = speedups;
+            speedupChart.update();
+
+            // Side-by-side values table
+            const tbody = document.getElementById('pr-values-body');
+            tbody.innerHTML = '';
+            
+            const serialPr = (data.serial && data.serial.pagerank) ? data.serial.pagerank : [];
+            const openmpPr = (data.openmp && data.openmp.pagerank) ? data.openmp.pagerank : [];
+            const mpiPr = (data.mpi && data.mpi.pagerank) ? data.mpi.pagerank : [];
+
+            const maxItems = Math.max(serialPr.length, openmpPr.length, mpiPr.length);
+
+            if (maxItems === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No data available. Run benchmark to populate.</td></tr>`;
+            } else {
+                for (let i = 0; i < maxItems; i++) {
+                    const row = document.createElement('tr');
+                    
+                    const cellIdx = document.createElement('td');
+                    cellIdx.textContent = i;
+                    row.appendChild(cellIdx);
+                    
+                    const cellSerial = document.createElement('td');
+                    cellSerial.textContent = serialPr[i] !== undefined ? serialPr[i].toFixed(6) : "-";
+                    row.appendChild(cellSerial);
+
+                    const cellOMP = document.createElement('td');
+                    cellOMP.textContent = openmpPr[i] !== undefined ? openmpPr[i].toFixed(6) : "-";
+                    row.appendChild(cellOMP);
+
+                    const cellMPI = document.createElement('td');
+                    cellMPI.textContent = mpiPr[i] !== undefined ? mpiPr[i].toFixed(6) : "-";
+                    row.appendChild(cellMPI);
+                    
+                    tbody.appendChild(row);
+                }
+            }
+        }
+
+        // Run PageRank on C binary via backend API
+        async function runBenchmark(impl) {
+            const terminal = document.getElementById('console');
+            const statusBadge = document.getElementById('log-status');
+            const threads = document.getElementById('threads-select').value;
+            const procs = document.getElementById('procs-select').value;
+            const btn = document.querySelector(`.btn-${impl}`);
+            const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
+
+            // Set loading state
+            statusBadge.textContent = "RUNNING";
+            statusBadge.style.color = "var(--accent-rose)";
+            document.getElementById(`${impl}-label`).innerHTML = `<div class="spinner"></div>`;
+            document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+            terminal.textContent = `>>> Executing C implementation '${impl}' on ${currentGraph}...\n`;
+
+            try {
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    terminal.textContent = data.raw;
+                    terminal.scrollTop = terminal.scrollHeight;
+                    // Reload results for current graph
+                    await fetchResults(currentGraph);
+                    statusBadge.textContent = "SUCCESS";
+                    statusBadge.style.color = "var(--accent-emerald)";
+                } else {
+                    terminal.textContent = `ERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
+                    statusBadge.textContent = "FAILED";
+                    statusBadge.style.color = "var(--accent-rose)";
+                }
+            } catch (err) {
+                terminal.textContent = `API Error: ${err.message}`;
+                statusBadge.textContent = "FAILED";
+                statusBadge.style.color = "var(--accent-rose)";
+            } finally {
+                // Restore button states
+                document.getElementById(`${impl}-label`).innerHTML = originalLabel;
+                document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+            }
+        }
+
+        // Event listener for dropdown selection
+        document.getElementById('graph-select').addEventListener('change', function(e) {
+            currentGraph = e.target.value;
+            document.getElementById('console').textContent = `Loaded graph data file: ${currentGraph}. Ready to run benchmarks.`;
+            fetchResults(currentGraph);
+        });
+
+        // Initialize Page
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+            fetchGraphs();
+        });
+    </script>
+</body>
+</html>
