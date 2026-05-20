@@ -36,41 +36,40 @@ double *pagerank_mpi(const Graph *g, double df, int max_iter, double tol,
   for (int i = 0; i < n; i++)
     rank[i] = initial;
 
+  int *recvcounts = (int *)malloc(mpi_size * sizeof(int));
+  int *displs = (int *)malloc(mpi_size * sizeof(int));
+  if (!recvcounts || !displs) {
+    free(rank); free(new_rank); free(my_new_rank);
+    free(recvcounts); free(displs);
+    return NULL;
+  }
+  for (int i = 0; i < mpi_size; i++) {
+    int s = i * chunk;
+    int e = s + chunk;
+    if (e > n)
+      e = n;
+    recvcounts[i] = e - s;
+    displs[i] = (i == 0) ? 0 : displs[i - 1] + recvcounts[i - 1];
+  }
+
+  double base = (1.0 - df) / n;
   for (int iter = 0; iter < max_iter; iter++) {
-    for (int i = 0; i < my_n; i++)
-      my_new_rank[i] =
-          (1.0 - df) /
-          n; // Initializes local new_rank values for this process's vertices
-
-    for (int j = 0; j < n; j++) {
-      int count = g->out_degree[j];
-      if (count <= 0)
-        continue;
-      double contrib = df * rank[j] / count;
-      const int *nb = g->adjacency_list + g->adjacency_index[j];
-      for (int k = 0; k < count; k++) {
-        int target = nb[k];
-        if (target >= start && target < end)
-          my_new_rank[target - start] += contrib;
+    for (int i = 0; i < my_n; i++) {
+      int global_idx = start + i;
+      double sum = 0.0;
+      int in_count = g->in_degree[global_idx];
+      const int *in_nb = g->in_adjacency_list + g->in_adjacency_index[global_idx];
+      for (int k = 0; k < in_count; k++) {
+        int j = in_nb[k];
+        sum += rank[j] / g->out_degree[j];
       }
+      my_new_rank[i] = base + df * sum;
     }
 
-    int *recvcounts = (int *)malloc(mpi_size * sizeof(int));
-    int *displs = (int *)malloc(mpi_size * sizeof(int));
-    for (int i = 0; i < mpi_size; i++) {
-      int s = i * chunk;
-      int e = s + chunk;
-      if (e > n)
-        e = n;
-      recvcounts[i] = e - s;
-      displs[i] = (i == 0) ? 0 : displs[i - 1] + recvcounts[i - 1];
-    }
     MPI_Allgatherv(my_new_rank, my_n, MPI_DOUBLE, new_rank, recvcounts, displs,
                    MPI_DOUBLE,
                    MPI_COMM_WORLD); // Collects each process's local results
                                     // into new_rank on all processes
-    free(recvcounts);
-    free(displs);
 
     double diff = 0.0;
     for (int i = 0; i < n; i++) {
@@ -85,6 +84,8 @@ double *pagerank_mpi(const Graph *g, double df, int max_iter, double tol,
       break;
   }
 
+  free(recvcounts);
+  free(displs);
   free(new_rank);
   free(my_new_rank);
   return rank;
