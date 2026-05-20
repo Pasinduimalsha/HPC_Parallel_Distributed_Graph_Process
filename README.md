@@ -63,9 +63,9 @@ Several sample graph datasets are provided in the `data/` directory:
 ```
 
 ### B. Run OpenMP (Shared Memory)
-Specify the number of threads (e.g., `4`):
+Specify the number of threads (e.g., `4`) and optional scheduling (`static`, `dynamic`, `guided`):
 ```bash
-./bin/openmp data/graph_1000.txt 4
+./bin/openmp data/graph_1000.txt 4 dynamic
 ```
 
 ### C. Run MPI (Distributed Memory)
@@ -88,33 +88,37 @@ Then open your browser and navigate to: **[http://127.0.0.1:5001](http://127.0.0
 
 The dashboard allows you to:
 * Switch between different graphs via a dropdown.
-* Configure the thread count for OpenMP and process count for MPI.
-* Trigger compiles and runs dynamically.
+* Configure thread count and scheduling strategies (static, dynamic, guided) for OpenMP.
+* Trigger a **Strong Scaling Sweep** to measure and plot execution speedups against ideal linear scaling.
+* Run a **CPU Cache Simulation** to compare hardware locality between Push (Scatter) and Pull (Gather) loop designs.
 * View side-by-side PageRank value comparisons to verify correctness.
-* View interactive speedup and execution time plots.
 
 ---
 
-## 5. Testing with Custom Generated Graphs
+## 5. CPU Cache & Hardware Locality Simulation
 
-You can compile the helper generator tool:
+The project includes a custom hardware-level **CPU Cache Simulator** (`tools/run_cache_sim.c` and `src/cache_sim.c`) that tracks memory read/write requests (spatial and temporal locality) during execution. It models:
+* **L1 Data Cache**: 32 KB, 64-byte line size, 8-way set associative (LRU replacement).
+* **L2 Data Cache**: 512 KB, 64-byte line size, 16-way set associative (LRU replacement).
+
+It demonstrates how the **Pull (Gather)** loop outperforms the **Push (Scatter)** loop. Because the Pull model writes sequentially to the output array (`new_rank[i]`), it utilizes CPU cache lines with near-perfect spatial locality. In contrast, the Push model writes to random array indices (`new_rank[target]`), causing L1/L2 write-backs and cache thrashing.
+
+To run the cache simulator manually:
+```bash
+gcc -O3 src/graph.c src/cache_sim.c tools/run_cache_sim.c -o bin/cache_sim -lm
+./bin/cache_sim data/graph_10000.txt
+```
+
+---
+
+## 6. Testing with Custom Generated Graphs
+
+Compile the helper generator tool:
 ```bash
 gcc -O2 tools/generate_graph.c -o bin/generate_graph
 ```
 
-Create a custom graph (e.g., 5,000 vertices and 10 edges per vertex):
+Create a custom graph (e.g., 100,000 vertices and 20 edges per vertex):
 ```bash
-./bin/generate_graph 5000 10 > data/custom_graph.txt
-```
-
-And run:
-```bash
-# Serial
-./bin/serial data/custom_graph.txt
-
-# OpenMP (4 threads)
-./bin/openmp data/custom_graph.txt 4
-
-# MPI (4 processes)
-mpirun -np 4 ./bin/mpi data/custom_graph.txt
+./bin/generate_graph 100000 20 > data/custom_graph.txt
 ```
