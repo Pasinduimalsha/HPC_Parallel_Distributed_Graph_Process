@@ -21,5 +21,176 @@
     "mpi": [],
     "problem_size": []
   },
-  "hybrid": null
+  "hybrid": null,
+  "data/graph_50000.txt": {
+    "graph": "data/graph_50000.txt",
+    "vertices": 50000,
+    "edges": 499991,
+    "serial": {
+      "time_ms": 3.342,
+      "pagerank": [
+        1.6e-05,
+        2.6e-05,
+        1.9e-05,
+        1.7e-05,
+        2.4e-05,
+        2.1e-05,
+        2.9e-05,
+        1.2e-05,
+        3e-05,
+        1e-05
+      ]
+    },
+    "openmp": {
+      "time_ms": 2.6019,
+      "threads": 8,
+      "speedup": 1.28,
+      "efficiency": 0.16,
+      "pagerank": [
+        1.6e-05,
+        2.6e-05,
+        1.9e-05,
+        1.7e-05,
+        2.4e-05,
+        2.1e-05,
+        2.9e-05,
+        1.2e-05,
+        3e-05,
+        1e-05
+      ]
+    },
+    "mpi": {
+      "time_ms": 14.612,
+      "processes": 2,
+      "speedup": 0.23,
+      "efficiency": 0.12,
+      "pagerank": [
+        1.6e-05,
+        2.6e-05,
+        1.9e-05,
+        1.7e-05,
+        2.4e-05,
+        2.1e-05,
+        2.9e-05,
+        1.2e-05,
+        3e-05,
+        1e-05
+      ]
+    },
+    "last_updated": "2026-05-20T12:17:08.100061"
+  },
+  "data/graph_10000.txt": {
+    "graph": "data/graph_10000.txt",
+    "vertices": 10000,
+    "edges": 99993,
+    "serial": {
+      "time_ms": 0.887,
+      "pagerank": [
+        0.000133,
+        9.3e-05,
+        8.5e-05,
+        8.4e-05,
+        9.6e-05,
+        8.9e-05,
+        0.000132,
+        0.000143,
+        6.5e-05,
+        0.000112
+      ]
+    },
+    "openmp": {
+      "time_ms": 1.358,
+      "threads": 8,
+      "speedup": 0.65,
+      "efficiency": 0.08,
+      "pagerank": [
+        0.000133,
+        9.3e-05,
+        8.5e-05,
+        8.4e-05,
+        9.6e-05,
+        8.9e-05,
+        0.000132,
+        0.000143,
+        6.5e-05,
+        0.000112
+      ]
+    },
+    "mpi": {
+      "time_ms": 4.527,
+      "processes": 2,
+      "speedup": 0.2,
+      "efficiency": 0.1,
+      "pagerank": [
+        0.000133,
+        9.3e-05,
+        8.5e-05,
+        8.4e-05,
+        9.6e-05,
+        8.9e-05,
+        0.000132,
+        0.000143,
+        6.5e-05,
+        0.000112
+      ]
+    },
+    "last_updated": "2026-05-20T12:17:27.175007"
+  },
+  "data/graph_100000.txt": {
+    "graph": "data/graph_100000.txt",
+    "vertices": 100000,
+    "edges": 1999971,
+    "serial": {
+      "time_ms": 7.812,
+      "pagerank": [
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        1e-05,
+        9e-06,
+        1.2e-05,
+        1e-05,
+        7e-06,
+        1e-05,
+        1.1e-05
+      ]
+    },
+    "openmp": {
+      "time_ms": 3.0,
+      "threads": 8,
+      "speedup": 2.6,
+      "efficiency": 0.33,
+      "pagerank": [
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        1e-05,
+        9e-06,
+        1.2e-05,
+        1e-05,
+        7e-06,
+        1e-05,
+        1.1e-05
+      ]
+    },
+    "mpi": {
+      "time_ms": 25.77,
+      "processes": 2,
+      "speedup": 0.3,
+      "efficiency": 0.15,
+      "pagerank": [
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        1e-05,
+        9e-06,
+        1.2e-05,
+        1e-05,
+        7e-06,
+        1e-05,
+        1.1e-05
+      ]
+    },
+    "last_updated": "2026-05-20T12:17:39.968879"
+  }
 }
