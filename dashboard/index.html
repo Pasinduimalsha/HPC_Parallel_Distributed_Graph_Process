@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HPC PageRank Performance Dashboard</title>
-    <!-- Premium Typography -->
+    <title>HPC PageRank Performance Suite</title>
+    <!-- Premium Typography & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <!-- ChartJS for visual analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg-color: #09090b;
-            --card-bg: rgba(18, 18, 24, 0.7);
+            --bg-color: #0b0b0f;
+            --card-bg: rgba(20, 20, 31, 0.6);
             --card-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f4f4f5;
+            --text-main: #f4f4f6;
             --text-muted: #a1a1aa;
             --primary: #8b5cf6;
             --primary-glow: rgba(139, 92, 246, 0.15);
@@ -35,81 +38,159 @@
 
         body {
             background-color: var(--bg-color);
-            background-image: 
+            background-image:
                 radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
             background-attachment: fixed;
             color: var(--text-main);
             font-family: var(--font-main);
             line-height: 1.5;
-            padding: 2rem;
+            padding: 0;
             min-height: 100vh;
         }
 
-        header {
+        /* Navigation Bar */
+        nav {
+            background: rgba(15, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.8rem 2rem;
+        }
+
+        .nav-container {
             max-width: 1400px;
-            margin: 0 auto 2rem auto;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--card-border);
-            padding-bottom: 1.5rem;
         }
 
-        .title-group h1 {
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-blue));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: var(--font-display);
+            color: white;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .brand-text h1 {
             font-family: var(--font-display);
             font-weight: 700;
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, #ffffff 40%, #a78bfa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.01em;
         }
 
-        .title-group p {
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
             color: var(--text-muted);
-            font-size: 0.95rem;
-            margin-top: 0.25rem;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            border-bottom: 2px solid var(--primary);
+            border-radius: 8px 8px 0 0;
+            background: rgba(139, 92, 246, 0.08);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
         .selector-box {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            background: var(--card-bg);
+            gap: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--card-border);
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
         }
 
         .selector-box label {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .selector-box select {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--card-border);
+            background: transparent;
+            border: none;
             color: var(--text-main);
-            padding: 0.5rem 2rem 0.5rem 1rem;
-            border-radius: 8px;
             font-family: var(--font-main);
             font-weight: 500;
             outline: none;
             cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 8px center;
+            padding-right: 1rem;
         }
 
-        .dashboard-grid {
+        /* Container & Tabs */
+        .app-container {
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Grid layouts */
+        .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
@@ -128,7 +209,9 @@
             padding: 1.5rem;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .card:hover {
@@ -155,15 +238,15 @@
             border-radius: 20px;
         }
 
-        /* Parameter Configuration Styles */
+        /* Controls Box & Benchmarks */
         .controls-row {
-            display: flex;
-            gap: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
         .control-group {
-            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -176,33 +259,31 @@
             text-transform: uppercase;
         }
 
-        .control-group select, .control-group input {
+        .control-group select {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             padding: 0.6rem;
             border-radius: 8px;
             font-family: var(--font-main);
-            font-weight: 500;
             outline: none;
         }
 
-        /* Benchmark Buttons */
         .btn-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
         }
 
         .btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 0.25rem;
             border-radius: 10px;
             font-family: var(--font-main);
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -212,70 +293,286 @@
         }
 
         .btn:hover {
-            background: var(--primary);
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
             transform: translateY(-2px);
         }
 
-        .btn-serial:hover { background-color: var(--text-muted); border-color: var(--text-muted); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
-        .btn-openmp:hover { background-color: var(--accent-blue); border-color: var(--accent-blue); box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); }
-        .btn-mpi:hover { background-color: var(--primary); border-color: var(--primary); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+        .btn-serial:hover {
+            background-color: var(--text-muted);
+            border-color: var(--text-muted);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-openmp:hover {
+            background-color: var(--accent-blue);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-mpi:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-sweep:hover {
+            background-color: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-cachesim:hover {
+            background-color: var(--accent-rose);
+            border-color: var(--accent-rose);
+            box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+        }
 
         .btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
-            background: rgba(255, 255, 255, 0.02) !important;
-            border-color: var(--card-border) !important;
         }
 
-        /* Stats Grid */
-        .stats-grid {
+        /* CPU & Core Visualizer styles */
+        .hpc-visualizer-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
         }
 
-        .stat-card {
-            background: rgba(0, 0, 0, 0.2);
+        @media (max-width: 1024px) {
+            .hpc-visualizer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cpu-canvas-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 420px;
+            background: radial-gradient(circle at center, rgba(30, 30, 50, 0.8) 0%, rgba(15, 15, 25, 0.9) 100%);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
+            border-radius: 16px;
+            padding: 2.5rem;
+            position: relative;
         }
 
-        .stat-label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
+        .cpu-die {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 1;
+            border: 4px solid #333345;
+            background: #13131e;
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(139, 92, 246, 0.1);
+            display: grid;
+            gap: 1rem;
         }
 
-        .stat-value {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 700;
+        .cpu-core-grid {
+            display: grid;
+            grid-template-columns: repeat(var(--core-cols, 2), 1fr);
+            gap: 0.75rem;
+            width: 100%;
+            height: 100%;
         }
 
-        .stat-unit {
+        .cpu-core {
+            border: 2px solid #2e2e3e;
+            background: rgba(45, 45, 65, 0.4);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
             font-size: 0.8rem;
             font-weight: 500;
             color: var(--text-muted);
-            margin-left: 0.1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Results table */
+        .cpu-core.active {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--text-main);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+            animation: corePulse 1.5s infinite alternate;
+        }
+
+        .cpu-core.computing {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.2);
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .cpu-core::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .cpu-core.computing::after {
+            animation: coreShimmer 1.5s infinite linear;
+        }
+
+        @keyframes coreShimmer {
+            0% {
+                left: -150%;
+            }
+
+            50% {
+                left: 150%;
+            }
+
+            100% {
+                left: 150%;
+            }
+        }
+
+        @keyframes corePulse {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.02);
+                filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.3));
+            }
+        }
+
+        /* Distributed cluster node grid */
+        .cluster-die {
+            width: 100%;
+            max-width: 400px;
+            height: 320px;
+            position: relative;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .cluster-node {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: 2px solid #2e2e3e;
+            background: #161623;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            position: absolute;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+            z-index: 2;
+        }
+
+        .cluster-node.active {
+            border-color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.15);
+            color: white;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            animation: corePulse 1s infinite alternate;
+        }
+
+        .cluster-node.syncing {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.2);
+            color: white;
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+        }
+
+        .cluster-bus {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .cluster-bus.active {
+            background: linear-gradient(90deg, var(--accent-emerald), var(--primary), var(--accent-emerald));
+            box-shadow: 0 0 12px var(--primary);
+            animation: busPulse 2s infinite linear;
+        }
+
+        @keyframes busPulse {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .bus-packet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            display: none;
+            z-index: 1;
+        }
+
+        .bus-packet.active {
+            display: block;
+            animation: packetFly 1.5s infinite linear;
+        }
+
+        @keyframes packetFly {
+            0% {
+                left: 15%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                left: 85%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                opacity: 0;
+            }
+        }
+
+        /* Stats summary table */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 0.5rem;
         }
 
-        th, td {
+        th,
+        td {
             text-align: left;
             padding: 0.75rem 1rem;
             border-bottom: 1px solid var(--card-border);
@@ -297,9 +594,80 @@
             border-bottom: none;
         }
 
-        .highlight-emerald { color: var(--accent-emerald); font-weight: 600; }
-        .highlight-blue { color: var(--accent-blue); font-weight: 600; }
-        .highlight-purple { color: var(--primary); font-weight: 600; }
+        .highlight-emerald {
+            color: var(--accent-emerald);
+            font-weight: 600;
+        }
+
+        .highlight-blue {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .highlight-purple {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .highlight-rose {
+            color: var(--accent-rose);
+            font-weight: 600;
+        }
+
+        /* Cache visual progress bar overrides */
+        .cache-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .cache-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .cache-box-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cache-stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 0.25rem 0;
+        }
+
+        .cache-bar-bg {
+            background: rgba(255, 255, 255, 0.05);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0 0.75rem 0;
+        }
+
+        .cache-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .l1-fill {
+            background: var(--accent-blue);
+        }
+
+        .l2-fill {
+            background: var(--primary);
+        }
 
         /* Terminal Console */
         .terminal {
@@ -310,7 +678,7 @@
             font-family: var(--font-mono);
             font-size: 0.85rem;
             color: #38bdf8;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             white-space: pre-wrap;
             margin-top: 1rem;
@@ -370,178 +738,1196 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .cpu-badge {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+        }
+
+        /* Pipeline Steps Visualizer */
+        .pipeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .pipeline-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .pipeline-step.active {
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, 0.08);
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.15);
+        }
+
+        .pipeline-step.completed {
+            border-color: var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .pipeline-step-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 1px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .pipeline-step.active .pipeline-step-badge {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .pipeline-step.completed .pipeline-step-badge {
+            border-color: var(--accent-emerald);
+            background: var(--accent-emerald);
+            color: white;
+        }
+
+        /* SVG Graph Simulation Style */
+        .svg-graph-container {
+            width: 100%;
+            background: #101017;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .workload-bar-container {
+            background: rgba(255, 255, 255, 0.05);
+            height: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            margin: 1rem 0;
+            border: 1px solid var(--card-border);
+        }
+
+        .workload-slice {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: white;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <div class="title-group">
-            <h1>PageRank Performance Analytics</h1>
-            <p>HPC Parallel Processing Execution & Scalability Metrics Dashboard</p>
-        </div>
-        <div class="selector-box">
-            <label for="graph-select">Graph File</label>
-            <select id="graph-select">
-                <!-- Loaded dynamically -->
-            </select>
-        </div>
-    </header>
+    <!-- Sticky Navigation Header -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="brand">
+                <div class="brand-logo">H</div>
+                <div class="brand-text">
+                    <h1>HPC PageRank Analytics</h1>
+                </div>
+            </a>
 
-    <main class="dashboard-grid">
-        
-        <!-- Left Side: Controls and Summary statistics -->
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
-            
-            <!-- Execution Card -->
+            <div class="nav-links">
+                <div class="nav-link active" onclick="switchTab('analytics-tab', this)">Performance Analytics</div>
+                <div class="nav-link" onclick="switchTab('visualizer-tab', this)">Execution Visualizer</div>
+                <div class="nav-link" onclick="switchTab('cache-tab', this)">Cache Locality</div>
+            </div>
+
+            <div class="header-controls">
+                <div class="selector-box">
+                    <label for="graph-select">Graph Dataset</label>
+                    <select id="graph-select">
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="app-container">
+
+        <!-- Tab 1: Performance Analytics (Standard view rearranged beautifully) -->
+        <div id="analytics-tab" class="tab-content active">
+            <div class="dashboard-grid">
+
+                <!-- Left panel: execution dashboard controls and summary stats -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+                    <div class="card">
+                        <div class="card-title">
+                            Benchmark Execution Control
+                            <span id="active-env-badge">Conda Environment Active</span>
+                        </div>
+
+                        <div class="info-row">
+                            <div class="info-item"><span>Vertices:</span><strong id="info-vertices">0</strong></div>
+                            <div class="info-item"><span>Edges:</span><strong id="info-edges">0</strong></div>
+                            <div class="info-item"><span>Last run:</span><strong id="info-updated">Never</strong></div>
+                        </div>
+
+                        <div class="controls-row">
+                            <div class="control-group">
+                                <label for="threads-select">OpenMP Threads</label>
+                                <select id="threads-select" onchange="updateParameters()">
+                                    <option value="1">1 Thread</option>
+                                    <option value="2">2 Threads</option>
+                                    <option value="4" selected>4 Threads</option>
+                                    <option value="8">8 Threads</option>
+                                    <option value="12">12 Threads</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="sched-select">OpenMP Schedule</label>
+                                <select id="sched-select">
+                                    <option value="static" selected>Static</option>
+                                    <option value="dynamic">Dynamic</option>
+                                    <option value="guided">Guided</option>
+                                </select>
+                            </div>
+                            <div class="control-group">
+                                <label for="procs-select">MPI Processes</label>
+                                <select id="procs-select" onchange="updateParameters()">
+                                    <option value="1">1 Process</option>
+                                    <option value="2" selected>2 Processes</option>
+                                    <option value="4">4 Processes</option>
+                                    <option value="8">8 Processes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="btn-grid">
+                            <button class="btn btn-serial" onclick="runBenchmark('serial')">
+                                <span id="serial-label">Run Serial</span>
+                            </button>
+                            <button class="btn btn-openmp" onclick="runBenchmark('openmp')">
+                                <span id="openmp-label">Run OpenMP</span>
+                            </button>
+                            <button class="btn btn-mpi" onclick="runBenchmark('mpi')">
+                                <span id="mpi-label">Run MPI</span>
+                            </button>
+                            <button class="btn btn-sweep" onclick="runScalingSweep()">
+                                <span id="sweep-label">Scaling Sweep</span>
+                            </button>
+                            <button class="btn btn-cachesim" onclick="runCacheSimulation()">
+                                <span id="cachesim-label">Cache Sim</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Performance Summary Table</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Model</th>
+                                    <th>Time</th>
+                                    <th>Speedup</th>
+                                    <th>Efficiency</th>
+                                    <th>Config Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Serial Baseline</td>
+                                    <td id="tbl-serial-time">-</td>
+                                    <td>1.00x</td>
+                                    <td>1.00</td>
+                                    <td>1 Core</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-blue">OpenMP</td>
+                                    <td id="tbl-openmp-time">-</td>
+                                    <td id="tbl-openmp-speedup">-</td>
+                                    <td id="tbl-openmp-efficiency">-</td>
+                                    <td id="tbl-openmp-resource">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="highlight-purple">MPI</td>
+                                    <td id="tbl-mpi-time">-</td>
+                                    <td id="tbl-mpi-speedup">-</td>
+                                    <td id="tbl-mpi-efficiency">-</td>
+                                    <td id="tbl-mpi-resource">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <!-- Right panel: live charts & output -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+                    <div class="card">
+                        <div class="card-title">Execution Time Comparison (Lower is Better)</div>
+                        <div class="chart-container">
+                            <canvas id="timeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Strong Scaling Speedup Curves (Amdahl's Law)</div>
+                        <div class="chart-container">
+                            <canvas id="speedupChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 2: HPC Core Visualizer (Highly interactive core / process display) -->
+        <div id="visualizer-tab" class="tab-content">
+            <div class="hpc-visualizer-container">
+
+                <!-- SVG / Grid of CPUs/Nodes -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    <div class="cpu-canvas-card">
+                        <div class="card-title" id="visualizer-header"
+                            style="position: absolute; top: 1.5rem; left: 1.5rem; right: 1.5rem;">
+                            <span>Shared-Memory CPU Visualizer</span>
+                            <div class="cpu-badge" id="viz-active-badge">4 Cores Active</div>
+                        </div>
+
+                        <!-- OpenMP CPU View -->
+                        <div id="omp-viz-view" class="cpu-die">
+                            <div class="cpu-core-grid" id="cpu-core-grid">
+                                <!-- Dynamic core tiles rendered via Javascript -->
+                            </div>
+                        </div>
+
+                        <!-- MPI Cluster View -->
+                        <div id="mpi-viz-view" class="cluster-die" style="display: none;">
+                            <div class="cluster-bus" id="cluster-bus"></div>
+                            <div class="bus-packet" id="bus-packet"></div>
+                            <div id="cluster-nodes-container">
+                                <!-- Dynamic processes nodes rendered via Javascript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Workload allocation section -->
+                    <div class="card">
+                        <div class="card-title">
+                            Workload Partitioning Map
+                            <span style="font-size: 0.8rem; color: var(--text-muted);" id="partition-type-label">OpenMP
+                                Uniform Chunking</span>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">
+                            Shows how the current graph's vertices are divided among active threads or distributed
+                            memory processes.
+                            Row-wise compressed adjacency division distributes iteration tasks.
+                        </p>
+
+                        <div class="workload-bar-container" id="workload-bar">
+                            <!-- Dynamic segments rendered by script -->
+                        </div>
+
+                        <table style="font-size: 0.8rem; margin-top: 1rem;" id="workload-table">
+                            <thead>
+                                <tr>
+                                    <th>Partition ID</th>
+                                    <th>Vertex Range</th>
+                                    <th>Total Slice Size</th>
+                                    <th>Memory Footprint</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workload-table-body">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right column: live logs, graph iteration flow, and diagnostics -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+                    <!-- PageRank Iteration directed graph visualizer -->
+                    <div class="card">
+                        <div class="card-title">
+                            HPC Graph Topology & Workload Domain Visualizer
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;"
+                                    onclick="recenterGraph()">Recenter</button>
+                                <button class="btn" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;"
+                                    onclick="simulateLocalPageRank()">Animate Ranks</button>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                            Loads actual nodes/edges from the selected dataset. Slide to Zoom. Separate nodes into
+                            regions based on thread/rank workload domain decomposition.
+                        </p>
+                        <div
+                            style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text-muted);">
+                            <label for="zoom-slider">Zoom / Scale:</label>
+                            <input type="range" id="zoom-slider" min="0.2" max="3" step="0.1" value="1.0"
+                                style="flex: 1; accent-color: var(--primary);" oninput="updateZoom(this.value)">
+                            <span id="zoom-label">1.0x</span>
+
+                            <label
+                                style="display: flex; align-items: center; gap: 0.25rem; margin-left: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="domain-layout-check" checked onchange="toggleDomainLayout()">
+                                Separate Domains
+                            </label>
+                        </div>
+                        <div class="svg-graph-container" style="padding: 0;">
+                            <canvas id="graph-canvas" width="550" height="320"
+                                style="width: 100%; height: 320px; border-radius: 12px; cursor: grab; background: #07070b;"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline Engine States -->
+                    <div class="card">
+                        <div class="card-title">C Parallel Execution Stages</div>
+                        <div class="pipeline-container">
+                            <div class="pipeline-step" id="step-1">
+                                <div class="pipeline-step-badge">1</div>
+                                <div><strong>Graph File Extraction:</strong> Read raw edge pairs via fscanf loops</div>
+                            </div>
+                            <div class="pipeline-step" id="step-2">
+                                <div class="pipeline-step-badge">2</div>
+                                <div><strong>Adjacency CSR Compression:</strong> Build index and concatenated offset
+                                    matrices</div>
+                            </div>
+                            <div class="pipeline-step" id="step-3">
+                                <div class="pipeline-step-badge">3</div>
+                                <div><strong>Thread/Rank Slice Setup:</strong> Calculate start & end vertices per worker
+                                </div>
+                            </div>
+                            <div class="pipeline-step" id="step-4">
+                                <div class="pipeline-step-badge">4</div>
+                                <div><strong>Parallel Convergence Loop:</strong> Gather rank values iteratively
+                                    (OpenMP/MPI)</div>
+                            </div>
+                            <div class="pipeline-step" id="step-5">
+                                <div class="pipeline-step-badge">5</div>
+                                <div><strong>Global MPI Exchange:</strong> Synchronize local chunks with Allgatherv
+                                    collectives</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visualizer mode toggles & Terminal Logs -->
+                    <div class="card">
+                        <div class="card-title">Visualizer Diagnostics Control</div>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <button class="btn" style="flex: 1;" onclick="toggleVizMode('omp')">OpenMP View</button>
+                            <button class="btn" style="flex: 1;" onclick="toggleVizMode('mpi')">MPI Node View</button>
+                        </div>
+                        <div class="terminal-header">
+                            <span>Diagnostic Console Logs</span>
+                            <span id="log-status" style="color: var(--accent-emerald);">IDLE</span>
+                        </div>
+                        <div class="terminal" id="console" style="max-height: 200px;">Terminal waiting... Run a
+                            benchmark to view hardware allocations and trace execution steps.</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 3: Memory & Cache Simulator -->
+        <div id="cache-tab" class="tab-content">
             <div class="card">
                 <div class="card-title">
-                    Benchmark Execution Control
-                    <span id="active-env-badge">Conda Environment Active</span>
+                    Memory Hierarchy Cache Profiler
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Cache-Line Hits & Misses</span>
                 </div>
-                
-                <div class="info-row">
-                    <div class="info-item"><span>Vertices:</span><strong id="info-vertices">0</strong></div>
-                    <div class="info-item"><span>Edges:</span><strong id="info-edges">0</strong></div>
-                    <div class="info-item"><span>Last run:</span><strong id="info-updated">Never</strong></div>
+                <div style="grid-column: span 2; margin-bottom: 1.5rem;">
+                    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+                        This tool models L1 and L2 Data Cache performance during Graph loops.
+                        <strong>Push (Scatter)</strong> updates out-of-order array indices corresponding to graph
+                        destination vertices, causing massive write evictions.
+                        <strong>Pull (Gather)</strong> updates array indexes sequentially, utilizing CPU cache lines
+                        with near-perfect spatial locality.
+                    </p>
                 </div>
 
-                <div class="controls-row">
-                    <div class="control-group">
-                        <label for="threads-select">OpenMP Threads</label>
-                        <select id="threads-select">
-                            <option value="2">2 Threads</option>
-                            <option value="4" selected>4 Threads</option>
-                            <option value="8">8 Threads</option>
-                            <option value="12">12 Threads</option>
-                        </select>
+                <div class="cache-split">
+                    <!-- Push box -->
+                    <div class="cache-box">
+                        <div class="cache-box-header">
+                            <span>Push Model (Scatter-based write loop)</span>
+                            <span class="highlight-rose" style="font-size: 0.8rem;">Random Memory Writes</span>
+                        </div>
+                        <div class="cache-stat-row">
+                            <span>L1 Data Hit Rate:</span>
+                            <strong id="push-l1-hr">0.00%</strong>
+                        </div>
+                        <div class="cache-bar-bg">
+                            <div class="cache-bar-fill l1-fill" id="push-l1-fill"></div>
+                        </div>
+                        <div class="cache-stat-row">
+                            <span>L2 Data Hit Rate:</span>
+                            <strong id="push-l2-hr">0.00%</strong>
+                        </div>
+                        <div class="cache-bar-bg">
+                            <div class="cache-bar-fill l2-fill" id="push-l2-fill"></div>
+                        </div>
+                        <div
+                            style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between;">
+                            <span>L1 Cache Misses: <strong id="push-l1-miss">0</strong></span>
+                            <span>L2 Cache Misses: <strong id="push-l2-miss">0</strong></span>
+                        </div>
                     </div>
-                    <div class="control-group">
-                        <label for="procs-select">MPI Processes</label>
-                        <select id="procs-select">
-                            <option value="1">1 Process</option>
-                            <option value="2" selected>2 Processes</option>
-                            <option value="4">4 Processes</option>
-                            <option value="8">8 Processes</option>
-                        </select>
+
+                    <!-- Pull box -->
+                    <div class="cache-box">
+                        <div class="cache-box-header">
+                            <span>Pull Model (Gather-based read loop)</span>
+                            <span class="highlight-emerald" style="font-size: 0.8rem;">Sequential Memory Writes</span>
+                        </div>
+                        <div class="cache-stat-row">
+                            <span>L1 Data Hit Rate:</span>
+                            <strong id="pull-l1-hr">0.00%</strong>
+                        </div>
+                        <div class="cache-bar-bg">
+                            <div class="cache-bar-fill l1-fill" id="pull-l1-fill"></div>
+                        </div>
+                        <div class="cache-stat-row">
+                            <span>L2 Data Hit Rate:</span>
+                            <strong id="pull-l2-hr">0.00%</strong>
+                        </div>
+                        <div class="cache-bar-bg">
+                            <div class="cache-bar-fill l2-fill" id="pull-l2-fill"></div>
+                        </div>
+                        <div
+                            style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; display: flex; justify-content: space-between;">
+                            <span>L1 Cache Misses: <strong id="pull-l1-miss">0</strong></span>
+                            <span>L2 Cache Misses: <strong id="pull-l2-miss">0</strong></span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="btn-grid">
-                    <button class="btn btn-serial" onclick="runBenchmark('serial')">
-                        <span id="serial-label">Run Serial</span>
-                    </button>
-                    <button class="btn btn-openmp" onclick="runBenchmark('openmp')">
-                        <span id="openmp-label">Run OpenMP</span>
-                    </button>
-                    <button class="btn btn-mpi" onclick="runBenchmark('mpi')">
-                        <span id="mpi-label">Run MPI</span>
-                    </button>
-                </div>
             </div>
-
-            <!-- Logged Stats Summary Table -->
-            <div class="card">
-                <div class="card-title">Performance Summary Table</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Model</th>
-                            <th>Time</th>
-                            <th>Speedup</th>
-                            <th>Efficiency</th>
-                            <th>Parallel Resource</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Serial Baseline</td>
-                            <td id="tbl-serial-time">-</td>
-                            <td>1.00x</td>
-                            <td>1.00</td>
-                            <td>1 Thread</td>
-                        </tr>
-                        <tr>
-                            <td class="highlight-blue">OpenMP</td>
-                            <td id="tbl-openmp-time">-</td>
-                            <td id="tbl-openmp-speedup">-</td>
-                            <td id="tbl-openmp-efficiency">-</td>
-                            <td id="tbl-openmp-resource">-</td>
-                        </tr>
-                        <tr>
-                            <td class="highlight-purple">MPI</td>
-                            <td id="tbl-mpi-time">-</td>
-                            <td id="tbl-mpi-speedup">-</td>
-                            <td id="tbl-mpi-efficiency">-</td>
-                            <td id="tbl-mpi-resource">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- PageRank Side-by-Side Values -->
-            <div class="card">
-                <div class="card-title">Top 10 PageRank Values (Convergence Check)</div>
-                <div style="max-height: 250px; overflow-y: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Vertex</th>
-                                <th>Serial</th>
-                                <th>OpenMP</th>
-                                <th>MPI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pr-values-body">
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: var(--text-muted);">No data available. Run benchmark to populate.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
 
-        <!-- Right Side: Visualization and Outputs -->
-        <div style="display: flex; flex-direction: column; gap: 2rem;">
-            
-            <!-- Execution Time Chart -->
-            <div class="card">
-                <div class="card-title">Execution Time Comparison (Lower is Better)</div>
-                <div class="chart-container">
-                    <canvas id="timeChart"></canvas>
-                </div>
-            </div>
+    </div>
 
-            <!-- Speedup Chart -->
-            <div class="card">
-                <div class="card-title">Parallel Speedup Comparison (Higher is Better)</div>
-                <div class="chart-container">
-                    <canvas id="speedupChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Terminal Output Console -->
-            <div class="card">
-                <div class="terminal-header">
-                    <span>Terminal output logs</span>
-                    <span id="log-status" style="color: var(--accent-emerald);">IDLE</span>
-                </div>
-                <div class="terminal" id="console">Terminal waiting... Ready to run benchmarks.</div>
-            </div>
-
-        </div>
-
-    </main>
-
+    <!-- Script integrations -->
     <script>
         let timeChart = null;
         let speedupChart = null;
         let graphs = [];
         let currentGraph = "";
+        let vizMode = 'omp'; // 'omp' or 'mpi'
+        let demoInterval = null;
+
+        // Canvas Simulation variables
+        let canvas = null;
+        let ctx = null;
+        let graphNodes = [];
+        let graphEdges = [];
+        let outDegrees = {};
+        let animationParticles = [];
+
+        // Interaction variables
+        let isMouseDown = false;
+        let panX = 0;
+        let panY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let zoomScale = 1.0;
+        let drawDomains = true;
+
+        // Navigation controls
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            el.classList.add('active');
+
+            if (tabId === 'analytics-tab') {
+                if (timeChart) timeChart.resize();
+                if (speedupChart) speedupChart.resize();
+            }
+        }
+
+        // Switch visualizer mode
+        function toggleVizMode(mode) {
+            vizMode = mode;
+            const ompView = document.getElementById('omp-viz-view');
+            const mpiView = document.getElementById('mpi-viz-view');
+            const header = document.getElementById('visualizer-header').querySelector('span');
+
+            if (mode === 'omp') {
+                ompView.style.display = 'grid';
+                mpiView.style.display = 'none';
+                header.textContent = "Shared-Memory CPU Visualizer";
+                document.getElementById('partition-type-label').textContent = "OpenMP Uniform Chunking";
+            } else {
+                ompView.style.display = 'none';
+                mpiView.style.display = 'block';
+                header.textContent = "Distributed MPI Cluster Visualizer";
+                document.getElementById('partition-type-label').textContent = "MPI Distributed Chunking";
+            }
+            updateWorkloadAllocation();
+        }
+
+        // Update workload allocation card dynamically
+        function updateWorkloadAllocation() {
+            const vertices = parseInt(document.getElementById('info-vertices').textContent) || 1000;
+            const bar = document.getElementById('workload-bar');
+            const tableBody = document.getElementById('workload-table-body');
+
+            bar.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            const numWorkers = (vizMode === 'omp')
+                ? parseInt(document.getElementById('threads-select').value)
+                : parseInt(document.getElementById('procs-select').value);
+
+            const chunk = Math.ceil(vertices / numWorkers);
+            const colors = ['#8b5cf6', '#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#ec4899', '#84cc16'];
+
+            for (let i = 0; i < numWorkers; i++) {
+                const start = i * chunk;
+                let end = start + chunk;
+                if (end > vertices) end = vertices;
+                const size = end - start;
+
+                if (size <= 0) continue;
+
+                const percent = (size / vertices) * 100;
+                const color = colors[i % colors.length];
+
+                // Create workload block
+                const slice = document.createElement('div');
+                slice.className = 'workload-slice';
+                slice.style.width = `${percent}%`;
+                slice.style.background = color;
+                slice.textContent = (vizMode === 'omp') ? `T${i}` : `P${i}`;
+                bar.appendChild(slice);
+
+                // Create table row
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${color}; margin-right:8px; vertical-align:middle;"></span>${(vizMode === 'omp') ? 'Thread #' + i : 'Process Rank #' + i}</td>
+                    <td>V${start} - V${end - 1}</td>
+                    <td>${size.toLocaleString()} vertices</td>
+                    <td>${((size * 8) / 1024).toFixed(1)} KB (PageRank Vector slice)</td>
+                `;
+                tableBody.appendChild(tr);
+            }
+        }
+
+        // Trigger updates when parameters modify
+        function updateParameters() {
+            renderCPUGrid();
+            renderMPICluster();
+            updateWorkloadAllocation();
+        }
+
+        // Render dynamic grid of CPU cores based on select value
+        function renderCPUGrid() {
+            const select = document.getElementById('threads-select');
+            const numCores = parseInt(select.value);
+            const grid = document.getElementById('cpu-core-grid');
+            const badge = document.getElementById('viz-active-badge');
+
+            if (vizMode === 'omp') {
+                badge.textContent = `${numCores} Core${numCores > 1 ? 's' : ''} Active`;
+            }
+
+            let cols = 2;
+            if (numCores > 4) cols = 4;
+            if (numCores > 8) cols = 6;
+            grid.style.setProperty('--core-cols', cols);
+
+            grid.innerHTML = '';
+            for (let i = 0; i < numCores; i++) {
+                const core = document.createElement('div');
+                core.className = 'cpu-core active';
+                core.id = `core-unit-${i}`;
+                core.innerHTML = `<span style="font-size:0.65rem;opacity:0.6;">CORE</span><strong>#${i}</strong><span style="font-size:0.65rem;color:var(--accent-emerald);" id="core-state-${i}">IDLE</span>`;
+                grid.appendChild(core);
+            }
+        }
+
+        // Render dynamic MPI cluster nodes based on select value
+        function renderMPICluster() {
+            const select = document.getElementById('procs-select');
+            const numProcs = parseInt(select.value);
+            const container = document.getElementById('cluster-nodes-container');
+            const badge = document.getElementById('viz-active-badge');
+
+            if (vizMode === 'mpi') {
+                badge.textContent = `${numProcs} Node${numProcs > 1 ? 's' : ''} Online`;
+            }
+            container.innerHTML = '';
+
+            const width = 400;
+            const height = 320;
+            const r = 100;
+
+            for (let i = 0; i < numProcs; i++) {
+                const angle = (2 * Math.PI * i) / numProcs;
+                const x = width / 2 + r * Math.cos(angle) - 27;
+                const y = height / 2 + r * Math.sin(angle) - 27;
+
+                const node = document.createElement('div');
+                node.className = 'cluster-node active';
+                node.id = `mpi-node-${i}`;
+                node.style.left = `${x}px`;
+                node.style.top = `${y}px`;
+                node.innerHTML = `<strong>P${i}</strong>`;
+                container.appendChild(node);
+            }
+        }
+
+        // Animate visualizer state
+        function animateHPCExecution(impl, state) {
+            if (impl === 'openmp') {
+                const select = document.getElementById('threads-select');
+                const numCores = parseInt(select.value);
+                for (let i = 0; i < numCores; i++) {
+                    const core = document.getElementById(`core-unit-${i}`);
+                    const statusText = document.getElementById(`core-state-${i}`);
+                    if (core) {
+                        if (state === 'running') {
+                            core.className = 'cpu-core active computing';
+                            statusText.textContent = "COMPUTING";
+                            statusText.style.color = "var(--accent-rose)";
+                        } else {
+                            core.className = 'cpu-core active';
+                            statusText.textContent = "IDLE";
+                            statusText.style.color = "var(--accent-emerald)";
+                        }
+                    }
+                }
+            } else if (impl === 'mpi') {
+                const select = document.getElementById('procs-select');
+                const numProcs = parseInt(select.value);
+                const bus = document.getElementById('cluster-bus');
+                const packet = document.getElementById('bus-packet');
+
+                for (let i = 0; i < numProcs; i++) {
+                    const node = document.getElementById(`mpi-node-${i}`);
+                    if (node) {
+                        if (state === 'running') {
+                            node.className = 'cluster-node active syncing';
+                            bus.className = 'cluster-bus active';
+                            packet.className = 'bus-packet active';
+                        } else {
+                            node.className = 'cluster-node active';
+                            bus.className = 'cluster-bus';
+                            packet.className = 'bus-packet';
+                        }
+                    }
+                }
+            }
+        }
+
+        // Render pipeline step markers
+        function markPipelineStep(stepId, status) {
+            const steps = ['step-1', 'step-2', 'step-3', 'step-4', 'step-5'];
+            steps.forEach(id => {
+                const element = document.getElementById(id);
+                if (id === stepId) {
+                    if (status === 'active') {
+                        element.className = 'pipeline-step active';
+                    } else if (status === 'completed') {
+                        element.className = 'pipeline-step completed';
+                    }
+                } else if (steps.indexOf(id) < steps.indexOf(stepId)) {
+                    element.className = 'pipeline-step completed';
+                } else {
+                    element.className = 'pipeline-step';
+                }
+            });
+        }
+
+        // Force-Directed Graph Layout Simulation on HTML5 Canvas
+        async function fetchGraphTopology(graphPath) {
+            try {
+                const response = await fetch(`/api/graph_data?graph=${encodeURIComponent(graphPath)}`);
+                const data = await response.json();
+
+                const W = canvas.width;
+                const H = canvas.height;
+
+                // Load unique vertices
+                const idMap = {};
+                graphNodes = data.vertices.map((vId, idx) => {
+                    idMap[vId] = idx;
+                    const angle = Math.random() * 2 * Math.PI;
+                    const r = 40 + Math.random() * 70;
+                    return {
+                        id: vId,
+                        x: W / 2 + r * Math.cos(angle),
+                        y: H / 2 + r * Math.sin(angle),
+                        vx: 0,
+                        vy: 0,
+                        radius: 3.5,
+                        targetRadius: 3.5,
+                        color: '#64748b'
+                    };
+                });
+
+                // Load edges
+                graphEdges = [];
+                data.edges.forEach(edge => {
+                    const sIdx = idMap[edge[0]];
+                    const tIdx = idMap[edge[1]];
+                    if (sIdx !== undefined && tIdx !== undefined) {
+                        graphEdges.push({
+                            source: edge[0],
+                            target: edge[1],
+                            sourceIdx: sIdx,
+                            targetIdx: tIdx
+                        });
+                    }
+                });
+
+                recenterGraph();
+            } catch (err) {
+                console.error("Error fetching topology:", err);
+            }
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('graph-canvas');
+            ctx = canvas.getContext('2d');
+
+            // Mouse Dragging & Panning
+            canvas.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                canvas.style.cursor = 'grabbing';
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+
+            window.addEventListener('mouseup', () => {
+                isMouseDown = false;
+                if (canvas) canvas.style.cursor = 'grab';
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (!isMouseDown) return;
+                const dx = e.clientX - lastMouseX;
+                const dy = e.clientY - lastMouseY;
+                panX += dx;
+                panY += dy;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+            });
+
+            // Wheel zooming
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const zoomFactor = 1.05;
+                if (e.deltaY < 0) {
+                    zoomScale = Math.min(3.0, zoomScale * zoomFactor);
+                } else {
+                    zoomScale = Math.max(0.15, zoomScale / zoomFactor);
+                }
+                document.getElementById('zoom-slider').value = zoomScale.toFixed(2);
+                document.getElementById('zoom-label').textContent = `${zoomScale.toFixed(1)}x`;
+            });
+
+            // Start physics loop
+            runPhysicsLoop();
+        }
+
+        function updateZoom(val) {
+            zoomScale = parseFloat(val);
+            document.getElementById('zoom-label').textContent = `${zoomScale.toFixed(1)}x`;
+        }
+
+        function toggleDomainLayout() {
+            drawDomains = document.getElementById('domain-layout-check').checked;
+        }
+
+        function recenterGraph() {
+            panX = 0;
+            panY = 0;
+            zoomScale = 1.0;
+            document.getElementById('zoom-slider').value = 1.0;
+            document.getElementById('zoom-label').textContent = '1.0x';
+
+            const W = canvas.width;
+            const H = canvas.height;
+            graphNodes.forEach((node, idx) => {
+                node.vx = 0;
+                node.vy = 0;
+                const angle = Math.random() * 2 * Math.PI;
+                const r = 30 + Math.random() * 80;
+                node.x = W / 2 + r * Math.cos(angle);
+                node.y = H / 2 + r * Math.sin(angle);
+            });
+        }
+
+        // Lightweight force-directed layout updates at 60fps
+        function runPhysicsLoop() {
+            updatePhysicsForces();
+            drawGraphOnCanvas();
+            requestAnimationFrame(runPhysicsLoop);
+        }
+
+        function updatePhysicsForces() {
+            if (graphNodes.length === 0) return;
+
+            const W = canvas.width;
+            const H = canvas.height;
+            const numWorkers = (vizMode === 'omp')
+                ? parseInt(document.getElementById('threads-select').value)
+                : parseInt(document.getElementById('procs-select').value);
+
+            const chunk = Math.ceil(graphNodes.length / numWorkers);
+
+            let cols = 1;
+            let rows = 1;
+            if (numWorkers <= 1) {
+                cols = 1; rows = 1;
+            } else if (numWorkers === 2) {
+                cols = 2; rows = 1;
+            } else if (numWorkers <= 4) {
+                cols = 2; rows = 2;
+            } else if (numWorkers <= 6) {
+                cols = 3; rows = 2;
+            } else if (numWorkers <= 8) {
+                cols = 4; rows = 2;
+            } else if (numWorkers <= 12) {
+                cols = 4; rows = 3;
+            } else {
+                cols = 4; rows = Math.ceil(numWorkers / 4);
+            }
+
+            const cellW = W / cols;
+            const cellH = H / rows;
+
+            // 1. Repulsion between nodes
+            const repelK = 25.0;
+            for (let i = 0; i < graphNodes.length; i++) {
+                const n1 = graphNodes[i];
+                for (let j = i + 1; j < graphNodes.length; j++) {
+                    const n2 = graphNodes[j];
+                    const dx = n2.x - n1.x;
+                    const dy = n2.y - n1.y;
+                    const distSq = dx * dx + dy * dy + 0.01;
+                    const dist = Math.sqrt(distSq);
+
+                    if (dist < 40) {
+                        const force = repelK / distSq;
+                        const fx = (dx / dist) * force;
+                        const fy = (dy / dist) * force;
+                        n1.vx -= fx;
+                        n1.vy -= fy;
+                        n2.vx += fx;
+                        n2.vy += fy;
+                    }
+                }
+            }
+
+            // 2. Attraction along links
+            const attractK = 0.015;
+            const restDist = 20.0;
+            graphEdges.forEach(e => {
+                const n1 = graphNodes[e.sourceIdx];
+                const n2 = graphNodes[e.targetIdx];
+                if (!n1 || !n2) return;
+                const dx = n2.x - n1.x;
+                const dy = n2.y - n1.y;
+                const dist = Math.sqrt(dx * dx + dy * dy) || 0.01;
+                const force = attractK * (dist - restDist);
+                const fx = (dx / dist) * force;
+                const fy = (dy / dist) * force;
+                n1.vx += fx;
+                n1.vy += fy;
+                n2.vx -= fx;
+                n2.vy -= fy;
+            });
+
+            // 3. Target centers & bounds
+            graphNodes.forEach((node, idx) => {
+                let targetX = W / 2;
+                let targetY = H / 2;
+
+                if (drawDomains) {
+                    const wId = Math.min(Math.floor(idx / chunk), numWorkers - 1);
+                    const c = wId % cols;
+                    const r = Math.floor(wId / cols);
+                    targetX = c * cellW + cellW / 2;
+                    targetY = r * cellH + cellH / 2;
+                }
+
+                node.vx += (targetX - node.x) * 0.01;
+                node.vy += (targetY - node.y) * 0.01;
+
+                node.x += node.vx;
+                node.y += node.vy;
+
+                // Friction
+                node.vx *= 0.85;
+                node.vy *= 0.85;
+
+                // Restrict boundary
+                if (node.x < 15) node.x = 15;
+                if (node.x > W - 15) node.x = W - 15;
+                if (node.y < 15) node.y = 15;
+                if (node.y > H - 15) node.y = H - 15;
+            });
+
+            // 4. Update particles moving along links
+            for (let i = animationParticles.length - 1; i >= 0; i--) {
+                const p = animationParticles[i];
+                p.progress += p.speed;
+                if (p.progress >= 1.0) {
+                    animationParticles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawGraphOnCanvas() {
+            if (!canvas || !ctx) return;
+            const W = canvas.width;
+            const H = canvas.height;
+
+            ctx.clearRect(0, 0, W, H);
+
+            ctx.save();
+            ctx.translate(panX, panY);
+            ctx.scale(zoomScale, zoomScale);
+
+            // Draw Workload Domain Borders & Labels
+            if (drawDomains) {
+                const numWorkers = (vizMode === 'omp')
+                    ? parseInt(document.getElementById('threads-select').value)
+                    : parseInt(document.getElementById('procs-select').value);
+
+                let cols = 1;
+                let rows = 1;
+                if (numWorkers <= 1) {
+                    cols = 1; rows = 1;
+                } else if (numWorkers === 2) {
+                    cols = 2; rows = 1;
+                } else if (numWorkers <= 4) {
+                    cols = 2; rows = 2;
+                } else if (numWorkers <= 6) {
+                    cols = 3; rows = 2;
+                } else if (numWorkers <= 8) {
+                    cols = 4; rows = 2;
+                } else if (numWorkers <= 12) {
+                    cols = 4; rows = 3;
+                } else {
+                    cols = 4; rows = Math.ceil(numWorkers / 4);
+                }
+
+                const cellW = W / cols;
+                const cellH = H / rows;
+
+                const colors = ['rgba(139, 92, 246, 0.15)', 'rgba(59, 130, 246, 0.15)', 'rgba(16, 185, 129, 0.15)', 'rgba(244, 63, 94, 0.15)', 'rgba(245, 158, 11, 0.15)', 'rgba(6, 182, 212, 0.15)', 'rgba(236, 72, 153, 0.15)', 'rgba(132, 204, 22, 0.15)'];
+                const textColors = ['#8b5cf6', '#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#ec4899', '#84cc16'];
+
+                ctx.lineWidth = 1;
+                ctx.setLineDash([4, 4]);
+
+                for (let wId = 0; wId < numWorkers; wId++) {
+                    const c = wId % cols;
+                    const r = Math.floor(wId / cols);
+                    
+                    const x = c * cellW + 5;
+                    const y = r * cellH + 5;
+                    const w = cellW - 10;
+                    const h = cellH - 10;
+                    
+                    const colorIndex = wId % colors.length;
+                    ctx.strokeStyle = colors[colorIndex];
+                    ctx.strokeRect(x, y, w, h);
+                    
+                    ctx.fillStyle = textColors[colorIndex];
+                    ctx.font = '10px Outfit';
+                    const label = (vizMode === 'omp')
+                        ? `DOMAIN ${wId} (Thread ${wId})`
+                        : `DOMAIN ${wId} (Rank ${wId})`;
+                    ctx.fillText(label, x + 10, y + 15);
+                }
+
+                ctx.setLineDash([]);
+            }
+
+            // Draw Links
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+            ctx.lineWidth = 0.6;
+            graphEdges.forEach(e => {
+                const n1 = graphNodes[e.sourceIdx];
+                const n2 = graphNodes[e.targetIdx];
+                if (!n1 || !n2) return;
+                ctx.beginPath();
+                ctx.moveTo(n1.x, n1.y);
+                ctx.lineTo(n2.x, n2.y);
+                ctx.stroke();
+            });
+
+            // Draw Active Flow Particles
+            animationParticles.forEach(p => {
+                const n1 = graphNodes[p.sourceIdx];
+                const n2 = graphNodes[p.targetIdx];
+                if (!n1 || !n2) return;
+                const px = n1.x + (n2.x - n1.x) * p.progress;
+                const py = n1.y + (n2.y - n1.y) * p.progress;
+
+                ctx.fillStyle = 'var(--accent-emerald)';
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+
+            // Draw Nodes
+            graphNodes.forEach((node, idx) => {
+                if (Math.abs(node.radius - node.targetRadius) > 0.05) {
+                    node.radius += (node.targetRadius - node.radius) * 0.1;
+                }
+
+                ctx.fillStyle = node.color;
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, node.radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                if (node.targetRadius > 6.0) {
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+                    ctx.lineWidth = 1.0;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, node.radius + 1.5, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+
+                if (zoomScale > 1.3) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                    ctx.font = '7px JetBrains Mono';
+                    ctx.fillText(`V${node.id}`, node.x + node.radius + 1.5, node.y + 2);
+                }
+            });
+
+            ctx.restore();
+        }
+
+        // Local client-side PageRank simulator to animate convergence steps
+        function simulateLocalPageRank() {
+            if (graphNodes.length === 0) return;
+
+            // 1. Calculate out degrees
+            outDegrees = {};
+            graphNodes.forEach(n => outDegrees[n.id] = 0);
+            graphEdges.forEach(e => {
+                if (outDegrees[e.source] !== undefined) outDegrees[e.source]++;
+            });
+
+            const N = graphNodes.length;
+            const d = 0.85;
+            let ranks = Array(N).fill(1 / N);
+            const nodeOutDegrees = graphNodes.map(node => outDegrees[node.id] || 0);
+
+            const history = [];
+            history.push([...ranks]);
+
+            // Simulate 8 steps
+            for (let iter = 0; iter < 8; iter++) {
+                const nextRanks = Array(N).fill((1 - d) / N);
+                graphEdges.forEach(edge => {
+                    const u = edge.sourceIdx;
+                    const v = edge.targetIdx;
+                    const deg = nodeOutDegrees[u];
+                    if (deg > 0) {
+                        nextRanks[v] += d * ranks[u] / deg;
+                    }
+                });
+
+                let danglingSum = 0;
+                graphNodes.forEach((node, idx) => {
+                    if (nodeOutDegrees[idx] === 0) danglingSum += ranks[idx];
+                });
+                if (danglingSum > 0) {
+                    graphNodes.forEach((node, idx) => {
+                        nextRanks[idx] += d * danglingSum / N;
+                    });
+                }
+
+                const sum = nextRanks.reduce((a, b) => a + b, 0);
+                ranks = nextRanks.map(r => r / sum);
+                history.push([...ranks]);
+            }
+
+            // Animate playback of the history steps
+            let step = 0;
+            if (demoInterval) clearInterval(demoInterval);
+
+            demoInterval = setInterval(() => {
+                if (step >= history.length) {
+                    clearInterval(demoInterval);
+                    return;
+                }
+
+                const currentRanks = history[step];
+                const maxRank = Math.max(...currentRanks) || 0.01;
+
+                graphNodes.forEach((node, idx) => {
+                    const rank = currentRanks[idx];
+                    const rel = rank / maxRank;
+                    node.targetRadius = 3.5 + rel * 10.0;
+
+                    if (rel > 0.6) node.color = '#ec4899';
+                    else if (rel > 0.3) node.color = '#a855f7';
+                    else if (rel > 0.1) node.color = '#3b82f6';
+                    else node.color = '#54637a';
+                });
+
+                // Spawn flying flow particles along active edges
+                graphEdges.forEach(e => {
+                    const rank = currentRanks[e.sourceIdx];
+                    if (Math.random() < 0.25 && rank > 0.001) {
+                        animationParticles.push({
+                            sourceIdx: e.sourceIdx,
+                            targetIdx: e.targetIdx,
+                            progress: 0.0,
+                            speed: 0.015 + Math.random() * 0.02
+                        });
+                    }
+                });
+
+                step++;
+            }, 900);
+        }
 
         // Initialize Charts
         function initCharts() {
@@ -554,9 +1940,9 @@
                         label: 'Execution Time (ms)',
                         data: [0, 0, 0],
                         backgroundColor: [
-                            'rgba(161, 161, 170, 0.6)', // Serial
-                            'rgba(59, 130, 246, 0.6)',  // OpenMP
-                            'rgba(139, 92, 246, 0.6)'   // MPI
+                            'rgba(161, 161, 170, 0.6)',
+                            'rgba(59, 130, 246, 0.6)',
+                            'rgba(139, 92, 246, 0.6)'
                         ],
                         borderColor: [
                             '#a1a1aa',
@@ -589,40 +1975,59 @@
 
             const speedupCtx = document.getElementById('speedupChart').getContext('2d');
             speedupChart = new Chart(speedupCtx, {
-                type: 'bar',
+                type: 'line',
                 data: {
-                    labels: ['Serial', 'OpenMP', 'MPI'],
-                    datasets: [{
-                        label: 'Speedup Factor',
-                        data: [1, 0, 0],
-                        backgroundColor: [
-                            'rgba(161, 161, 170, 0.4)',
-                            'rgba(59, 130, 246, 0.6)',
-                            'rgba(139, 92, 246, 0.6)'
-                        ],
-                        borderColor: [
-                            '#a1a1aa',
-                            '#3b82f6',
-                            '#8b5cf6'
-                        ],
-                        borderWidth: 1.5,
-                        borderRadius: 6
-                    }]
+                    labels: [1, 2, 4, 8, 12],
+                    datasets: [
+                        {
+                            label: 'Ideal Scaling (Linear)',
+                            data: [1, 2, 4, 8, 12],
+                            borderColor: 'rgba(16, 185, 129, 0.5)',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 5],
+                            borderWidth: 1.5,
+                            tension: 0
+                        },
+                        {
+                            label: 'OpenMP (Shared-Memory)',
+                            data: [null, null, null, null, null],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#3b82f6',
+                            tension: 0.1,
+                            fill: false
+                        },
+                        {
+                            label: 'MPI (Distributed-Memory)',
+                            data: [null, null, null, null, null],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2.5,
+                            pointBackgroundColor: '#8b5cf6',
+                            tension: 0.1,
+                            fill: false
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: {
+                            labels: { color: '#a1a1aa', font: { family: 'Plus Jakarta Sans', size: 10 } }
+                        }
                     },
                     scales: {
                         y: {
+                            title: { display: true, text: 'Speedup Factor', color: '#a1a1aa' },
                             beginAtZero: true,
                             grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: { color: '#a1a1aa' }
                         },
                         x: {
-                            grid: { display: false },
+                            title: { display: true, text: 'Number of Resources', color: '#a1a1aa' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: { color: '#a1a1aa' }
                         }
                     }
@@ -643,7 +2048,7 @@
                     opt.textContent = g.name;
                     select.appendChild(opt);
                 });
-                
+
                 if (graphs.length > 0) {
                     currentGraph = graphs[0].path;
                     fetchResults(currentGraph);
@@ -659,6 +2064,10 @@
                 const response = await fetch(`/api/results?graph=${encodeURIComponent(graphPath)}`);
                 const data = await response.json();
                 updateUI(data);
+                updateWorkloadAllocation();
+
+                // Fetch graph structure to render canvas visualizer
+                fetchGraphTopology(graphPath);
             } catch (err) {
                 console.error("Error loading results:", err);
             }
@@ -668,7 +2077,7 @@
         function updateUI(data) {
             document.getElementById('info-vertices').textContent = data.vertices || 0;
             document.getElementById('info-edges').textContent = data.edges || 0;
-            
+
             if (data.last_updated) {
                 const date = new Date(data.last_updated);
                 document.getElementById('info-updated').textContent = date.toLocaleTimeString();
@@ -676,11 +2085,8 @@
                 document.getElementById('info-updated').textContent = "Never";
             }
 
-            // Fill Table and Charts
             const times = [0, 0, 0];
-            const speedups = [1, 0, 0];
 
-            // Serial baseline
             if (data.serial) {
                 document.getElementById('tbl-serial-time').textContent = data.serial.time_ms.toFixed(4) + " ms";
                 times[0] = data.serial.time_ms;
@@ -688,14 +2094,12 @@
                 document.getElementById('tbl-serial-time').textContent = "-";
             }
 
-            // OpenMP
             if (data.openmp) {
                 document.getElementById('tbl-openmp-time').textContent = data.openmp.time_ms.toFixed(4) + " ms";
                 document.getElementById('tbl-openmp-speedup').textContent = data.openmp.speedup ? data.openmp.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-openmp-efficiency').textContent = data.openmp.efficiency ? data.openmp.efficiency.toFixed(2) : "-";
-                document.getElementById('tbl-openmp-resource').textContent = data.openmp.threads + " Threads";
+                document.getElementById('tbl-openmp-resource').textContent = `${data.openmp.threads} Th (${data.openmp.schedule})`;
                 times[1] = data.openmp.time_ms;
-                if (data.openmp.speedup) speedups[1] = data.openmp.speedup;
             } else {
                 document.getElementById('tbl-openmp-time').textContent = "-";
                 document.getElementById('tbl-openmp-speedup').textContent = "-";
@@ -703,14 +2107,12 @@
                 document.getElementById('tbl-openmp-resource').textContent = "-";
             }
 
-            // MPI
             if (data.mpi) {
                 document.getElementById('tbl-mpi-time').textContent = data.mpi.time_ms.toFixed(4) + " ms";
                 document.getElementById('tbl-mpi-speedup').textContent = data.mpi.speedup ? data.mpi.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-mpi-efficiency').textContent = data.mpi.efficiency ? data.mpi.efficiency.toFixed(2) : "-";
-                document.getElementById('tbl-mpi-resource').textContent = data.mpi.processes + " Processes";
+                document.getElementById('tbl-mpi-resource').textContent = data.mpi.processes + " Procs";
                 times[2] = data.mpi.time_ms;
-                if (data.mpi.speedup) speedups[2] = data.mpi.speedup;
             } else {
                 document.getElementById('tbl-mpi-time').textContent = "-";
                 document.getElementById('tbl-mpi-speedup').textContent = "-";
@@ -718,47 +2120,57 @@
                 document.getElementById('tbl-mpi-resource').textContent = "-";
             }
 
-            // Update Charts
             timeChart.data.datasets[0].data = times;
             timeChart.update();
 
-            speedupChart.data.datasets[0].data = speedups;
+            if (data.scalability) {
+                const ompSweep = data.scalability.openmp || [];
+                const mpiSweep = data.scalability.mpi || [];
+
+                const ompData = [null, null, null, null, null];
+                ompSweep.forEach(item => {
+                    const idx = [1, 2, 4, 8, 12].indexOf(item.threads);
+                    if (idx !== -1) ompData[idx] = item.speedup;
+                });
+                speedupChart.data.datasets[1].data = ompData;
+
+                const mpiData = [null, null, null, null, null];
+                mpiSweep.forEach(item => {
+                    const idx = [1, 2, 4, 8, 12].indexOf(item.processes);
+                    if (idx !== -1) mpiData[idx] = item.speedup;
+                });
+                speedupChart.data.datasets[2].data = mpiData;
+            } else {
+                speedupChart.data.datasets[1].data = [null, null, null, null, null];
+                speedupChart.data.datasets[2].data = [null, null, null, null, null];
+            }
             speedupChart.update();
 
-            // Side-by-side values table
-            const tbody = document.getElementById('pr-values-body');
-            tbody.innerHTML = '';
-            
-            const serialPr = (data.serial && data.serial.pagerank) ? data.serial.pagerank : [];
-            const openmpPr = (data.openmp && data.openmp.pagerank) ? data.openmp.pagerank : [];
-            const mpiPr = (data.mpi && data.mpi.pagerank) ? data.mpi.pagerank : [];
+            if (data.cache_sim) {
+                const sim = data.cache_sim;
 
-            const maxItems = Math.max(serialPr.length, openmpPr.length, mpiPr.length);
+                document.getElementById('push-l1-hr').textContent = sim.push.l1_hit_rate.toFixed(2) + "%";
+                document.getElementById('push-l1-fill').style.width = sim.push.l1_hit_rate + "%";
+                document.getElementById('push-l2-hr').textContent = sim.push.l2_hit_rate.toFixed(2) + "%";
+                document.getElementById('push-l2-fill').style.width = sim.push.l2_hit_rate + "%";
+                document.getElementById('push-l1-miss').textContent = sim.push.l1_misses.toLocaleString();
+                document.getElementById('push-l2-miss').textContent = sim.push.l2_misses.toLocaleString();
 
-            if (maxItems === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No data available. Run benchmark to populate.</td></tr>`;
+                document.getElementById('pull-l1-hr').textContent = sim.pull.l1_hit_rate.toFixed(2) + "%";
+                document.getElementById('pull-l1-fill').style.width = sim.pull.l1_hit_rate + "%";
+                document.getElementById('pull-l2-hr').textContent = sim.pull.l2_hit_rate.toFixed(2) + "%";
+                document.getElementById('pull-l2-fill').style.width = sim.pull.l2_hit_rate + "%";
+                document.getElementById('pull-l1-miss').textContent = sim.pull.l1_misses.toLocaleString();
+                document.getElementById('pull-l2-miss').textContent = sim.pull.l2_misses.toLocaleString();
             } else {
-                for (let i = 0; i < maxItems; i++) {
-                    const row = document.createElement('tr');
-                    
-                    const cellIdx = document.createElement('td');
-                    cellIdx.textContent = i;
-                    row.appendChild(cellIdx);
-                    
-                    const cellSerial = document.createElement('td');
-                    cellSerial.textContent = serialPr[i] !== undefined ? serialPr[i].toFixed(6) : "-";
-                    row.appendChild(cellSerial);
-
-                    const cellOMP = document.createElement('td');
-                    cellOMP.textContent = openmpPr[i] !== undefined ? openmpPr[i].toFixed(6) : "-";
-                    row.appendChild(cellOMP);
-
-                    const cellMPI = document.createElement('td');
-                    cellMPI.textContent = mpiPr[i] !== undefined ? mpiPr[i].toFixed(6) : "-";
-                    row.appendChild(cellMPI);
-                    
-                    tbody.appendChild(row);
-                }
+                ['push', 'pull'].forEach(prefix => {
+                    document.getElementById(`${prefix}-l1-hr`).textContent = "0.00%";
+                    document.getElementById(`${prefix}-l1-fill`).style.width = "0%";
+                    document.getElementById(`${prefix}-l2-hr`).textContent = "0.00%";
+                    document.getElementById(`${prefix}-l2-fill`).style.width = "0%";
+                    document.getElementById(`${prefix}-l1-miss`).textContent = "0";
+                    document.getElementById(`${prefix}-l2-miss`).textContent = "0";
+                });
             }
         }
 
@@ -768,60 +2180,208 @@
             const statusBadge = document.getElementById('log-status');
             const threads = document.getElementById('threads-select').value;
             const procs = document.getElementById('procs-select').value;
+            const schedule = document.getElementById('sched-select').value;
             const btn = document.querySelector(`.btn-${impl}`);
             const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
 
-            // Set loading state
             statusBadge.textContent = "RUNNING";
             statusBadge.style.color = "var(--accent-rose)";
             document.getElementById(`${impl}-label`).innerHTML = `<div class="spinner"></div>`;
             document.querySelectorAll('.btn').forEach(b => b.disabled = true);
             terminal.textContent = `>>> Executing C implementation '${impl}' on ${currentGraph}...\n`;
 
+            // Start visualizer trace stages
+            markPipelineStep('step-1', 'active');
+            animateHPCExecution(impl, 'running');
+
+            setTimeout(() => markPipelineStep('step-2', 'active'), 250);
+            setTimeout(() => markPipelineStep('step-3', 'active'), 500);
+            setTimeout(() => {
+                markPipelineStep('step-4', 'active');
+                simulateLocalPageRank();
+            }, 750);
+
+            if (impl === 'mpi') {
+                setTimeout(() => markPipelineStep('step-5', 'active'), 1100);
+            }
+
             try {
                 const response = await fetch('/api/run', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs })
+                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs, schedule })
                 });
-                
-                const data = await response.json();
-                
+
+                let data;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    data = { error: `Server returned non-JSON response (Status ${response.status})`, raw: text };
+                }
+
                 if (response.ok) {
                     terminal.textContent = data.raw;
                     terminal.scrollTop = terminal.scrollHeight;
-                    // Reload results for current graph
                     await fetchResults(currentGraph);
                     statusBadge.textContent = "SUCCESS";
                     statusBadge.style.color = "var(--accent-emerald)";
+                    markPipelineStep('step-5', 'completed');
                 } else {
                     terminal.textContent = `ERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
                     statusBadge.textContent = "FAILED";
                     statusBadge.style.color = "var(--accent-rose)";
+                    document.querySelectorAll('.pipeline-step').forEach(s => s.classList.remove('active'));
                 }
             } catch (err) {
                 terminal.textContent = `API Error: ${err.message}`;
                 statusBadge.textContent = "FAILED";
                 statusBadge.style.color = "var(--accent-rose)";
+                document.querySelectorAll('.pipeline-step').forEach(s => s.classList.remove('active'));
             } finally {
-                // Restore button states
+                // Ensure minimum animation time so the user can actually see it!
+                await new Promise(resolve => setTimeout(resolve, 2500));
+                
                 document.getElementById(`${impl}-label`).innerHTML = originalLabel;
+                document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+                animateHPCExecution(impl, 'idle');
+            }
+        }
+
+        // Run Scalability Sweep Analysis
+        async function runScalingSweep() {
+            const terminal = document.getElementById('console');
+            const statusBadge = document.getElementById('log-status');
+            const schedule = document.getElementById('sched-select').value;
+            const originalLabel = document.getElementById('sweep-label').innerHTML;
+
+            statusBadge.textContent = "SWEEPING";
+            statusBadge.style.color = "var(--accent-rose)";
+            document.getElementById('sweep-label').innerHTML = `<div class="spinner"></div>`;
+            document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+            terminal.textContent = `>>> Starting Strong Scaling Sweep on '${currentGraph}' (OpenMP & MPI)...\n>>> Running Serial baseline, OpenMP [1, 2, 4, 8, 12] threads (${schedule}), and MPI [1, 2, 4, 8] processes.\n>>> Please wait, executing sweeps...\n`;
+
+            markPipelineStep('step-4', 'active');
+            animateHPCExecution('openmp', 'running');
+            animateHPCExecution('mpi', 'running');
+
+            try {
+                const response = await fetch('/api/scaling_sweep', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ graph: currentGraph, schedule })
+                });
+
+                let data;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    data = { error: `Server returned non-JSON response (Status ${response.status})`, raw: text };
+                }
+
+                if (response.ok) {
+                    terminal.textContent += `\n>>> Scaling Sweep Complete!\n\nOpenMP Results:\n` +
+                        data.openmp.map(item => `  - Threads: ${item.threads} | Time: ${item.time_ms.toFixed(4)} ms | Speedup: ${item.speedup.toFixed(2)}x`).join('\n') +
+                        `\n\nMPI Results:\n` +
+                        data.mpi.map(item => `  - Processes: ${item.processes} | Time: ${item.time_ms.toFixed(4)} ms | Speedup: ${item.speedup.toFixed(2)}x`).join('\n');
+
+                    await fetchResults(currentGraph);
+                    statusBadge.textContent = "SUCCESS";
+                    statusBadge.style.color = "var(--accent-emerald)";
+                    markPipelineStep('step-5', 'completed');
+                } else {
+                    terminal.textContent += `\nERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
+                    statusBadge.textContent = "FAILED";
+                    statusBadge.style.color = "var(--accent-rose)";
+                }
+            } catch (err) {
+                terminal.textContent += `\nAPI Error: ${err.message}`;
+                statusBadge.textContent = "FAILED";
+                statusBadge.style.color = "var(--accent-rose)";
+            } finally {
+                // Ensure minimum animation time
+                await new Promise(resolve => setTimeout(resolve, 3500));
+                
+                document.getElementById('sweep-label').innerHTML = originalLabel;
+                document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+                animateHPCExecution('openmp', 'idle');
+                animateHPCExecution('mpi', 'idle');
+            }
+        }
+
+        // Run Cache Simulator API
+        async function runCacheSimulation() {
+            const terminal = document.getElementById('console');
+            const statusBadge = document.getElementById('log-status');
+            const originalLabel = document.getElementById('cachesim-label').innerHTML;
+
+            statusBadge.textContent = "SIMULATING";
+            statusBadge.style.color = "var(--accent-rose)";
+            document.getElementById('cachesim-label').innerHTML = `<div class="spinner"></div>`;
+            document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+            terminal.textContent = `>>> Starting CPU Memory Hierarchy Cache Simulation on '${currentGraph}'...\n>>> Simulating 32KB L1 Data Cache (8-way LRU) & 512KB L2 Data Cache (16-way LRU) with 64B cache line size...\n>>> Tracking reads & writes for Push (Scatter) vs Pull (Gather) PageRank models...\n`;
+
+            try {
+                const response = await fetch('/api/cache_sim', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ graph: currentGraph })
+                });
+
+                let data;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    data = { error: `Server returned non-JSON response (Status ${response.status})`, raw: text };
+                }
+
+                if (response.ok) {
+                    terminal.textContent += `\n>>> CPU Cache Simulation Complete!\n\n` +
+                        `Push Model (Scatter):\n` +
+                        `  - L1 Hit Rate: ${data.push.l1_hit_rate.toFixed(2)}% | L1 Misses: ${data.push.l1_misses.toLocaleString()}\n` +
+                        `  - L2 Hit Rate: ${data.push.l2_hit_rate.toFixed(2)}% | L2 Misses: ${data.push.l2_misses.toLocaleString()}\n\n` +
+                        `Pull Model (Gather):\n` +
+                        `  - L1 Hit Rate: ${data.pull.l1_hit_rate.toFixed(2)}% | L1 Misses: ${data.pull.l1_misses.toLocaleString()}\n` +
+                        `  - L2 Hit Rate: ${data.pull.l2_hit_rate.toFixed(2)}% | L2 Misses: ${data.pull.l2_misses.toLocaleString()}\n`;
+
+                    await fetchResults(currentGraph);
+                    statusBadge.textContent = "SUCCESS";
+                    statusBadge.style.color = "var(--accent-emerald)";
+                } else {
+                    terminal.textContent += `\nERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
+                    statusBadge.textContent = "FAILED";
+                    statusBadge.style.color = "var(--accent-rose)";
+                }
+            } catch (err) {
+                terminal.textContent += `\nAPI Error: ${err.message}`;
+                statusBadge.textContent = "FAILED";
+                statusBadge.style.color = "var(--accent-rose)";
+            } finally {
+                document.getElementById('cachesim-label').innerHTML = originalLabel;
                 document.querySelectorAll('.btn').forEach(b => b.disabled = false);
             }
         }
 
         // Event listener for dropdown selection
-        document.getElementById('graph-select').addEventListener('change', function(e) {
+        document.getElementById('graph-select').addEventListener('change', function (e) {
             currentGraph = e.target.value;
             document.getElementById('console').textContent = `Loaded graph data file: ${currentGraph}. Ready to run benchmarks.`;
             fetchResults(currentGraph);
         });
 
-        // Initialize Page
+        // Initialize Page layouts
         window.addEventListener('DOMContentLoaded', () => {
             initCharts();
+            initCanvas();
             fetchGraphs();
+            updateParameters();
         });
     </script>
 </body>
+
 </html>

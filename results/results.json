@@ -134,14 +134,32 @@
         0.000112
       ]
     },
-    "last_updated": "2026-05-20T12:17:27.175007"
+    "last_updated": "2026-05-20T16:14:00.536572",
+    "cache_sim": {
+      "push": {
+        "l1_hits": 157966,
+        "l1_misses": 62020,
+        "l1_hit_rate": 71.81,
+        "l2_hits": 58895,
+        "l2_misses": 3125,
+        "l2_hit_rate": 94.96
+      },
+      "pull": {
+        "l1_hits": 77715,
+        "l1_misses": 142271,
+        "l1_hit_rate": 35.33,
+        "l2_hits": 138521,
+        "l2_misses": 3750,
+        "l2_hit_rate": 97.36
+      }
+    }
   },
   "data/graph_100000.txt": {
     "graph": "data/graph_100000.txt",
     "vertices": 100000,
     "edges": 1999971,
     "serial": {
-      "time_ms": 7.812,
+      "time_ms": 7.454,
       "pagerank": [
         1.1e-05,
         1.1e-05,
@@ -156,10 +174,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 3.0,
-      "threads": 8,
-      "speedup": 2.6,
-      "efficiency": 0.33,
+      "time_ms": 4.482,
+      "threads": 4,
+      "schedule": "static",
+      "speedup": 1.51,
+      "efficiency": 0.38,
       "pagerank": [
         1.1e-05,
         1.1e-05,
@@ -174,10 +193,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 25.77,
-      "processes": 2,
-      "speedup": 0.3,
-      "efficiency": 0.15,
+      "time_ms": 72.38,
+      "processes": 8,
+      "speedup": 0.09,
+      "efficiency": 0.01,
       "pagerank": [
         1.1e-05,
         1.1e-05,
@@ -191,6 +210,415 @@
         1.1e-05
       ]
     },
-    "last_updated": "2026-05-20T12:17:39.968879"
+    "last_updated": "2026-05-20T15:05:51.982316",
+    "scalability": {
+      "openmp": [
+        {
+          "threads": 1,
+          "time_ms": 8.6138,
+          "speedup": 0.87,
+          "efficiency": 0.87
+        },
+        {
+          "threads": 2,
+          "time_ms": 6.124,
+          "speedup": 1.22,
+          "efficiency": 0.61
+        },
+        {
+          "threads": 4,
+          "time_ms": 4.571,
+          "speedup": 1.63,
+          "efficiency": 0.41
+        },
+        {
+          "threads": 8,
+          "time_ms": 5.5151,
+          "speedup": 1.35,
+          "efficiency": 0.17
+        },
+        {
+          "threads": 12,
+          "time_ms": 5.676,
+          "speedup": 1.31,
+          "efficiency": 0.11
+        }
+      ],
+      "mpi": [
+        {
+          "processes": 1,
+          "time_ms": 7.575,
+          "speedup": 0.98,
+          "efficiency": 0.98
+        },
+        {
+          "processes": 2,
+          "time_ms": 26.163,
+          "speedup": 0.28,
+          "efficiency": 0.14
+        },
+        {
+          "processes": 4,
+          "time_ms": 39.861,
+          "speedup": 0.19,
+          "efficiency": 0.05
+        },
+        {
+          "processes": 8,
+          "time_ms": 93.869,
+          "speedup": 0.08,
+          "efficiency": 0.01
+        }
+      ]
+    }
+  },
+  "data/graph_1000.txt": {
+    "graph": "data/graph_1000.txt",
+    "vertices": 1000,
+    "edges": 9989,
+    "serial": {
+      "time_ms": 0.096,
+      "pagerank": [
+        0.001867,
+        0.000909,
+        0.000858,
+        0.001351,
+        0.000869,
+        0.000644,
+        0.000789,
+        0.001511,
+        0.000822,
+        0.000776
+      ]
+    },
+    "openmp": {
+      "time_ms": 1.236,
+      "threads": 4,
+      "schedule": "static",
+      "speedup": 0.08,
+      "efficiency": 0.02,
+      "pagerank": [
+        0.001867,
+        0.000909,
+        0.000858,
+        0.001351,
+        0.000869,
+        0.000644,
+        0.000789,
+        0.001511,
+        0.000822,
+        0.000776
+      ]
+    },
+    "mpi": {
+      "time_ms": 0.445,
+      "processes": 2,
+      "speedup": 0.22,
+      "efficiency": 0.11,
+      "pagerank": [
+        0.001867,
+        0.000909,
+        0.000858,
+        0.001351,
+        0.000869,
+        0.000644,
+        0.000789,
+        0.001511,
+        0.000822,
+        0.000776
+      ]
+    },
+    "scalability": {
+      "openmp": [
+        {
+          "threads": 1,
+          "time_ms": 0.113,
+          "speedup": 1.02,
+          "efficiency": 1.02
+        },
+        {
+          "threads": 2,
+          "time_ms": 0.3121,
+          "speedup": 0.37,
+          "efficiency": 0.18
+        },
+        {
+          "threads": 4,
+          "time_ms": 0.242,
+          "speedup": 0.48,
+          "efficiency": 0.12
+        },
+        {
+          "threads": 8,
+          "time_ms": 0.958,
+          "speedup": 0.12,
+          "efficiency": 0.01
+        },
+        {
+          "threads": 12,
+          "time_ms": 0.875,
+          "speedup": 0.13,
+          "efficiency": 0.01
+        }
+      ],
+      "mpi": [
+        {
+          "processes": 1,
+          "time_ms": 0.257,
+          "speedup": 0.45,
+          "efficiency": 0.45
+        },
+        {
+          "processes": 2,
+          "time_ms": 0.149,
+          "speedup": 0.77,
+          "efficiency": 0.39
+        },
+        {
+          "processes": 4,
+          "time_ms": 0.358,
+          "speedup": 0.32,
+          "efficiency": 0.08
+        },
+        {
+          "processes": 8,
+          "time_ms": 3.728,
+          "speedup": 0.03,
+          "efficiency": 0.0
+        }
+      ]
+    },
+    "last_updated": "2026-05-20T20:06:22.084836",
+    "cache_sim": {
+      "push": {
+        "l1_hits": 21663,
+        "l1_misses": 315,
+        "l1_hit_rate": 98.57,
+        "l2_hits": 0,
+        "l2_misses": 315,
+        "l2_hit_rate": 0.0
+      },
+      "pull": {
+        "l1_hits": 21599,
+        "l1_misses": 379,
+        "l1_hit_rate": 98.28,
+        "l2_hits": 0,
+        "l2_misses": 379,
+        "l2_hit_rate": 0.0
+      }
+    }
+  },
+  "data/graph_100k_20.txt": {
+    "graph": "data/graph_100k_20.txt",
+    "vertices": 100000,
+    "edges": 1999977,
+    "serial": {
+      "time_ms": 7.244,
+      "pagerank": [
+        8e-06,
+        1e-05,
+        1e-05,
+        1e-05,
+        1.3e-05,
+        7e-06,
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        9e-06
+      ]
+    },
+    "openmp": {
+      "time_ms": 6.979,
+      "threads": 2,
+      "schedule": "static",
+      "speedup": 1.04,
+      "efficiency": 0.52,
+      "pagerank": [
+        8e-06,
+        1e-05,
+        1e-05,
+        1e-05,
+        1.3e-05,
+        7e-06,
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        9e-06
+      ]
+    },
+    "mpi": {
+      "time_ms": 5.867,
+      "processes": 2,
+      "speedup": 1.23,
+      "efficiency": 0.61,
+      "pagerank": [
+        8e-06,
+        1e-05,
+        1e-05,
+        1e-05,
+        1.3e-05,
+        7e-06,
+        1.1e-05,
+        1.1e-05,
+        1e-05,
+        9e-06
+      ]
+    },
+    "scalability": null,
+    "last_updated": "2026-05-20T16:13:39.876130",
+    "cache_sim": {
+      "push": {
+        "l1_hits": 2263116,
+        "l1_misses": 1936838,
+        "l1_hit_rate": 53.88,
+        "l2_hits": 1206404,
+        "l2_misses": 730434,
+        "l2_hit_rate": 62.29
+      },
+      "pull": {
+        "l1_hits": 302399,
+        "l1_misses": 3897555,
+        "l1_hit_rate": 7.2,
+        "l2_hits": 1768216,
+        "l2_misses": 2129339,
+        "l2_hit_rate": 45.37
+      }
+    }
+  },
+  "data/graph_15000.txt": {
+    "graph": "data/graph_15000.txt",
+    "vertices": 15000,
+    "edges": 149984,
+    "serial": {
+      "time_ms": 1.047,
+      "pagerank": [
+        0.000116,
+        5.2e-05,
+        4.5e-05,
+        6.3e-05,
+        7.4e-05,
+        6.2e-05,
+        8e-05,
+        7.7e-05,
+        7.9e-05,
+        3.7e-05
+      ]
+    },
+    "openmp": {
+      "time_ms": 1.6649,
+      "threads": 4,
+      "schedule": "static",
+      "speedup": 0.58,
+      "efficiency": 0.14,
+      "pagerank": [
+        0.000116,
+        5.2e-05,
+        4.5e-05,
+        6.3e-05,
+        7.4e-05,
+        6.2e-05,
+        8e-05,
+        7.7e-05,
+        7.9e-05,
+        3.7e-05
+      ]
+    },
+    "mpi": {
+      "time_ms": 1.748,
+      "processes": 2,
+      "speedup": 0.55,
+      "efficiency": 0.28,
+      "pagerank": [
+        0.000116,
+        5.2e-05,
+        4.5e-05,
+        6.3e-05,
+        7.4e-05,
+        6.2e-05,
+        8e-05,
+        7.7e-05,
+        7.9e-05,
+        3.7e-05
+      ]
+    },
+    "scalability": {
+      "openmp": [
+        {
+          "threads": 1,
+          "time_ms": 0.777,
+          "speedup": 1.35,
+          "efficiency": 1.35
+        },
+        {
+          "threads": 2,
+          "time_ms": 1.0409,
+          "speedup": 1.01,
+          "efficiency": 0.51
+        },
+        {
+          "threads": 4,
+          "time_ms": 0.792,
+          "speedup": 1.32,
+          "efficiency": 0.33
+        },
+        {
+          "threads": 8,
+          "time_ms": 1.1539,
+          "speedup": 0.91,
+          "efficiency": 0.11
+        },
+        {
+          "threads": 12,
+          "time_ms": 1.374,
+          "speedup": 0.76,
+          "efficiency": 0.06
+        }
+      ],
+      "mpi": [
+        {
+          "processes": 1,
+          "time_ms": 1.074,
+          "speedup": 0.97,
+          "efficiency": 0.97
+        },
+        {
+          "processes": 2,
+          "time_ms": 2.366,
+          "speedup": 0.44,
+          "efficiency": 0.22
+        },
+        {
+          "processes": 4,
+          "time_ms": 2.044,
+          "speedup": 0.51,
+          "efficiency": 0.13
+        },
+        {
+          "processes": 8,
+          "time_ms": 11.939,
+          "speedup": 0.09,
+          "efficiency": 0.01
+        }
+      ]
+    },
+    "cache_sim": {
+      "push": {
+        "l1_hits": 217041,
+        "l1_misses": 112927,
+        "l1_hit_rate": 65.78,
+        "l2_hits": 108239,
+        "l2_misses": 4688,
+        "l2_hit_rate": 95.85
+      },
+      "pull": {
+        "l1_hits": 87161,
+        "l1_misses": 242807,
+        "l1_hit_rate": 26.41,
+        "l2_hits": 237181,
+        "l2_misses": 5626,
+        "l2_hit_rate": 97.68
+      }
+    },
+    "last_updated": "2026-05-20T16:11:31.174776"
   }
 }
