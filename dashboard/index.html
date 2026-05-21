@@ -271,7 +271,7 @@
 
         .btn-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 0.5rem;
         }
 
@@ -312,6 +312,12 @@
             background-color: var(--primary);
             border-color: var(--primary);
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-hybrid:hover {
+            background-color: #f59e0b;
+            border-color: #f59e0b;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
         }
 
         .btn-sweep:hover {
@@ -929,6 +935,15 @@
                                     <option value="8">8 Processes</option>
                                 </select>
                             </div>
+                            <div class="control-group">
+                                <label for="gpu-fraction-select">Hybrid GPU Work</label>
+                                <select id="gpu-fraction-select">
+                                    <option value="0.50">50%</option>
+                                    <option value="0.70">70%</option>
+                                    <option value="0.85">85%</option>
+                                    <option value="1.00" selected>100%</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="btn-grid">
@@ -940,6 +955,9 @@
                             </button>
                             <button class="btn btn-mpi" onclick="runBenchmark('mpi')">
                                 <span id="mpi-label">Run MPI</span>
+                            </button>
+                            <button class="btn btn-hybrid" onclick="runBenchmark('hybrid')">
+                                <span id="hybrid-label">Run Hybrid</span>
                             </button>
                             <button class="btn btn-sweep" onclick="runScalingSweep()">
                                 <span id="sweep-label">Scaling Sweep</span>
@@ -983,6 +1001,13 @@
                                     <td id="tbl-mpi-speedup">-</td>
                                     <td id="tbl-mpi-efficiency">-</td>
                                     <td id="tbl-mpi-resource">-</td>
+                                </tr>
+                                <tr>
+                                    <td style="color:#f59e0b; font-weight:700;">Hybrid</td>
+                                    <td id="tbl-hybrid-time">-</td>
+                                    <td id="tbl-hybrid-speedup">-</td>
+                                    <td id="tbl-hybrid-efficiency">-</td>
+                                    <td id="tbl-hybrid-resource">-</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1417,7 +1442,7 @@
 
         // Animate visualizer state
         function animateHPCExecution(impl, state) {
-            if (impl === 'openmp') {
+            if (impl === 'openmp' || impl === 'hybrid') {
                 const select = document.getElementById('threads-select');
                 const numCores = parseInt(select.value);
                 for (let i = 0; i < numCores; i++) {
@@ -1935,19 +1960,21 @@
             timeChart = new Chart(timeCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Serial', 'OpenMP', 'MPI'],
+                    labels: ['Serial', 'OpenMP', 'MPI', 'Hybrid'],
                     datasets: [{
                         label: 'Execution Time (ms)',
-                        data: [0, 0, 0],
+                        data: [0, 0, 0, 0],
                         backgroundColor: [
                             'rgba(161, 161, 170, 0.6)',
                             'rgba(59, 130, 246, 0.6)',
-                            'rgba(139, 92, 246, 0.6)'
+                            'rgba(139, 92, 246, 0.6)',
+                            'rgba(245, 158, 11, 0.6)'
                         ],
                         borderColor: [
                             '#a1a1aa',
                             '#3b82f6',
-                            '#8b5cf6'
+                            '#8b5cf6',
+                            '#f59e0b'
                         ],
                         borderWidth: 1.5,
                         borderRadius: 6
@@ -2085,7 +2112,7 @@
                 document.getElementById('info-updated').textContent = "Never";
             }
 
-            const times = [0, 0, 0];
+            const times = [0, 0, 0, 0];
 
             if (data.serial) {
                 document.getElementById('tbl-serial-time').textContent = data.serial.time_ms.toFixed(4) + " ms";
@@ -2118,6 +2145,20 @@
                 document.getElementById('tbl-mpi-speedup').textContent = "-";
                 document.getElementById('tbl-mpi-efficiency').textContent = "-";
                 document.getElementById('tbl-mpi-resource').textContent = "-";
+            }
+
+            if (data.hybrid) {
+                document.getElementById('tbl-hybrid-time').textContent = data.hybrid.time_ms.toFixed(4) + " ms";
+                document.getElementById('tbl-hybrid-speedup').textContent = data.hybrid.speedup ? data.hybrid.speedup.toFixed(2) + "x" : "-";
+                document.getElementById('tbl-hybrid-efficiency').textContent = data.hybrid.efficiency ? data.hybrid.efficiency.toFixed(2) : "-";
+                const hybridUnits = data.hybrid.resource_units ? ` (${data.hybrid.resource_units.toFixed(1)} units)` : "";
+                document.getElementById('tbl-hybrid-resource').textContent = `${data.hybrid.threads} Th + ${(data.hybrid.gpu_fraction * 100).toFixed(0)}% GPU${hybridUnits}`;
+                times[3] = data.hybrid.time_ms;
+            } else {
+                document.getElementById('tbl-hybrid-time').textContent = "-";
+                document.getElementById('tbl-hybrid-speedup').textContent = "-";
+                document.getElementById('tbl-hybrid-efficiency').textContent = "-";
+                document.getElementById('tbl-hybrid-resource').textContent = "-";
             }
 
             timeChart.data.datasets[0].data = times;
@@ -2181,6 +2222,7 @@
             const threads = document.getElementById('threads-select').value;
             const procs = document.getElementById('procs-select').value;
             const schedule = document.getElementById('sched-select').value;
+            const gpuFraction = document.getElementById('gpu-fraction-select').value;
             const btn = document.querySelector(`.btn-${impl}`);
             const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
 
@@ -2201,7 +2243,7 @@
                 simulateLocalPageRank();
             }, 750);
 
-            if (impl === 'mpi') {
+            if (impl === 'mpi' || impl === 'hybrid') {
                 setTimeout(() => markPipelineStep('step-5', 'active'), 1100);
             }
 
@@ -2209,7 +2251,7 @@
                 const response = await fetch('/api/run', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs, schedule })
+                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs, schedule, gpu_fraction: gpuFraction })
                 });
 
                 let data;

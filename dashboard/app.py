@@ -2,6 +2,8 @@
 import json
 import os
 import re
+import shlex
+import shutil
 import subprocess
 from pathlib import Path
 from datetime import datetime
@@ -14,6 +16,13 @@ PROJECT_ROOT = DASHBOARD_DIR.parent
 BIN_DIR = PROJECT_ROOT / "bin"
 DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_FILE = PROJECT_ROOT / "results" / "results.json"
+IS_WINDOWS = os.name == "nt"
+
+def _to_wsl_path(path: Path) -> str:
+    resolved = path.resolve()
+    drive = resolved.drive.rstrip(":").lower()
+    rest = resolved.as_posix().split(":", 1)[1].lstrip("/")
+    return f"/mnt/{drive}/{rest}"
 
 # Output parsers
 TIME_RE = re.compile(r"PageRank time:\s+([\d.]+)\s+ms")
@@ -41,7 +50,7 @@ def parse_output(output: str, impl_name: str) -> dict:
         result["pagerank"] = [float(x) for x in m.group(1).split()]
     return result
 
-def compile_binaries() -> tuple[bool, str]:
+def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
     """Ensure binaries are compiled. Returns (success, log)."""
     BIN_DIR.mkdir(parents=True, exist_ok=True)
     logs = []
@@ -94,10 +103,40 @@ def compile_binaries() -> tuple[bool, str]:
         if r.returncode != 0:
             return False, f"Failed to compile Cache Simulator:\n{r.stderr}"
 
+    # 5. Compile Hybrid CUDA/OpenMP implementation
+    hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
+    wsl_hybrid_binary = BIN_DIR / "hybrid"
+    if include_hybrid and IS_WINDOWS and not hybrid_binary.exists() and wsl_hybrid_binary.exists():
+        logs.append("Using WSL-built Hybrid binary.")
+    elif include_hybrid and not hybrid_binary.exists():
+        logs.append("Compiling Hybrid CUDA/OpenMP implementation...")
+        nvcc = shutil.which("nvcc")
+        if not nvcc and IS_WINDOWS:
+            cuda_path = os.environ.get("CUDA_PATH")
+            if cuda_path:
+                candidate = Path(cuda_path) / "bin" / "nvcc.exe"
+                if candidate.exists():
+                    nvcc = str(candidate)
+        if not nvcc:
+            return False, "Failed to compile Hybrid: nvcc was not found. Run the dashboard from WSL/Linux or add CUDA Toolkit to PATH."
+
+        openmp_flag = "/openmp" if IS_WINDOWS else "-fopenmp"
+        cmd = [
+            nvcc, "-x", "cu", "-O3", "-Xcompiler", openmp_flag,
+            "src/graph.c", "src/hybrid_pagerank.c", "main/main_hybrid.c",
+            "-o", str(hybrid_binary)
+        ]
+        if not IS_WINDOWS:
+            cmd.append("-lm")
+        r = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True)
+        if r.returncode != 0:
+            return False, f"Failed to compile Hybrid:\n{r.stderr}"
+
     return True, "\n".join(logs) if logs else "All binaries are up-to-date."
 
-def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int = 2, schedule: str = "static") -> dict:
-    success, log = compile_binaries()
+def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int = 2,
+                       schedule: str = "static", gpu_fraction: float = 1.00) -> dict:
+    success, log = compile_binaries(include_hybrid=(impl == "hybrid"))
     if not success:
         return {"error": "Compilation failed", "raw": log}
 
@@ -112,6 +151,18 @@ def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int 
     elif impl == "mpi":
         cmd = ["mpirun", "-np", str(procs), str(BIN_DIR / "mpi"), abs_graph_path]
         timeout = 60
+    elif impl == "hybrid":
+        hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
+        if IS_WINDOWS and not hybrid_binary.exists() and (BIN_DIR / "hybrid").exists():
+            wsl_root = _to_wsl_path(PROJECT_ROOT)
+            rel_graph = graph_path.replace("\\", "/")
+            cmd = [
+                "wsl", "-e", "bash", "-lc",
+                f"cd {shlex.quote(wsl_root)} && ./bin/hybrid {shlex.quote(rel_graph)} {threads} {gpu_fraction}"
+            ]
+        else:
+            cmd = [str(hybrid_binary), abs_graph_path, str(threads), str(gpu_fraction)]
+        timeout = 300
     else:
         return {"error": "Invalid implementation"}
 
@@ -137,6 +188,34 @@ def _save_all_results(data: dict):
     RESULTS_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(RESULTS_FILE, "w") as f:
         json.dump(data, f, indent=2)
+
+def _hybrid_resource_units(cpu_threads: int, gpu_fraction: float) -> float:
+    """Approximate heterogeneous resource units for summary efficiency.
+
+    OpenMP efficiency uses speedup / CPU threads and MPI uses speedup /
+    processes. Hybrid uses CPU threads plus the selected fraction of one GPU, so
+    4 CPU threads + 100% GPU is treated as 5 resource units.
+    """
+    return max(1.0, float(cpu_threads) + max(0.0, min(1.0, gpu_fraction)))
+
+def _normalize_hybrid_metrics(graph_entry: dict) -> dict:
+    hybrid = graph_entry.get("hybrid")
+    serial = graph_entry.get("serial")
+    if not hybrid:
+        return graph_entry
+
+    threads = int(hybrid.get("threads", 1) or 1)
+    gpu_fraction = float(hybrid.get("gpu_fraction", 1.0) or 0.0)
+    resource_units = _hybrid_resource_units(threads, gpu_fraction)
+    hybrid["gpu_devices"] = 1 if gpu_fraction > 0 else 0
+    hybrid["resource_units"] = resource_units
+
+    if serial and serial.get("time_ms") and hybrid.get("time_ms"):
+        speedup = round(serial["time_ms"] / hybrid["time_ms"], 2)
+        hybrid["speedup"] = speedup
+        hybrid["efficiency"] = round(speedup / resource_units, 2)
+
+    return graph_entry
 
 @app.route("/")
 def index():
@@ -195,11 +274,12 @@ def get_results():
             "serial": None,
             "openmp": None,
             "mpi": None,
+            "hybrid": None,
             "scalability": None,
             "cache_sim": None,
             "last_updated": None
         })
-    return jsonify(all_results[graph])
+    return jsonify(_normalize_hybrid_metrics(all_results[graph]))
 
 @app.route("/api/run", methods=["POST"])
 def run_benchmark():
@@ -209,8 +289,9 @@ def run_benchmark():
     threads = int(data.get("threads", 4))
     procs = int(data.get("procs", 2))
     schedule = data.get("schedule", "static")
+    gpu_fraction = float(data.get("gpu_fraction", 1.00))
 
-    res = run_implementation(impl, graph, threads, procs, schedule)
+    res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction)
     if "error" in res:
         return jsonify(res), 500
 
@@ -223,6 +304,7 @@ def run_benchmark():
             "serial": None,
             "openmp": None,
             "mpi": None,
+            "hybrid": None,
             "scalability": None,
             "cache_sim": None,
             "last_updated": None
@@ -269,6 +351,25 @@ def run_benchmark():
         graph_entry["mpi"] = {
             "time_ms": time_ms,
             "processes": procs,
+            "speedup": speedup,
+            "efficiency": efficiency,
+            "pagerank": res["pagerank"]
+        }
+    elif impl == "hybrid":
+        speedup = None
+        efficiency = None
+        resource_units = _hybrid_resource_units(threads, gpu_fraction)
+        if graph_entry.get("serial") and graph_entry["serial"].get("time_ms"):
+            serial_time = graph_entry["serial"]["time_ms"]
+            speedup = round(serial_time / time_ms, 2)
+            efficiency = round(speedup / resource_units, 2)
+
+        graph_entry["hybrid"] = {
+            "time_ms": time_ms,
+            "threads": threads,
+            "gpu_fraction": gpu_fraction,
+            "gpu_devices": 1 if gpu_fraction > 0 else 0,
+            "resource_units": resource_units,
             "speedup": speedup,
             "efficiency": efficiency,
             "pagerank": res["pagerank"]
@@ -332,6 +433,7 @@ def scaling_sweep():
             "serial": None,
             "openmp": None,
             "mpi": None,
+            "hybrid": None,
             "scalability": None,
             "cache_sim": None,
             "last_updated": None
@@ -379,6 +481,7 @@ def cache_simulation():
                 "serial": None,
                 "openmp": None,
                 "mpi": None,
+                "hybrid": None,
                 "scalability": None,
                 "cache_sim": None,
                 "last_updated": None
