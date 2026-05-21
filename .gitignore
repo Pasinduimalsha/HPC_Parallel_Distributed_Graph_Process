@@ -14,3 +14,45 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# IDEs
+.idea/
+
+# Python (additional)
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+*.egg-info/
+.env
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Compiled objects and binaries
+*.o
+*.obj
+*.so
+*.dll
+*.exe
+*.out
+
+# Logs and caches
+*.log
+.cache/
+
+# Packaging / distribution
+dist/
+*.egg
+
+# Java / Maven
+target/
+*.class
+*.jar
+
+# Coverage
+.coverage
+htmlcov/
