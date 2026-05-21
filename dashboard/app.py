@@ -17,13 +17,59 @@ BIN_DIR = PROJECT_ROOT / "bin"
 DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_FILE = PROJECT_ROOT / "results" / "results.json"
 IS_WINDOWS = os.name == "nt"
-HYBRID_GPU_EDGE_THRESHOLD = 5_000_000
 
 def _to_wsl_path(path: Path) -> str:
     resolved = path.resolve()
     drive = resolved.drive.rstrip(":").lower()
     rest = resolved.as_posix().split(":", 1)[1].lstrip("/")
     return f"/mnt/{drive}/{rest}"
+
+def _normalize_graph_path(graph_path: str) -> str:
+    graph_path = (graph_path or "data/sample_graph.txt").replace("\\", "/").lstrip("/")
+    if not graph_path.startswith("data/"):
+        graph_path = f"data/{Path(graph_path).name}"
+    return graph_path
+
+def _graph_full_path(graph_path: str) -> Path:
+    graph_path = _normalize_graph_path(graph_path)
+    return PROJECT_ROOT / graph_path
+
+def _graph_cache_path(graph_path: str) -> Path:
+    return Path(str(_graph_full_path(graph_path)) + ".csr")
+
+def _graph_file_size_mb(graph_path: str) -> float:
+    try:
+        return _graph_full_path(graph_path).stat().st_size / (1024 * 1024)
+    except OSError:
+        return 0.0
+
+def _infer_graph_stats_from_name(graph_path: str) -> tuple[int, int]:
+    match = re.match(r"graph_(\d+)_(\d+)\.txt$", Path(graph_path).name)
+    if not match:
+        return 0, 0
+    return int(match.group(1)), int(match.group(2))
+
+def _graph_sort_key(path: Path) -> tuple[int, int, str]:
+    vertices, edges = _infer_graph_stats_from_name(path.name)
+    if vertices and edges:
+        return vertices, edges, path.name
+    return float("inf"), float("inf"), path.name
+
+def _benchmark_timeout_seconds(graph_path: str, impl: str) -> int:
+    size_mb = _graph_file_size_mb(graph_path)
+    cache_exists = _graph_cache_path(graph_path).exists()
+
+    if cache_exists:
+        timeout = 120 + int(size_mb * 0.5)
+    else:
+        timeout = 180 + int(size_mb * 3.0)
+
+    if impl == "hybrid":
+        timeout += 240
+    elif impl == "mpi":
+        timeout += 120
+
+    return min(max(timeout, 120), 1800)
 
 # Output parsers
 TIME_RE = re.compile(r"PageRank time:\s+([\d.]+)\s+ms")
@@ -54,14 +100,6 @@ def parse_output(output: str, impl_name: str) -> dict:
     if m:
         result["mode"] = m.group(1).strip()
     return result
-
-def _count_graph_edges(graph_path: str) -> int:
-    full_path = PROJECT_ROOT / graph_path
-    try:
-        with open(full_path) as f:
-            return sum(1 for line in f if line.strip())
-    except OSError:
-        return 0
 
 def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
     """Ensure binaries are compiled. Returns (success, log)."""
@@ -108,15 +146,7 @@ def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
         if r.returncode != 0:
             return False, f"Failed to compile MPI:\n{r.stderr}"
 
-    # 4. Compile Cache Simulator
-    if not (BIN_DIR / "cache_sim").exists():
-        logs.append("Compiling Cache Simulator...")
-        cmd = ["gcc", "-O3", "src/graph.c", "src/cache_sim.c", "tools/run_cache_sim.c", "-o", "bin/cache_sim", "-lm"]
-        r = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True)
-        if r.returncode != 0:
-            return False, f"Failed to compile Cache Simulator:\n{r.stderr}"
-
-    # 5. Compile Hybrid CUDA/OpenMP implementation
+    # 4. Compile Hybrid CUDA/OpenMP implementation
     hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
     wsl_hybrid_binary = BIN_DIR / "hybrid"
     if include_hybrid and IS_WINDOWS and not hybrid_binary.exists() and wsl_hybrid_binary.exists():
@@ -148,54 +178,68 @@ def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
     return True, "\n".join(logs) if logs else "All binaries are up-to-date."
 
 def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int = 2,
-                       schedule: str = "static", gpu_fraction: float = 1.00) -> dict:
+                       schedule: str = "static", gpu_fraction: float = 1.00,
+                       repeats: int = 1, max_iterations: int = 100,
+                       tolerance: float = 1e-6) -> dict:
+    graph_path = _normalize_graph_path(graph_path)
     success, log = compile_binaries(include_hybrid=(impl == "hybrid"))
     if not success:
         return {"error": "Compilation failed", "raw": log}
 
-    abs_graph_path = str(PROJECT_ROOT / graph_path)
+    abs_graph_path = str(_graph_full_path(graph_path))
     
     if impl == "serial":
-        cmd = [str(BIN_DIR / "serial"), abs_graph_path]
-        timeout = 60
+        cmd = [str(BIN_DIR / "serial"), abs_graph_path, str(max_iterations), str(tolerance)]
     elif impl == "openmp":
-        cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), schedule]
-        timeout = 60
+        cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), schedule, str(max_iterations), str(tolerance)]
     elif impl == "mpi":
-        cmd = ["mpirun", "-np", str(procs), str(BIN_DIR / "mpi"), abs_graph_path]
-        timeout = 60
+        cmd = ["mpirun", "-np", str(procs), str(BIN_DIR / "mpi"), abs_graph_path, str(max_iterations), str(tolerance)]
     elif impl == "hybrid":
-        graph_edges = _count_graph_edges(graph_path)
-        if graph_edges and graph_edges < HYBRID_GPU_EDGE_THRESHOLD:
-            cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), schedule]
-            timeout = 60
-            hybrid_mode = f"Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)"
+        hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
+        if IS_WINDOWS and not hybrid_binary.exists() and (BIN_DIR / "hybrid").exists():
+            wsl_root = _to_wsl_path(PROJECT_ROOT)
+            rel_graph = graph_path.replace("\\", "/")
+            cmd = [
+                "wsl", "-e", "bash", "-lc",
+                f"cd {shlex.quote(wsl_root)} && ./bin/hybrid {shlex.quote(rel_graph)} {threads} {gpu_fraction} {max_iterations} {tolerance}"
+            ]
         else:
-            hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
-            if IS_WINDOWS and not hybrid_binary.exists() and (BIN_DIR / "hybrid").exists():
-                wsl_root = _to_wsl_path(PROJECT_ROOT)
-                rel_graph = graph_path.replace("\\", "/")
-                cmd = [
-                    "wsl", "-e", "bash", "-lc",
-                    f"cd {shlex.quote(wsl_root)} && ./bin/hybrid {shlex.quote(rel_graph)} {threads} {gpu_fraction}"
-                ]
-            else:
-                cmd = [str(hybrid_binary), abs_graph_path, str(threads), str(gpu_fraction)]
-            timeout = 300
-            hybrid_mode = "CUDA GPU fast path"
+            cmd = [str(hybrid_binary), abs_graph_path, str(threads), str(gpu_fraction), str(max_iterations), str(tolerance)]
+        hybrid_mode = "OpenMP CPU launch threads + CUDA GPU compute"
     else:
         return {"error": "Invalid implementation"}
 
+    timeout = _benchmark_timeout_seconds(graph_path, impl)
     try:
-        r = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=timeout)
-        output = r.stdout + r.stderr
-        if r.returncode != 0:
-            return {"error": f"Execution failed (Exit Code {r.returncode})", "raw": output}
-        if impl == "hybrid" and "Hybrid mode:" not in output:
-            output = f"Hybrid mode: {hybrid_mode}\n" + output
-        return parse_output(output, impl)
+        best = None
+        run_logs = []
+        for run_idx in range(max(1, repeats)):
+            r = subprocess.run(cmd, cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=timeout)
+            output = r.stdout + r.stderr
+            if r.returncode != 0:
+                return {"error": f"Execution failed (Exit Code {r.returncode})", "raw": output}
+            if impl == "hybrid" and "Hybrid mode:" not in output:
+                output = f"Hybrid mode: {hybrid_mode}\n" + output
+            parsed = parse_output(output, impl)
+            run_logs.append(f"--- run {run_idx + 1} ---\n{output}")
+            if best is None or (
+                    parsed.get("time_ms") is not None and
+                    parsed["time_ms"] < best.get("time_ms", float("inf"))):
+                best = parsed
+
+        if best is None:
+            return {"error": "No benchmark result was produced", "raw": "\n".join(run_logs)}
+        if repeats > 1:
+            best["raw"] = "\n".join(run_logs) + f"\nSelected best of {repeats}: {best['time_ms']:.4f} ms\n"
+        return best
     except subprocess.TimeoutExpired:
-        return {"error": "Execution timed out", "raw": ""}
+        return {
+            "error": f"Execution timed out after {timeout} seconds",
+            "raw": (
+                "The selected graph is large and may be creating its .csr cache for the first time. "
+                "After the cache exists, later runs are much faster."
+            )
+        }
 
 def _load_all_results() -> dict:
     if not RESULTS_FILE.exists():
@@ -211,6 +255,60 @@ def _save_all_results(data: dict):
     with open(RESULTS_FILE, "w") as f:
         json.dump(data, f, indent=2)
 
+def _scan_graph_stats(graph_path: str) -> tuple[int, int]:
+    full_path = _graph_full_path(graph_path)
+    max_vertex = -1
+    edge_count = 0
+    try:
+        with open(full_path) as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 2:
+                    continue
+                try:
+                    u = int(parts[0])
+                    v = int(parts[1])
+                except ValueError:
+                    continue
+                if u > max_vertex:
+                    max_vertex = u
+                if v > max_vertex:
+                    max_vertex = v
+                edge_count += 1
+    except OSError:
+        return 0, 0
+    return max_vertex + 1 if max_vertex >= 0 else 0, edge_count
+
+def _empty_graph_entry(graph_path: str, vertices: int = 0, edges: int = 0) -> dict:
+    return {
+        "graph": graph_path,
+        "vertices": vertices,
+        "edges": edges,
+        "serial": None,
+        "openmp": None,
+        "mpi": None,
+        "hybrid": None,
+        "scalability": None,
+        "last_updated": None
+    }
+
+def _ensure_graph_entry(all_results: dict, graph_path: str, scan_stats: bool = False) -> dict:
+    graph_path = _normalize_graph_path(graph_path)
+    if graph_path not in all_results:
+        vertices, edges = _infer_graph_stats_from_name(graph_path)
+        if scan_stats and (not vertices or not edges):
+            vertices, edges = _scan_graph_stats(graph_path)
+        all_results[graph_path] = _empty_graph_entry(graph_path, vertices, edges)
+    elif scan_stats and (not all_results[graph_path].get("vertices") or not all_results[graph_path].get("edges")):
+        vertices, edges = _infer_graph_stats_from_name(graph_path)
+        if not vertices or not edges:
+            vertices, edges = _scan_graph_stats(graph_path)
+        if vertices:
+            all_results[graph_path]["vertices"] = vertices
+        if edges:
+            all_results[graph_path]["edges"] = edges
+    return all_results[graph_path]
+
 def _hybrid_resource_units(cpu_threads: int, gpu_fraction: float) -> float:
     """Approximate heterogeneous resource units for summary efficiency.
 
@@ -220,20 +318,35 @@ def _hybrid_resource_units(cpu_threads: int, gpu_fraction: float) -> float:
     """
     return max(1.0, float(cpu_threads) + max(0.0, min(1.0, gpu_fraction)))
 
-def _normalize_hybrid_metrics(graph_entry: dict) -> dict:
-    hybrid = graph_entry.get("hybrid")
+def _normalize_graph_metrics(graph_entry: dict) -> dict:
     serial = graph_entry.get("serial")
+    serial_time = serial.get("time_ms") if serial else None
+
+    openmp = graph_entry.get("openmp")
+    if serial_time and openmp and openmp.get("time_ms"):
+        threads = int(openmp.get("threads", 1) or 1)
+        speedup = round(serial_time / openmp["time_ms"], 2)
+        openmp["speedup"] = speedup
+        openmp["efficiency"] = round(speedup / max(1, threads), 2)
+
+    mpi = graph_entry.get("mpi")
+    if serial_time and mpi and mpi.get("time_ms"):
+        processes = int(mpi.get("processes", 1) or 1)
+        speedup = round(serial_time / mpi["time_ms"], 2)
+        mpi["speedup"] = speedup
+        mpi["efficiency"] = round(speedup / max(1, processes), 2)
+
+    hybrid = graph_entry.get("hybrid")
     if not hybrid:
         return graph_entry
-
     threads = int(hybrid.get("threads", 1) or 1)
     gpu_fraction = float(hybrid.get("gpu_fraction", 1.0) or 0.0)
     resource_units = _hybrid_resource_units(threads, gpu_fraction)
     hybrid["gpu_devices"] = 1 if gpu_fraction > 0 else 0
     hybrid["resource_units"] = resource_units
 
-    if serial and serial.get("time_ms") and hybrid.get("time_ms"):
-        speedup = round(serial["time_ms"] / hybrid["time_ms"], 2)
+    if serial_time and hybrid.get("time_ms"):
+        speedup = round(serial_time / hybrid["time_ms"], 2)
         hybrid["speedup"] = speedup
         hybrid["efficiency"] = round(speedup / resource_units, 2)
 
@@ -247,113 +360,49 @@ def index():
 def list_graphs():
     if not DATA_DIR.exists():
         return jsonify([])
-    files = sorted(DATA_DIR.glob("*.txt"))
+    files = sorted(DATA_DIR.glob("*.txt"), key=_graph_sort_key)
     graphs = [{"name": f.name, "path": f"data/{f.name}"} for f in files]
+    all_results = _load_all_results()
+    changed = False
+    for g in graphs:
+        if g["path"] not in all_results:
+            all_results[g["path"]] = _empty_graph_entry(g["path"])
+            changed = True
+    if changed:
+        _save_all_results(all_results)
     return jsonify(graphs)
-
-@app.route("/api/graph_data")
-def get_graph_data():
-    graph_path = request.args.get("graph", "data/sample_graph.txt")
-    full_path = PROJECT_ROOT / graph_path
-    if not full_path.exists():
-        return jsonify({"error": "Graph not found"}), 404
-    
-    edges = []
-    vertices = set()
-    try:
-        with open(full_path, "r") as f:
-            for line in f:
-                parts = line.strip().split()
-                if len(parts) >= 2:
-                    try:
-                        u = int(parts[0])
-                        v = int(parts[1])
-                        edges.append((u, v))
-                        vertices.add(u)
-                        vertices.add(v)
-                    except ValueError:
-                        continue
-                    if len(edges) >= 1200:  # Cap at 1200 edges for display speed
-                        break
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-    return jsonify({
-        "vertices": sorted(list(vertices)),
-        "edges": edges
-    })
 
 @app.route("/api/results")
 def get_results():
-    graph = request.args.get("graph", "data/sample_graph.txt")
+    graph = _normalize_graph_path(request.args.get("graph", "data/sample_graph.txt"))
     all_results = _load_all_results()
-    
-    if graph not in all_results:
-        return jsonify({
-            "graph": graph,
-            "vertices": 0,
-            "edges": 0,
-            "serial": None,
-            "openmp": None,
-            "mpi": None,
-            "hybrid": None,
-            "scalability": None,
-            "cache_sim": None,
-            "last_updated": None
-        })
-    return jsonify(_normalize_hybrid_metrics(all_results[graph]))
+    graph_entry = _ensure_graph_entry(all_results, graph, scan_stats=True)
+    _save_all_results(all_results)
+    return jsonify(_normalize_graph_metrics(all_results[graph]))
 
 @app.route("/api/run", methods=["POST"])
 def run_benchmark():
     data = request.get_json() or {}
     impl = data.get("impl", "serial")
-    graph = data.get("graph", "data/sample_graph.txt")
+    graph = _normalize_graph_path(data.get("graph", "data/sample_graph.txt"))
     threads = int(data.get("threads", 4))
     procs = int(data.get("procs", 2))
     schedule = data.get("schedule", "static")
     gpu_fraction = float(data.get("gpu_fraction", 1.00))
+    max_iterations = int(data.get("max_iterations", 100))
+    tolerance = float(data.get("tolerance", 1e-6))
 
     all_results = _load_all_results()
-    graph_entry = all_results.get(graph, {})
-    res = None
-
-    if impl == "hybrid" and _count_graph_edges(graph) < HYBRID_GPU_EDGE_THRESHOLD:
-        existing_openmp = graph_entry.get("openmp")
-        if (existing_openmp and existing_openmp.get("threads") == threads and
-                existing_openmp.get("schedule") == schedule):
-            res = {
-                "raw": (
-                    f"Hybrid mode: Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)\n"
-                    "Reused matching OpenMP benchmark result from dashboard cache.\n"
-                ),
-                "time_ms": existing_openmp.get("time_ms"),
-                "vertices": graph_entry.get("vertices", 0),
-                "edges": graph_entry.get("edges", 0),
-                "pagerank": existing_openmp.get("pagerank", []),
-                "impl": "hybrid",
-                "mode": f"Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)"
-            }
-
-    if res is None:
-        res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction)
+    graph_entry = _ensure_graph_entry(all_results, graph, scan_stats=True)
+    file_size_mb = _graph_file_size_mb(graph)
+    edges = int(graph_entry.get("edges", 0) or 0)
+    repeats = 1 if edges >= 1_000_000 or file_size_mb >= 10 else 3
+    res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction,
+                             repeats=repeats, max_iterations=max_iterations,
+                             tolerance=tolerance)
     if "error" in res:
         return jsonify(res), 500
 
-    if graph not in all_results:
-        all_results[graph] = {
-            "graph": graph,
-            "vertices": res.get("vertices", 0),
-            "edges": res.get("edges", 0),
-            "serial": None,
-            "openmp": None,
-            "mpi": None,
-            "hybrid": None,
-            "scalability": None,
-            "cache_sim": None,
-            "last_updated": None
-        }
-
-    graph_entry = all_results[graph]
     graph_entry["last_updated"] = datetime.now().isoformat()
     if res.get("vertices"):
         graph_entry["vertices"] = res["vertices"]
@@ -419,13 +468,14 @@ def run_benchmark():
             "pagerank": res["pagerank"]
         }
 
+    graph_entry = _normalize_graph_metrics(graph_entry)
     _save_all_results(all_results)
     return jsonify(res)
 
 @app.route("/api/scaling_sweep", methods=["POST"])
 def scaling_sweep():
     data = request.get_json() or {}
-    graph = data.get("graph", "data/sample_graph.txt")
+    graph = _normalize_graph_path(data.get("graph", "data/sample_graph.txt"))
     schedule = data.get("schedule", "static")
 
     # 1. Run Serial once to get the baseline
@@ -469,21 +519,11 @@ def scaling_sweep():
 
     # Save to results.json
     all_results = _load_all_results()
-    if graph not in all_results:
-        all_results[graph] = {
-            "graph": graph,
-            "vertices": serial_res.get("vertices", 0),
-            "edges": serial_res.get("edges", 0),
-            "serial": None,
-            "openmp": None,
-            "mpi": None,
-            "hybrid": None,
-            "scalability": None,
-            "cache_sim": None,
-            "last_updated": None
-        }
-    
-    graph_entry = all_results[graph]
+    graph_entry = _ensure_graph_entry(all_results, graph, scan_stats=False)
+    if serial_res.get("vertices"):
+        graph_entry["vertices"] = serial_res["vertices"]
+    if serial_res.get("edges"):
+        graph_entry["edges"] = serial_res["edges"]
     graph_entry["last_updated"] = datetime.now().isoformat()
     graph_entry["serial"] = {
         "time_ms": serial_time,
@@ -496,50 +536,6 @@ def scaling_sweep():
     
     _save_all_results(all_results)
     return jsonify(graph_entry["scalability"])
-
-@app.route("/api/cache_sim", methods=["POST"])
-def cache_simulation():
-    data = request.get_json() or {}
-    graph = data.get("graph", "data/sample_graph.txt")
-
-    # Ensure binary is compiled
-    success, log = compile_binaries()
-    if not success:
-        return jsonify({"error": "Compilation failed", "raw": log}), 500
-
-    abs_graph_path = str(PROJECT_ROOT / graph)
-    try:
-        r = subprocess.run([str(BIN_DIR / "cache_sim"), abs_graph_path], cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=120)
-        if r.returncode != 0:
-            return jsonify({"error": "Cache simulation execution failed", "raw": r.stderr}), 500
-        
-        res = json.loads(r.stdout)
-
-        # Save to results.json
-        all_results = _load_all_results()
-        if graph not in all_results:
-            all_results[graph] = {
-                "graph": graph,
-                "vertices": 0,
-                "edges": 0,
-                "serial": None,
-                "openmp": None,
-                "mpi": None,
-                "hybrid": None,
-                "scalability": None,
-                "cache_sim": None,
-                "last_updated": None
-            }
-        
-        all_results[graph]["cache_sim"] = res
-        all_results[graph]["last_updated"] = datetime.now().isoformat()
-        _save_all_results(all_results)
-
-        return jsonify(res)
-    except subprocess.TimeoutExpired:
-        return jsonify({"error": "Cache simulation timed out", "raw": ""}), 500
-    except Exception as e:
-        return jsonify({"error": f"Exception occurred: {str(e)}", "raw": ""}), 500
 
 if __name__ == "__main__":
     import logging

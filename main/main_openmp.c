@@ -11,6 +11,8 @@ int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
     int num_threads = (argc > 2) ? atoi(argv[2]) : 0;
     if (num_threads > 0) omp_set_num_threads(num_threads);
+    int max_iterations = (argc > 4) ? atoi(argv[4]) : 100;
+    double tolerance = (argc > 5) ? atof(argv[5]) : 1e-6;
 
     const char *sched_str = (argc > 3) ? argv[3] : "static";
     omp_sched_t sched_type = omp_sched_static;
@@ -26,10 +28,11 @@ int main(int argc, char **argv) {
     if (!g) return 1;
 
     printf("OpenMP PageRank: %d threads\n", omp_get_max_threads());
+    printf("Iterations: %d, tolerance: %.1e\n", max_iterations, tolerance);
     printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
 
     double t0 = omp_get_wtime(); // Start timing
-    double *pr = pagerank_openmp(g, 0.85, 100, 1e-6); // Damping factor, max iterations, tolerance
+    double *pr = pagerank_openmp(g, 0.85, max_iterations, tolerance); // Damping factor, max iterations, tolerance
     double t1 = omp_get_wtime(); // End timing
     if (!pr) {
         graph_free(g); // Clean up graph memory

@@ -53,7 +53,9 @@ double *pagerank_openmp(const Graph *g, double damping_factor,
       if (d > diff)
         diff = d;
     }
-    memcpy(rank, new_rank, n * sizeof(double));
+    double *tmp = rank;
+    rank = new_rank;
+    new_rank = tmp;
     if (diff < tolerance)
       break;
   }

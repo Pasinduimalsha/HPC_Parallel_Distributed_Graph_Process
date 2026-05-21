@@ -24,6 +24,8 @@ int main(int argc, char **argv) {
   const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
   int cpu_threads = (argc > 2) ? atoi(argv[2]) : 4;
   double gpu_fraction = (argc > 3) ? atof(argv[3]) : 1.00;
+  int max_iterations = (argc > 4) ? atoi(argv[4]) : 100;
+  double tolerance = (argc > 5) ? atof(argv[5]) : 1e-6;
 
   if (cpu_threads < 1)
     cpu_threads = 1;
@@ -38,6 +40,7 @@ int main(int argc, char **argv) {
 
   printf("Hybrid PageRank: OpenMP CPU + CUDA GPU\n");
   printf("CPU threads: %d, GPU fraction: %.2f\n", cpu_threads, gpu_fraction);
+  printf("Iterations: %d, tolerance: %.1e\n", max_iterations, tolerance);
   printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
 
 #ifdef __CUDACC__
@@ -46,7 +49,7 @@ int main(int argc, char **argv) {
 #endif
 
   double t0 = wall_time_seconds();
-  double *pr = pagerank_hybrid(g, 0.85, 100, 1e-6, cpu_threads, gpu_fraction);
+  double *pr = pagerank_hybrid(g, 0.85, max_iterations, tolerance, cpu_threads, gpu_fraction);
   double t1 = wall_time_seconds();
   if (!pr) {
     graph_free(g);

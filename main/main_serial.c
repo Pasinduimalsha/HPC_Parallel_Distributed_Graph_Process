@@ -6,15 +6,18 @@
 
 int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
+    int max_iterations = (argc > 2) ? atoi(argv[2]) : 100;
+    double tolerance = (argc > 3) ? atof(argv[3]) : 1e-6;
 
     Graph *g = graph_load_from_file(graph_file);
     if (!g) return 1;
 
     printf("Serial PageRank\n");
+    printf("Iterations: %d, tolerance: %.1e\n", max_iterations, tolerance);
     printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
 
     clock_t t0 = clock();
-    double *pr = pagerank_serial(g, 0.85, 100, 1e-6);
+    double *pr = pagerank_serial(g, 0.85, max_iterations, tolerance);
     clock_t t1 = clock();
     if (!pr) {
         graph_free(g);

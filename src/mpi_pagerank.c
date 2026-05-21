@@ -79,7 +79,9 @@ double *pagerank_mpi(const Graph *g, double df, int max_iter, double tol,
       if (d > diff)
         diff = d;
     }
-    memcpy(rank, new_rank, n * sizeof(double));
+    double *tmp = rank;
+    rank = new_rank;
+    new_rank = tmp;
     if (diff < tol)
       break;
   }

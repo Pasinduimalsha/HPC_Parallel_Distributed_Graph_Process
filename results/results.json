@@ -1,818 +1,245 @@
 {
-  "graph": "data/graph_100000.txt",
-  "graph_vertices": 100000,
-  "graph_edges": 1999971,
-  "last_updated": "2026-03-09T11:28:24.063501",
-  "serial": {
-    "time_ms": 6.423
-  },
-  "openmp": {
-    "time_ms": 2.7761,
-    "threads": 8,
-    "rmse": 1.9741756035e-21
-  },
-  "mpi": {
-    "time_ms": 55.529,
-    "processes": 8,
-    "rmse": 0.0
-  },
-  "scalability": {
-    "openmp": [],
-    "mpi": [],
-    "problem_size": []
-  },
-  "hybrid": null,
-  "data/graph_50000.txt": {
-    "graph": "data/graph_50000.txt",
-    "vertices": 50000,
-    "edges": 499991,
+  "data/graph_500000_20000000.txt": {
+    "graph": "data/graph_500000_20000000.txt",
+    "vertices": 500000,
+    "edges": 19999958,
     "serial": {
-      "time_ms": 11.108,
+      "time_ms": 242.34,
       "pagerank": [
-        1.6e-05,
-        2.6e-05,
-        1.9e-05,
-        1.7e-05,
-        2.4e-05,
-        2.1e-05,
-        2.9e-05,
-        1.2e-05,
-        3e-05,
-        1e-05
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        3e-06,
+        2e-06,
+        2e-06
       ]
     },
     "openmp": {
-      "time_ms": 6.7758,
+      "time_ms": 72.0084,
       "threads": 4,
       "schedule": "static",
-      "speedup": 1.2,
-      "efficiency": 0.3,
+      "speedup": 3.37,
+      "efficiency": 0.84,
       "pagerank": [
-        1.6e-05,
-        2.6e-05,
-        1.9e-05,
-        1.7e-05,
-        2.4e-05,
-        2.1e-05,
-        2.9e-05,
-        1.2e-05,
-        3e-05,
-        1e-05
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        3e-06,
+        2e-06,
+        2e-06
       ]
     },
     "mpi": {
-      "time_ms": 11.6643,
+      "time_ms": 147.5324,
       "processes": 2,
-      "speedup": 0.7,
-      "efficiency": 0.35,
+      "speedup": 1.64,
+      "efficiency": 0.82,
       "pagerank": [
-        1.6e-05,
-        2.6e-05,
-        1.9e-05,
-        1.7e-05,
-        2.4e-05,
-        2.1e-05,
-        2.9e-05,
-        1.2e-05,
-        3e-05,
-        1e-05
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        3e-06,
+        2e-06,
+        2e-06
       ]
     },
-    "last_updated": "2026-05-21T19:22:49.443287",
     "hybrid": {
-      "time_ms": 4.8658,
+      "time_ms": 76.4201,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
-      "mode": "Adaptive OpenMP CPU fallback (< 5,000,000 edges)",
-      "speedup": 1.67,
-      "efficiency": 0.33,
+      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
+      "speedup": 3.17,
+      "efficiency": 0.63,
       "pagerank": [
-        1.6e-05,
-        2.6e-05,
-        1.9e-05,
-        1.7e-05,
-        2.4e-05,
-        2.1e-05,
-        2.9e-05,
-        1.2e-05,
-        3e-05,
-        1e-05
-      ]
-    },
-    "scalability": {
-      "openmp": [
-        {
-          "threads": 1,
-          "time_ms": 8.5975,
-          "speedup": 1.29,
-          "efficiency": 1.29
-        },
-        {
-          "threads": 2,
-          "time_ms": 8.4541,
-          "speedup": 1.31,
-          "efficiency": 0.66
-        },
-        {
-          "threads": 4,
-          "time_ms": 6.6801,
-          "speedup": 1.66,
-          "efficiency": 0.41
-        },
-        {
-          "threads": 8,
-          "time_ms": 7.8298,
-          "speedup": 1.42,
-          "efficiency": 0.18
-        },
-        {
-          "threads": 12,
-          "time_ms": 11.1173,
-          "speedup": 1.0,
-          "efficiency": 0.08
-        }
-      ],
-      "mpi": [
-        {
-          "processes": 1,
-          "time_ms": 8.1668,
-          "speedup": 1.36,
-          "efficiency": 1.36
-        },
-        {
-          "processes": 2,
-          "time_ms": 6.4586,
-          "speedup": 1.72,
-          "efficiency": 0.86
-        },
-        {
-          "processes": 4,
-          "time_ms": 6.9133,
-          "speedup": 1.61,
-          "efficiency": 0.4
-        },
-        {
-          "processes": 8,
-          "time_ms": 45.6337,
-          "speedup": 0.24,
-          "efficiency": 0.03
-        }
-      ]
-    },
-    "cache_sim": {
-      "push": {
-        "l1_hits": 630425,
-        "l1_misses": 469557,
-        "l1_hit_rate": 57.31,
-        "l2_hits": 453930,
-        "l2_misses": 15627,
-        "l2_hit_rate": 96.67
-      },
-      "pull": {
-        "l1_hits": 150786,
-        "l1_misses": 949196,
-        "l1_hit_rate": 13.71,
-        "l2_hits": 813350,
-        "l2_misses": 135846,
-        "l2_hit_rate": 85.69
-      }
-    }
-  },
-  "data/graph_10000.txt": {
-    "graph": "data/graph_10000.txt",
-    "vertices": 10000,
-    "edges": 99993,
-    "serial": {
-      "time_ms": 1.74,
-      "pagerank": [
-        0.000133,
-        9.3e-05,
-        8.5e-05,
-        8.4e-05,
-        9.6e-05,
-        8.9e-05,
-        0.000132,
-        0.000143,
-        6.5e-05,
-        0.000112
-      ]
-    },
-    "openmp": {
-      "time_ms": 1.9517,
-      "threads": 4,
-      "schedule": "static",
-      "speedup": 0.89,
-      "efficiency": 0.22,
-      "pagerank": [
-        0.000133,
-        9.3e-05,
-        8.5e-05,
-        8.4e-05,
-        9.6e-05,
-        8.9e-05,
-        0.000132,
-        0.000143,
-        6.5e-05,
-        0.000112
-      ]
-    },
-    "mpi": {
-      "time_ms": 2.7502,
-      "processes": 2,
-      "speedup": 0.63,
-      "efficiency": 0.32,
-      "pagerank": [
-        0.000133,
-        9.3e-05,
-        8.5e-05,
-        8.4e-05,
-        9.6e-05,
-        8.9e-05,
-        0.000132,
-        0.000143,
-        6.5e-05,
-        0.000112
-      ]
-    },
-    "last_updated": "2026-05-21T18:44:06.754236",
-    "cache_sim": {
-      "push": {
-        "l1_hits": 157966,
-        "l1_misses": 62020,
-        "l1_hit_rate": 71.81,
-        "l2_hits": 58895,
-        "l2_misses": 3125,
-        "l2_hit_rate": 94.96
-      },
-      "pull": {
-        "l1_hits": 77715,
-        "l1_misses": 142271,
-        "l1_hit_rate": 35.33,
-        "l2_hits": 138521,
-        "l2_misses": 3750,
-        "l2_hit_rate": 97.36
-      }
-    },
-    "hybrid": {
-      "time_ms": 11.4893,
-      "threads": 4,
-      "gpu_fraction": 1.0,
-      "speedup": 0.15,
-      "efficiency": 0.04,
-      "pagerank": [
-        0.000133,
-        9.3e-05,
-        8.5e-05,
-        8.4e-05,
-        9.6e-05,
-        8.9e-05,
-        0.000132,
-        0.000143,
-        6.5e-05,
-        0.000112
-      ]
-    },
-    "scalability": {
-      "openmp": [
-        {
-          "threads": 1,
-          "time_ms": 1.5848,
-          "speedup": 0.82,
-          "efficiency": 0.82
-        },
-        {
-          "threads": 2,
-          "time_ms": 1.279,
-          "speedup": 1.02,
-          "efficiency": 0.51
-        },
-        {
-          "threads": 4,
-          "time_ms": 1.2713,
-          "speedup": 1.03,
-          "efficiency": 0.26
-        },
-        {
-          "threads": 8,
-          "time_ms": 1.5361,
-          "speedup": 0.85,
-          "efficiency": 0.11
-        },
-        {
-          "threads": 12,
-          "time_ms": 4.5408,
-          "speedup": 0.29,
-          "efficiency": 0.02
-        }
-      ],
-      "mpi": []
-    }
-  },
-  "data/graph_100000.txt": {
-    "graph": "data/graph_100000.txt",
-    "vertices": 100000,
-    "edges": 1999971,
-    "serial": {
-      "time_ms": 11.656,
-      "pagerank": [
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        1e-05,
-        9e-06,
-        1.2e-05,
-        1e-05,
-        7e-06,
-        1e-05,
-        1.1e-05
-      ]
-    },
-    "openmp": {
-      "time_ms": 12.5607,
-      "threads": 4,
-      "schedule": "static",
-      "speedup": 0.93,
-      "efficiency": 0.23,
-      "pagerank": [
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        1e-05,
-        9e-06,
-        1.2e-05,
-        1e-05,
-        7e-06,
-        1e-05,
-        1.1e-05
-      ]
-    },
-    "mpi": {
-      "time_ms": 410.123,
-      "processes": 2,
-      "speedup": 0.03,
-      "efficiency": 0.01,
-      "pagerank": [
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        1e-05,
-        9e-06,
-        1.2e-05,
-        1e-05,
-        7e-06,
-        1e-05,
-        1.1e-05
-      ]
-    },
-    "last_updated": "2026-05-21T18:47:02.161188",
-    "scalability": {
-      "openmp": [
-        {
-          "threads": 1,
-          "time_ms": 8.6138,
-          "speedup": 0.87,
-          "efficiency": 0.87
-        },
-        {
-          "threads": 2,
-          "time_ms": 6.124,
-          "speedup": 1.22,
-          "efficiency": 0.61
-        },
-        {
-          "threads": 4,
-          "time_ms": 4.571,
-          "speedup": 1.63,
-          "efficiency": 0.41
-        },
-        {
-          "threads": 8,
-          "time_ms": 5.5151,
-          "speedup": 1.35,
-          "efficiency": 0.17
-        },
-        {
-          "threads": 12,
-          "time_ms": 5.676,
-          "speedup": 1.31,
-          "efficiency": 0.11
-        }
-      ],
-      "mpi": [
-        {
-          "processes": 1,
-          "time_ms": 7.575,
-          "speedup": 0.98,
-          "efficiency": 0.98
-        },
-        {
-          "processes": 2,
-          "time_ms": 26.163,
-          "speedup": 0.28,
-          "efficiency": 0.14
-        },
-        {
-          "processes": 4,
-          "time_ms": 39.861,
-          "speedup": 0.19,
-          "efficiency": 0.05
-        },
-        {
-          "processes": 8,
-          "time_ms": 93.869,
-          "speedup": 0.08,
-          "efficiency": 0.01
-        }
-      ]
-    },
-    "hybrid": {
-      "time_ms": 13.657,
-      "threads": 4,
-      "gpu_fraction": 1.0,
-      "speedup": 0.85,
-      "efficiency": 0.21,
-      "pagerank": [
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        1e-05,
-        9e-06,
-        1.2e-05,
-        1e-05,
-        7e-06,
-        1e-05,
-        1.1e-05
-      ]
-    }
-  },
-  "data/graph_1000.txt": {
-    "graph": "data/graph_1000.txt",
-    "vertices": 1000,
-    "edges": 9989,
-    "serial": {
-      "time_ms": 0.138,
-      "pagerank": [
-        0.001867,
-        0.000909,
-        0.000858,
-        0.001351,
-        0.000869,
-        0.000644,
-        0.000789,
-        0.001511,
-        0.000822,
-        0.000776
-      ]
-    },
-    "openmp": {
-      "time_ms": 1.5523,
-      "threads": 4,
-      "schedule": "static",
-      "speedup": 0.09,
-      "efficiency": 0.02,
-      "pagerank": [
-        0.001867,
-        0.000909,
-        0.000858,
-        0.001351,
-        0.000869,
-        0.000644,
-        0.000789,
-        0.001511,
-        0.000822,
-        0.000776
-      ]
-    },
-    "mpi": {
-      "time_ms": 0.567,
-      "processes": 2,
-      "speedup": 0.24,
-      "efficiency": 0.12,
-      "pagerank": [
-        0.001867,
-        0.000909,
-        0.000858,
-        0.001351,
-        0.000869,
-        0.000644,
-        0.000789,
-        0.001511,
-        0.000822,
-        0.000776
-      ]
-    },
-    "scalability": {
-      "openmp": [
-        {
-          "threads": 1,
-          "time_ms": 0.113,
-          "speedup": 1.02,
-          "efficiency": 1.02
-        },
-        {
-          "threads": 2,
-          "time_ms": 0.3121,
-          "speedup": 0.37,
-          "efficiency": 0.18
-        },
-        {
-          "threads": 4,
-          "time_ms": 0.242,
-          "speedup": 0.48,
-          "efficiency": 0.12
-        },
-        {
-          "threads": 8,
-          "time_ms": 0.958,
-          "speedup": 0.12,
-          "efficiency": 0.01
-        },
-        {
-          "threads": 12,
-          "time_ms": 0.875,
-          "speedup": 0.13,
-          "efficiency": 0.01
-        }
-      ],
-      "mpi": [
-        {
-          "processes": 1,
-          "time_ms": 0.257,
-          "speedup": 0.45,
-          "efficiency": 0.45
-        },
-        {
-          "processes": 2,
-          "time_ms": 0.149,
-          "speedup": 0.77,
-          "efficiency": 0.39
-        },
-        {
-          "processes": 4,
-          "time_ms": 0.358,
-          "speedup": 0.32,
-          "efficiency": 0.08
-        },
-        {
-          "processes": 8,
-          "time_ms": 3.728,
-          "speedup": 0.03,
-          "efficiency": 0.0
-        }
-      ]
-    },
-    "last_updated": "2026-05-21T19:17:45.212371",
-    "cache_sim": {
-      "push": {
-        "l1_hits": 21664,
-        "l1_misses": 314,
-        "l1_hit_rate": 98.57,
-        "l2_hits": 0,
-        "l2_misses": 314,
-        "l2_hit_rate": 0.0
-      },
-      "pull": {
-        "l1_hits": 21601,
-        "l1_misses": 377,
-        "l1_hit_rate": 98.28,
-        "l2_hits": 0,
-        "l2_misses": 377,
-        "l2_hit_rate": 0.0
-      }
-    },
-    "hybrid": {
-      "time_ms": 18.2771,
-      "threads": 4,
-      "gpu_fraction": 1.0,
-      "speedup": 0.01,
-      "efficiency": 0.0,
-      "pagerank": [
-        0.001867,
-        0.000909,
-        0.000858,
-        0.001351,
-        0.000869,
-        0.000644,
-        0.000789,
-        0.001511,
-        0.000822,
-        0.000776
-      ]
-    }
-  },
-  "data/graph_100k_20.txt": {
-    "graph": "data/graph_100k_20.txt",
-    "vertices": 100000,
-    "edges": 1999977,
-    "serial": {
-      "time_ms": 7.244,
-      "pagerank": [
-        8e-06,
-        1e-05,
-        1e-05,
-        1e-05,
-        1.3e-05,
-        7e-06,
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        9e-06
-      ]
-    },
-    "openmp": {
-      "time_ms": 6.979,
-      "threads": 2,
-      "schedule": "static",
-      "speedup": 1.04,
-      "efficiency": 0.52,
-      "pagerank": [
-        8e-06,
-        1e-05,
-        1e-05,
-        1e-05,
-        1.3e-05,
-        7e-06,
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        9e-06
-      ]
-    },
-    "mpi": {
-      "time_ms": 5.867,
-      "processes": 2,
-      "speedup": 1.23,
-      "efficiency": 0.61,
-      "pagerank": [
-        8e-06,
-        1e-05,
-        1e-05,
-        1e-05,
-        1.3e-05,
-        7e-06,
-        1.1e-05,
-        1.1e-05,
-        1e-05,
-        9e-06
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        3e-06,
+        2e-06,
+        2e-06
       ]
     },
     "scalability": null,
-    "last_updated": "2026-05-20T16:13:39.876130",
-    "cache_sim": {
-      "push": {
-        "l1_hits": 2263116,
-        "l1_misses": 1936838,
-        "l1_hit_rate": 53.88,
-        "l2_hits": 1206404,
-        "l2_misses": 730434,
-        "l2_hit_rate": 62.29
-      },
-      "pull": {
-        "l1_hits": 302399,
-        "l1_misses": 3897555,
-        "l1_hit_rate": 7.2,
-        "l2_hits": 1768216,
-        "l2_misses": 2129339,
-        "l2_hit_rate": 45.37
-      }
-    }
+    "last_updated": "2026-05-22T02:16:50.981482"
   },
-  "data/graph_15000.txt": {
-    "graph": "data/graph_15000.txt",
-    "vertices": 15000,
-    "edges": 149984,
+  "data/graph_1000000_20000000.txt": {
+    "graph": "data/graph_1000000_20000000.txt",
+    "vertices": 1000000,
+    "edges": 19999980,
     "serial": {
-      "time_ms": 1.047,
+      "time_ms": 432.958,
       "pagerank": [
-        0.000116,
-        5.2e-05,
-        4.5e-05,
-        6.3e-05,
-        7.4e-05,
-        6.2e-05,
-        8e-05,
-        7.7e-05,
-        7.9e-05,
-        3.7e-05
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
       ]
     },
     "openmp": {
-      "time_ms": 1.6649,
+      "time_ms": 233.3248,
       "threads": 4,
       "schedule": "static",
-      "speedup": 0.58,
-      "efficiency": 0.14,
+      "speedup": 1.86,
+      "efficiency": 0.47,
       "pagerank": [
-        0.000116,
-        5.2e-05,
-        4.5e-05,
-        6.3e-05,
-        7.4e-05,
-        6.2e-05,
-        8e-05,
-        7.7e-05,
-        7.9e-05,
-        3.7e-05
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
       ]
     },
     "mpi": {
-      "time_ms": 1.748,
+      "time_ms": 311.1269,
       "processes": 2,
-      "speedup": 0.55,
-      "efficiency": 0.28,
+      "speedup": 1.39,
+      "efficiency": 0.69,
       "pagerank": [
-        0.000116,
-        5.2e-05,
-        4.5e-05,
-        6.3e-05,
-        7.4e-05,
-        6.2e-05,
-        8e-05,
-        7.7e-05,
-        7.9e-05,
-        3.7e-05
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
       ]
     },
-    "scalability": {
-      "openmp": [
-        {
-          "threads": 1,
-          "time_ms": 0.777,
-          "speedup": 1.35,
-          "efficiency": 1.35
-        },
-        {
-          "threads": 2,
-          "time_ms": 1.0409,
-          "speedup": 1.01,
-          "efficiency": 0.51
-        },
-        {
-          "threads": 4,
-          "time_ms": 0.792,
-          "speedup": 1.32,
-          "efficiency": 0.33
-        },
-        {
-          "threads": 8,
-          "time_ms": 1.1539,
-          "speedup": 0.91,
-          "efficiency": 0.11
-        },
-        {
-          "threads": 12,
-          "time_ms": 1.374,
-          "speedup": 0.76,
-          "efficiency": 0.06
-        }
-      ],
-      "mpi": [
-        {
-          "processes": 1,
-          "time_ms": 1.074,
-          "speedup": 0.97,
-          "efficiency": 0.97
-        },
-        {
-          "processes": 2,
-          "time_ms": 2.366,
-          "speedup": 0.44,
-          "efficiency": 0.22
-        },
-        {
-          "processes": 4,
-          "time_ms": 2.044,
-          "speedup": 0.51,
-          "efficiency": 0.13
-        },
-        {
-          "processes": 8,
-          "time_ms": 11.939,
-          "speedup": 0.09,
-          "efficiency": 0.01
-        }
+    "hybrid": {
+      "time_ms": 91.7931,
+      "threads": 4,
+      "gpu_fraction": 1.0,
+      "gpu_devices": 1,
+      "resource_units": 5.0,
+      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
+      "speedup": 4.72,
+      "efficiency": 0.94,
+      "pagerank": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
       ]
     },
-    "cache_sim": {
-      "push": {
-        "l1_hits": 217041,
-        "l1_misses": 112927,
-        "l1_hit_rate": 65.78,
-        "l2_hits": 108239,
-        "l2_misses": 4688,
-        "l2_hit_rate": 95.85
-      },
-      "pull": {
-        "l1_hits": 87161,
-        "l1_misses": 242807,
-        "l1_hit_rate": 26.41,
-        "l2_hits": 237181,
-        "l2_misses": 5626,
-        "l2_hit_rate": 97.68
-      }
+    "scalability": null,
+    "last_updated": "2026-05-22T02:17:55.425673"
+  },
+  "data/graph_1000000_10000000.txt": {
+    "graph": "data/graph_1000000_10000000.txt",
+    "vertices": 1000000,
+    "edges": 9999989,
+    "serial": {
+      "time_ms": 231.708,
+      "pagerank": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
     },
-    "last_updated": "2026-05-20T16:11:31.174776"
+    "openmp": {
+      "time_ms": 67.637,
+      "threads": 4,
+      "schedule": "static",
+      "speedup": 3.43,
+      "efficiency": 0.86,
+      "pagerank": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    "mpi": {
+      "time_ms": 195.1705,
+      "processes": 2,
+      "speedup": 1.19,
+      "efficiency": 0.59,
+      "pagerank": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    "hybrid": {
+      "time_ms": 51.1751,
+      "threads": 4,
+      "gpu_fraction": 1.0,
+      "gpu_devices": 1,
+      "resource_units": 5.0,
+      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
+      "speedup": 4.53,
+      "efficiency": 0.91,
+      "pagerank": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    "scalability": null,
+    "last_updated": "2026-05-22T02:27:22.297091"
   }
 }
