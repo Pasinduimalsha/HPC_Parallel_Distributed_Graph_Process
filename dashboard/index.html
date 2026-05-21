@@ -326,12 +326,6 @@
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
         }
 
-        .btn-sweep:hover {
-            background-color: var(--accent-emerald);
-            border-color: var(--accent-emerald);
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-        }
-
         .btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
@@ -479,10 +473,6 @@
                 </div>
             </a>
 
-            <div class="nav-links">
-                <div class="nav-link active" onclick="switchTab('analytics-tab', this)">Performance Analytics</div>
-            </div>
-
             <div class="header-controls">
                 <div class="selector-box">
                     <label for="graph-select">Graph Dataset</label>
@@ -542,15 +532,6 @@
                                     <option value="8">8 Processes</option>
                                 </select>
                             </div>
-                            <div class="control-group">
-                                <label for="gpu-fraction-select">Hybrid GPU Work</label>
-                                <select id="gpu-fraction-select">
-                                    <option value="0.50">50%</option>
-                                    <option value="0.70">70%</option>
-                                    <option value="0.85">85%</option>
-                                    <option value="1.00" selected>100%</option>
-                                </select>
-                            </div>
                         </div>
 
                         <div class="btn-grid">
@@ -565,9 +546,6 @@
                             </button>
                             <button class="btn btn-hybrid" onclick="runBenchmark('hybrid')">
                                 <span id="hybrid-label">Run Hybrid</span>
-                            </button>
-                            <button class="btn btn-sweep" onclick="runScalingSweep()">
-                                <span id="sweep-label">Scaling Sweep</span>
                             </button>
                         </div>
                     </div>
@@ -630,13 +608,6 @@
                     </div>
 
                     <div class="card">
-                        <div class="card-title">Strong Scaling Speedup Curves (Amdahl's Law)</div>
-                        <div class="chart-container">
-                            <canvas id="speedupChart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card">
                         <div class="terminal-header">
                             <span>Benchmark Output</span>
                             <span id="log-status" style="color: var(--accent-emerald);">IDLE</span>
@@ -655,7 +626,6 @@
     <!-- Script integrations -->
     <script>
         let timeChart = null;
-        let speedupChart = null;
         let graphs = [];
         let currentGraph = "";
         // Navigation controls
@@ -671,7 +641,6 @@
 
             if (tabId === 'analytics-tab') {
                 if (timeChart) timeChart.resize();
-                if (speedupChart) speedupChart.resize();
             }
         }
         function updateParameters() {}
@@ -722,66 +691,6 @@
                 }
             });
 
-            const speedupCtx = document.getElementById('speedupChart').getContext('2d');
-            speedupChart = new Chart(speedupCtx, {
-                type: 'line',
-                data: {
-                    labels: [1, 2, 4, 8, 12],
-                    datasets: [
-                        {
-                            label: 'Ideal Scaling (Linear)',
-                            data: [1, 2, 4, 8, 12],
-                            borderColor: 'rgba(16, 185, 129, 0.5)',
-                            backgroundColor: 'transparent',
-                            borderDash: [5, 5],
-                            borderWidth: 1.5,
-                            tension: 0
-                        },
-                        {
-                            label: 'OpenMP (Shared-Memory)',
-                            data: [null, null, null, null, null],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#3b82f6',
-                            tension: 0.1,
-                            fill: false
-                        },
-                        {
-                            label: 'MPI (Distributed-Memory)',
-                            data: [null, null, null, null, null],
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                            borderWidth: 2.5,
-                            pointBackgroundColor: '#8b5cf6',
-                            tension: 0.1,
-                            fill: false
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: { color: '#a1a1aa', font: { family: 'Plus Jakarta Sans', size: 10 } }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            title: { display: true, text: 'Speedup Factor', color: '#a1a1aa' },
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#a1a1aa' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Number of Resources', color: '#a1a1aa' },
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#a1a1aa' }
-                        }
-                    }
-                }
-            });
         }
 
         // Fetch available graphs
@@ -875,30 +784,6 @@
 
             timeChart.data.datasets[0].data = times;
             timeChart.update();
-
-            if (data.scalability) {
-                const ompSweep = data.scalability.openmp || [];
-                const mpiSweep = data.scalability.mpi || [];
-
-                const ompData = [null, null, null, null, null];
-                ompSweep.forEach(item => {
-                    const idx = [1, 2, 4, 8, 12].indexOf(item.threads);
-                    if (idx !== -1) ompData[idx] = item.speedup;
-                });
-                speedupChart.data.datasets[1].data = ompData;
-
-                const mpiData = [null, null, null, null, null];
-                mpiSweep.forEach(item => {
-                    const idx = [1, 2, 4, 8, 12].indexOf(item.processes);
-                    if (idx !== -1) mpiData[idx] = item.speedup;
-                });
-                speedupChart.data.datasets[2].data = mpiData;
-            } else {
-                speedupChart.data.datasets[1].data = [null, null, null, null, null];
-                speedupChart.data.datasets[2].data = [null, null, null, null, null];
-            }
-            speedupChart.update();
-
         }
 
         // Run PageRank on C binary via backend API
@@ -908,7 +793,7 @@
             const threads = document.getElementById('threads-select').value;
             const procs = document.getElementById('procs-select').value;
             const schedule = document.getElementById('sched-select').value;
-            const gpuFraction = document.getElementById('gpu-fraction-select').value;
+            const gpuFraction = 1.0;
             const btn = document.querySelector(`.btn-${impl}`);
             const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
 
@@ -951,59 +836,6 @@
                 statusBadge.style.color = "var(--accent-rose)";
             } finally {
                 document.getElementById(`${impl}-label`).innerHTML = originalLabel;
-                document.querySelectorAll('.btn').forEach(b => b.disabled = false);
-            }
-        }
-
-        // Run Scalability Sweep Analysis
-        async function runScalingSweep() {
-            const terminal = document.getElementById('console');
-            const statusBadge = document.getElementById('log-status');
-            const schedule = document.getElementById('sched-select').value;
-            const originalLabel = document.getElementById('sweep-label').innerHTML;
-
-            statusBadge.textContent = "SWEEPING";
-            statusBadge.style.color = "var(--accent-rose)";
-            document.getElementById('sweep-label').innerHTML = `<div class="spinner"></div>`;
-            document.querySelectorAll('.btn').forEach(b => b.disabled = true);
-            terminal.textContent = `>>> Starting Strong Scaling Sweep on '${currentGraph}' (OpenMP & MPI)...\n>>> Running Serial baseline, OpenMP [1, 2, 4, 8, 12] threads (${schedule}), and MPI [1, 2, 4, 8] processes.\n>>> Please wait, executing sweeps...\n`;
-
-            try {
-                const response = await fetch('/api/scaling_sweep', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ graph: currentGraph, schedule })
-                });
-
-                let data;
-                const contentType = response.headers.get("content-type");
-                if (contentType && contentType.includes("application/json")) {
-                    data = await response.json();
-                } else {
-                    const text = await response.text();
-                    data = { error: `Server returned non-JSON response (Status ${response.status})`, raw: text };
-                }
-
-                if (response.ok) {
-                    terminal.textContent += `\n>>> Scaling Sweep Complete!\n\nOpenMP Results:\n` +
-                        data.openmp.map(item => `  - Threads: ${item.threads} | Time: ${item.time_ms.toFixed(4)} ms | Speedup: ${item.speedup.toFixed(2)}x`).join('\n') +
-                        `\n\nMPI Results:\n` +
-                        data.mpi.map(item => `  - Processes: ${item.processes} | Time: ${item.time_ms.toFixed(4)} ms | Speedup: ${item.speedup.toFixed(2)}x`).join('\n');
-
-                    await fetchResults(currentGraph);
-                    statusBadge.textContent = "SUCCESS";
-                    statusBadge.style.color = "var(--accent-emerald)";
-                } else {
-                    terminal.textContent += `\nERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
-                    statusBadge.textContent = "FAILED";
-                    statusBadge.style.color = "var(--accent-rose)";
-                }
-            } catch (err) {
-                terminal.textContent += `\nAPI Error: ${err.message}`;
-                statusBadge.textContent = "FAILED";
-                statusBadge.style.color = "var(--accent-rose)";
-            } finally {
-                document.getElementById('sweep-label').innerHTML = originalLabel;
                 document.querySelectorAll('.btn').forEach(b => b.disabled = false);
             }
         }

@@ -4,7 +4,7 @@
     "vertices": 500000,
     "edges": 19999958,
     "serial": {
-      "time_ms": 242.34,
+      "time_ms": 225.473,
       "pagerank": [
         2e-06,
         2e-06,
@@ -19,28 +19,10 @@
       ]
     },
     "openmp": {
-      "time_ms": 72.0084,
+      "time_ms": 68.9902,
       "threads": 4,
       "schedule": "static",
-      "speedup": 3.37,
-      "efficiency": 0.84,
-      "pagerank": [
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        3e-06,
-        2e-06,
-        2e-06
-      ]
-    },
-    "mpi": {
-      "time_ms": 147.5324,
-      "processes": 2,
-      "speedup": 1.64,
+      "speedup": 3.27,
       "efficiency": 0.82,
       "pagerank": [
         2e-06,
@@ -55,15 +37,11 @@
         2e-06
       ]
     },
-    "hybrid": {
-      "time_ms": 76.4201,
-      "threads": 4,
-      "gpu_fraction": 1.0,
-      "gpu_devices": 1,
-      "resource_units": 5.0,
-      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 3.17,
-      "efficiency": 0.63,
+    "mpi": {
+      "time_ms": 184.7023,
+      "processes": 2,
+      "speedup": 1.22,
+      "efficiency": 0.61,
       "pagerank": [
         2e-06,
         2e-06,
@@ -77,8 +55,29 @@
         2e-06
       ]
     },
-    "scalability": null,
-    "last_updated": "2026-05-22T02:16:50.981482"
+    "hybrid": {
+      "time_ms": 83.0272,
+      "threads": 4,
+      "gpu_fraction": 1.0,
+      "gpu_devices": 1,
+      "resource_units": 5.0,
+      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
+      "speedup": 2.72,
+      "efficiency": 0.54,
+      "pagerank": [
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        2e-06,
+        3e-06,
+        2e-06,
+        2e-06
+      ]
+    },
+    "last_updated": "2026-05-22T02:50:18.931516"
   },
   "data/graph_1000000_20000000.txt": {
     "graph": "data/graph_1000000_20000000.txt",
@@ -158,7 +157,6 @@
         1e-06
       ]
     },
-    "scalability": null,
     "last_updated": "2026-05-22T02:17:55.425673"
   },
   "data/graph_1000000_10000000.txt": {
@@ -239,7 +237,6 @@
         1e-06
       ]
     },
-    "scalability": null,
     "last_updated": "2026-05-22T02:27:22.297091"
   }
 }

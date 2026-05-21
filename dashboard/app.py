@@ -288,7 +288,6 @@ def _empty_graph_entry(graph_path: str, vertices: int = 0, edges: int = 0) -> di
         "openmp": None,
         "mpi": None,
         "hybrid": None,
-        "scalability": None,
         "last_updated": None
     }
 
@@ -388,7 +387,7 @@ def run_benchmark():
     threads = int(data.get("threads", 4))
     procs = int(data.get("procs", 2))
     schedule = data.get("schedule", "static")
-    gpu_fraction = float(data.get("gpu_fraction", 1.00))
+    gpu_fraction = 1.0 if impl == "hybrid" else float(data.get("gpu_fraction", 1.00))
     max_iterations = int(data.get("max_iterations", 100))
     tolerance = float(data.get("tolerance", 1e-6))
 
@@ -471,71 +470,6 @@ def run_benchmark():
     graph_entry = _normalize_graph_metrics(graph_entry)
     _save_all_results(all_results)
     return jsonify(res)
-
-@app.route("/api/scaling_sweep", methods=["POST"])
-def scaling_sweep():
-    data = request.get_json() or {}
-    graph = _normalize_graph_path(data.get("graph", "data/sample_graph.txt"))
-    schedule = data.get("schedule", "static")
-
-    # 1. Run Serial once to get the baseline
-    serial_res = run_implementation("serial", graph)
-    if "error" in serial_res:
-        return jsonify({"error": "Failed to run Serial baseline", "raw": serial_res.get("raw", "")}), 500
-    
-    serial_time = serial_res["time_ms"]
-    openmp_results = []
-    mpi_results = []
-
-    # 2. Sweep OpenMP (1, 2, 4, 8, 12 threads)
-    for t in [1, 2, 4, 8, 12]:
-        res = run_implementation("openmp", graph, threads=t, schedule=schedule)
-        if "error" in res:
-            continue
-        t_ms = res["time_ms"]
-        speedup = round(serial_time / t_ms, 2)
-        efficiency = round(speedup / t, 2)
-        openmp_results.append({
-            "threads": t,
-            "time_ms": t_ms,
-            "speedup": speedup,
-            "efficiency": efficiency
-        })
-
-    # 3. Sweep MPI (1, 2, 4, 8 processes)
-    for p in [1, 2, 4, 8]:
-        res = run_implementation("mpi", graph, procs=p)
-        if "error" in res:
-            continue
-        t_ms = res["time_ms"]
-        speedup = round(serial_time / t_ms, 2)
-        efficiency = round(speedup / p, 2)
-        mpi_results.append({
-            "processes": p,
-            "time_ms": t_ms,
-            "speedup": speedup,
-            "efficiency": efficiency
-        })
-
-    # Save to results.json
-    all_results = _load_all_results()
-    graph_entry = _ensure_graph_entry(all_results, graph, scan_stats=False)
-    if serial_res.get("vertices"):
-        graph_entry["vertices"] = serial_res["vertices"]
-    if serial_res.get("edges"):
-        graph_entry["edges"] = serial_res["edges"]
-    graph_entry["last_updated"] = datetime.now().isoformat()
-    graph_entry["serial"] = {
-        "time_ms": serial_time,
-        "pagerank": serial_res["pagerank"]
-    }
-    graph_entry["scalability"] = {
-        "openmp": openmp_results,
-        "mpi": mpi_results
-    }
-    
-    _save_all_results(all_results)
-    return jsonify(graph_entry["scalability"])
 
 if __name__ == "__main__":
     import logging
