@@ -2152,7 +2152,8 @@
                 document.getElementById('tbl-hybrid-speedup').textContent = data.hybrid.speedup ? data.hybrid.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-hybrid-efficiency').textContent = data.hybrid.efficiency ? data.hybrid.efficiency.toFixed(2) : "-";
                 const hybridUnits = data.hybrid.resource_units ? ` (${data.hybrid.resource_units.toFixed(1)} units)` : "";
-                document.getElementById('tbl-hybrid-resource').textContent = `${data.hybrid.threads} Th + ${(data.hybrid.gpu_fraction * 100).toFixed(0)}% GPU${hybridUnits}`;
+                const hybridMode = data.hybrid.mode ? ` - ${data.hybrid.mode}` : "";
+                document.getElementById('tbl-hybrid-resource').textContent = `${data.hybrid.threads} Th + ${(data.hybrid.gpu_fraction * 100).toFixed(0)}% GPU${hybridUnits}${hybridMode}`;
                 times[3] = data.hybrid.time_ms;
             } else {
                 document.getElementById('tbl-hybrid-time').textContent = "-";

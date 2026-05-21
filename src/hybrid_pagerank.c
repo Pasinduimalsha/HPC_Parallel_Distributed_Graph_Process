@@ -29,6 +29,8 @@ double *pagerank_hybrid(const Graph *g, double damping_factor,
 
 #include <cuda_runtime.h>
 
+#define HYBRID_CPU_FALLBACK_EDGE_THRESHOLD 0
+
 #define CUDA_CHECK(call)                                                      \
   do {                                                                        \
     cudaError_t err__ = (call);                                                \
@@ -249,6 +251,48 @@ static void compute_cpu_vertices(const Graph *g, const double *rank,
   }
 }
 
+static double *pagerank_hybrid_cpu_only(const Graph *g, double damping_factor,
+                                        int max_iterations, double tolerance,
+                                        int cpu_threads) {
+  int n = g->num_vertices;
+  size_t vertex_bytes = (size_t)n * sizeof(double);
+  double *rank = (double *)malloc(vertex_bytes);
+  double *new_rank = (double *)malloc(vertex_bytes);
+  if (!rank || !new_rank) {
+    free(rank);
+    free(new_rank);
+    return NULL;
+  }
+
+  double initial = 1.0 / n;
+#pragma omp parallel for schedule(static)
+  for (int i = 0; i < n; i++)
+    rank[i] = initial;
+
+  double base = (1.0 - damping_factor) / n;
+  for (int iter = 0; iter < max_iterations; iter++) {
+    compute_cpu_vertices(g, rank, new_rank, 0, n, base, damping_factor,
+                         cpu_threads);
+
+    double diff = 0.0;
+#pragma omp parallel for reduction(max : diff) schedule(static)
+    for (int i = 0; i < n; i++) {
+      double d = new_rank[i] - rank[i];
+      if (d < 0.0)
+        d = -d;
+      if (d > diff)
+        diff = d;
+    }
+
+    memcpy(rank, new_rank, vertex_bytes);
+    if (diff < tolerance)
+      break;
+  }
+
+  free(new_rank);
+  return rank;
+}
+
 double *pagerank_hybrid(const Graph *g, double damping_factor,
                         int max_iterations, double tolerance, int cpu_threads,
                         double gpu_fraction) {
@@ -282,8 +326,18 @@ double *pagerank_hybrid(const Graph *g, double damping_factor,
   if (gpu_fraction > 1.0)
     gpu_fraction = 1.0;
 
-  if (gpu_fraction >= 0.999)
+  if (g->num_edges < HYBRID_CPU_FALLBACK_EDGE_THRESHOLD) {
+    printf("Hybrid mode: Adaptive OpenMP CPU fallback\n");
+    return pagerank_hybrid_cpu_only(g, damping_factor, max_iterations,
+                                    tolerance, cpu_threads);
+  }
+
+  if (gpu_fraction >= 0.999) {
+    printf("Hybrid mode: CUDA GPU fast path\n");
     return pagerank_gpu_only(g, damping_factor, max_iterations, tolerance);
+  }
+
+  printf("Hybrid mode: OpenMP CPU + CUDA GPU split\n");
 
   gpu_vertices = (int)((double)n * gpu_fraction + 0.5);
   if (gpu_fraction > 0.0 && gpu_vertices == 0)

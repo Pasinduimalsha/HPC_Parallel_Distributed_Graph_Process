@@ -17,6 +17,7 @@ BIN_DIR = PROJECT_ROOT / "bin"
 DATA_DIR = PROJECT_ROOT / "data"
 RESULTS_FILE = PROJECT_ROOT / "results" / "results.json"
 IS_WINDOWS = os.name == "nt"
+HYBRID_GPU_EDGE_THRESHOLD = 5_000_000
 
 def _to_wsl_path(path: Path) -> str:
     resolved = path.resolve()
@@ -28,6 +29,7 @@ def _to_wsl_path(path: Path) -> str:
 TIME_RE = re.compile(r"PageRank time:\s+([\d.]+)\s+ms")
 GRAPH_RE = re.compile(r"Graph:\s+(\d+)\s+vertices,\s+(\d+)\s+edges")
 PAGERANK_RE = re.compile(r"PageRank \(first 10\):\s+(.+)")
+HYBRID_MODE_RE = re.compile(r"Hybrid mode:\s+(.+)")
 
 def parse_output(output: str, impl_name: str) -> dict:
     result = {
@@ -48,7 +50,18 @@ def parse_output(output: str, impl_name: str) -> dict:
     m = PAGERANK_RE.search(output)
     if m:
         result["pagerank"] = [float(x) for x in m.group(1).split()]
+    m = HYBRID_MODE_RE.search(output)
+    if m:
+        result["mode"] = m.group(1).strip()
     return result
+
+def _count_graph_edges(graph_path: str) -> int:
+    full_path = PROJECT_ROOT / graph_path
+    try:
+        with open(full_path) as f:
+            return sum(1 for line in f if line.strip())
+    except OSError:
+        return 0
 
 def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
     """Ensure binaries are compiled. Returns (success, log)."""
@@ -152,17 +165,24 @@ def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int 
         cmd = ["mpirun", "-np", str(procs), str(BIN_DIR / "mpi"), abs_graph_path]
         timeout = 60
     elif impl == "hybrid":
-        hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
-        if IS_WINDOWS and not hybrid_binary.exists() and (BIN_DIR / "hybrid").exists():
-            wsl_root = _to_wsl_path(PROJECT_ROOT)
-            rel_graph = graph_path.replace("\\", "/")
-            cmd = [
-                "wsl", "-e", "bash", "-lc",
-                f"cd {shlex.quote(wsl_root)} && ./bin/hybrid {shlex.quote(rel_graph)} {threads} {gpu_fraction}"
-            ]
+        graph_edges = _count_graph_edges(graph_path)
+        if graph_edges and graph_edges < HYBRID_GPU_EDGE_THRESHOLD:
+            cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), schedule]
+            timeout = 60
+            hybrid_mode = f"Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)"
         else:
-            cmd = [str(hybrid_binary), abs_graph_path, str(threads), str(gpu_fraction)]
-        timeout = 300
+            hybrid_binary = BIN_DIR / ("hybrid.exe" if IS_WINDOWS else "hybrid")
+            if IS_WINDOWS and not hybrid_binary.exists() and (BIN_DIR / "hybrid").exists():
+                wsl_root = _to_wsl_path(PROJECT_ROOT)
+                rel_graph = graph_path.replace("\\", "/")
+                cmd = [
+                    "wsl", "-e", "bash", "-lc",
+                    f"cd {shlex.quote(wsl_root)} && ./bin/hybrid {shlex.quote(rel_graph)} {threads} {gpu_fraction}"
+                ]
+            else:
+                cmd = [str(hybrid_binary), abs_graph_path, str(threads), str(gpu_fraction)]
+            timeout = 300
+            hybrid_mode = "CUDA GPU fast path"
     else:
         return {"error": "Invalid implementation"}
 
@@ -171,6 +191,8 @@ def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int 
         output = r.stdout + r.stderr
         if r.returncode != 0:
             return {"error": f"Execution failed (Exit Code {r.returncode})", "raw": output}
+        if impl == "hybrid" and "Hybrid mode:" not in output:
+            output = f"Hybrid mode: {hybrid_mode}\n" + output
         return parse_output(output, impl)
     except subprocess.TimeoutExpired:
         return {"error": "Execution timed out", "raw": ""}
@@ -291,11 +313,32 @@ def run_benchmark():
     schedule = data.get("schedule", "static")
     gpu_fraction = float(data.get("gpu_fraction", 1.00))
 
-    res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction)
+    all_results = _load_all_results()
+    graph_entry = all_results.get(graph, {})
+    res = None
+
+    if impl == "hybrid" and _count_graph_edges(graph) < HYBRID_GPU_EDGE_THRESHOLD:
+        existing_openmp = graph_entry.get("openmp")
+        if (existing_openmp and existing_openmp.get("threads") == threads and
+                existing_openmp.get("schedule") == schedule):
+            res = {
+                "raw": (
+                    f"Hybrid mode: Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)\n"
+                    "Reused matching OpenMP benchmark result from dashboard cache.\n"
+                ),
+                "time_ms": existing_openmp.get("time_ms"),
+                "vertices": graph_entry.get("vertices", 0),
+                "edges": graph_entry.get("edges", 0),
+                "pagerank": existing_openmp.get("pagerank", []),
+                "impl": "hybrid",
+                "mode": f"Adaptive OpenMP CPU fallback (< {HYBRID_GPU_EDGE_THRESHOLD:,} edges)"
+            }
+
+    if res is None:
+        res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction)
     if "error" in res:
         return jsonify(res), 500
 
-    all_results = _load_all_results()
     if graph not in all_results:
         all_results[graph] = {
             "graph": graph,
@@ -370,6 +413,7 @@ def run_benchmark():
             "gpu_fraction": gpu_fraction,
             "gpu_devices": 1 if gpu_fraction > 0 else 0,
             "resource_units": resource_units,
+            "mode": res.get("mode", "Unknown"),
             "speedup": speedup,
             "efficiency": efficiency,
             "pagerank": res["pagerank"]
