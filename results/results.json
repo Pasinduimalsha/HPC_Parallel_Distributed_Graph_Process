@@ -27,7 +27,7 @@
     "vertices": 50000,
     "edges": 499991,
     "serial": {
-      "time_ms": 6.942,
+      "time_ms": 11.108,
       "pagerank": [
         1.6e-05,
         2.6e-05,
@@ -42,11 +42,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 5.3496,
+      "time_ms": 6.7758,
       "threads": 4,
       "schedule": "static",
-      "speedup": 1.45,
-      "efficiency": 0.36,
+      "speedup": 1.2,
+      "efficiency": 0.3,
       "pagerank": [
         1.6e-05,
         2.6e-05,
@@ -61,10 +61,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 16.8012,
+      "time_ms": 11.6643,
       "processes": 2,
-      "speedup": 0.46,
-      "efficiency": 0.23,
+      "speedup": 0.7,
+      "efficiency": 0.35,
       "pagerank": [
         1.6e-05,
         2.6e-05,
@@ -78,15 +78,16 @@
         1e-05
       ]
     },
-    "last_updated": "2026-05-21T18:57:20.328015",
+    "last_updated": "2026-05-21T19:22:49.443287",
     "hybrid": {
-      "time_ms": 13.5608,
+      "time_ms": 4.8658,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
-      "speedup": 0.51,
-      "efficiency": 0.1,
+      "mode": "Adaptive OpenMP CPU fallback (< 5,000,000 edges)",
+      "speedup": 1.67,
+      "efficiency": 0.33,
       "pagerank": [
         1.6e-05,
         2.6e-05,
@@ -104,36 +105,79 @@
       "openmp": [
         {
           "threads": 1,
-          "time_ms": 8.2061,
-          "speedup": 0.79,
-          "efficiency": 0.79
+          "time_ms": 8.5975,
+          "speedup": 1.29,
+          "efficiency": 1.29
         },
         {
           "threads": 2,
-          "time_ms": 6.9668,
-          "speedup": 0.94,
-          "efficiency": 0.47
+          "time_ms": 8.4541,
+          "speedup": 1.31,
+          "efficiency": 0.66
         },
         {
           "threads": 4,
-          "time_ms": 4.3679,
-          "speedup": 1.49,
-          "efficiency": 0.37
+          "time_ms": 6.6801,
+          "speedup": 1.66,
+          "efficiency": 0.41
         },
         {
           "threads": 8,
-          "time_ms": 4.3577,
-          "speedup": 1.5,
-          "efficiency": 0.19
+          "time_ms": 7.8298,
+          "speedup": 1.42,
+          "efficiency": 0.18
         },
         {
           "threads": 12,
-          "time_ms": 4.7458,
-          "speedup": 1.37,
-          "efficiency": 0.11
+          "time_ms": 11.1173,
+          "speedup": 1.0,
+          "efficiency": 0.08
         }
       ],
-      "mpi": []
+      "mpi": [
+        {
+          "processes": 1,
+          "time_ms": 8.1668,
+          "speedup": 1.36,
+          "efficiency": 1.36
+        },
+        {
+          "processes": 2,
+          "time_ms": 6.4586,
+          "speedup": 1.72,
+          "efficiency": 0.86
+        },
+        {
+          "processes": 4,
+          "time_ms": 6.9133,
+          "speedup": 1.61,
+          "efficiency": 0.4
+        },
+        {
+          "processes": 8,
+          "time_ms": 45.6337,
+          "speedup": 0.24,
+          "efficiency": 0.03
+        }
+      ]
+    },
+    "cache_sim": {
+      "push": {
+        "l1_hits": 630425,
+        "l1_misses": 469557,
+        "l1_hit_rate": 57.31,
+        "l2_hits": 453930,
+        "l2_misses": 15627,
+        "l2_hit_rate": 96.67
+      },
+      "pull": {
+        "l1_hits": 150786,
+        "l1_misses": 949196,
+        "l1_hit_rate": 13.71,
+        "l2_hits": 813350,
+        "l2_misses": 135846,
+        "l2_hit_rate": 85.69
+      }
     }
   },
   "data/graph_10000.txt": {
@@ -408,7 +452,7 @@
     "vertices": 1000,
     "edges": 9989,
     "serial": {
-      "time_ms": 0.133,
+      "time_ms": 0.138,
       "pagerank": [
         0.001867,
         0.000909,
@@ -423,11 +467,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 2.5535,
+      "time_ms": 1.5523,
       "threads": 4,
       "schedule": "static",
-      "speedup": 0.05,
-      "efficiency": 0.01,
+      "speedup": 0.09,
+      "efficiency": 0.02,
       "pagerank": [
         0.001867,
         0.000909,
@@ -442,10 +486,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 0.3846,
+      "time_ms": 0.567,
       "processes": 2,
-      "speedup": 0.35,
-      "efficiency": 0.17,
+      "speedup": 0.24,
+      "efficiency": 0.12,
       "pagerank": [
         0.001867,
         0.000909,
@@ -519,7 +563,7 @@
         }
       ]
     },
-    "last_updated": "2026-05-21T18:43:23.344437",
+    "last_updated": "2026-05-21T19:17:45.212371",
     "cache_sim": {
       "push": {
         "l1_hits": 21664,
