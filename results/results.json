@@ -19,11 +19,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 102.7108,
+      "time_ms": 112.5419,
       "threads": 4,
       "schedule": "static",
-      "speedup": 1.84,
-      "efficiency": 0.46,
+      "speedup": 1.68,
+      "efficiency": 0.42,
       "pagerank": [
         2e-06,
         2e-06,
@@ -77,7 +77,7 @@
         2e-06
       ]
     },
-    "last_updated": "2026-05-22T20:50:57.566615"
+    "last_updated": "2026-05-22T22:59:47.777074"
   },
   "data/graph_1000000_20000000.txt": {
     "graph": "data/graph_1000000_20000000.txt",
