@@ -29,7 +29,7 @@ double *pagerank_openmp(const Graph *g, double damping_factor,
 
     /* Pull-based (gather) approach: each thread computes new_rank[i] by
        reading from in-neighbors. No write conflicts → no atomics needed. */
-#pragma omp parallel for schedule(runtime)
+#pragma omp parallel for schedule(static)
     for (int i = 0; i < n; i++) {
       double sum = 0.0;
       int in_count = g->in_degree[i]; // Number of in-neighbors

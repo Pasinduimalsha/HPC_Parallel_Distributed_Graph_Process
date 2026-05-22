@@ -247,7 +247,7 @@
         /* Controls Box & Benchmarks */
         .controls-row {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
@@ -516,14 +516,6 @@
                                 </select>
                             </div>
                             <div class="control-group">
-                                <label for="sched-select">OpenMP Schedule</label>
-                                <select id="sched-select">
-                                    <option value="static" selected>Static</option>
-                                    <option value="dynamic">Dynamic</option>
-                                    <option value="guided">Guided</option>
-                                </select>
-                            </div>
-                            <div class="control-group">
                                 <label for="procs-select">MPI Processes</label>
                                 <select id="procs-select" onchange="updateParameters()">
                                     <option value="1">1 Process</option>
@@ -743,7 +735,7 @@
                 document.getElementById('tbl-openmp-time').textContent = data.openmp.time_ms.toFixed(4) + " ms";
                 document.getElementById('tbl-openmp-speedup').textContent = data.openmp.speedup ? data.openmp.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-openmp-efficiency').textContent = data.openmp.efficiency ? data.openmp.efficiency.toFixed(2) : "-";
-                document.getElementById('tbl-openmp-resource').textContent = `${data.openmp.threads} Th (${data.openmp.schedule})`;
+                document.getElementById('tbl-openmp-resource').textContent = `${data.openmp.threads} Th`;
                 times[1] = data.openmp.time_ms;
             } else {
                 document.getElementById('tbl-openmp-time').textContent = "-";
@@ -790,7 +782,6 @@
             const statusBadge = document.getElementById('log-status');
             const threads = document.getElementById('threads-select').value;
             const procs = document.getElementById('procs-select').value;
-            const schedule = document.getElementById('sched-select').value;
             const gpuFraction = 1.0;
             const btn = document.querySelector(`.btn-${impl}`);
             const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
@@ -807,7 +798,7 @@
                 const response = await fetch('/api/run', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs, schedule, gpu_fraction: gpuFraction })
+                    body: JSON.stringify({ impl, graph: currentGraph, threads, procs, gpu_fraction: gpuFraction })
                 });
 
                 let data;

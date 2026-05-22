@@ -4,24 +4,13 @@
 #include <stdio.h>
 #include <omp.h>
 
-#include <string.h>
-
 
 int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
     int num_threads = (argc > 2) ? atoi(argv[2]) : 0;
     if (num_threads > 0) omp_set_num_threads(num_threads);
-    int max_iterations = (argc > 4) ? atoi(argv[4]) : 100;
-    double tolerance = (argc > 5) ? atof(argv[5]) : 1e-6;
-
-    const char *sched_str = (argc > 3) ? argv[3] : "static";
-    omp_sched_t sched_type = omp_sched_static;
-    if (strcmp(sched_str, "dynamic") == 0) {
-        sched_type = omp_sched_dynamic;
-    } else if (strcmp(sched_str, "guided") == 0) {
-        sched_type = omp_sched_guided;
-    }
-    omp_set_schedule(sched_type, 1);
+    int max_iterations = (argc > 3) ? atoi(argv[3]) : 100;
+    double tolerance = (argc > 4) ? atof(argv[4]) : 1e-6;
 
     // Read the edge list and build the graph
     Graph *g = graph_load_from_file(graph_file);

@@ -176,19 +176,19 @@ Arguments:
 ./bin/serial <graph.txt> [max_iterations] [tolerance]
 ```
 
-Run OpenMP with 4 threads and dynamic scheduling:
+Run OpenMP with 4 threads:
 
 ```bash
-./bin/openmp data/custom_graph.txt 4 dynamic 100 1e-6
+./bin/openmp data/custom_graph.txt 4 100 1e-6
 ```
 
 Arguments:
 
 ```bash
-./bin/openmp <graph.txt> [threads] [schedule] [max_iterations] [tolerance]
+./bin/openmp <graph.txt> [threads] [max_iterations] [tolerance]
 ```
 
-Supported OpenMP schedules are `static`, `dynamic`, and `guided`.
+OpenMP uses static scheduling.
 
 Run MPI with 4 processes:
 
@@ -234,7 +234,7 @@ data/graph_1000000_20000000.csr
 Example run using an existing dataset:
 
 ```bash
-./bin/openmp data/graph_500000_20000000.txt 8 guided 100 1e-6
+./bin/openmp data/graph_500000_20000000.txt 8 100 1e-6
 ```
 
 ---

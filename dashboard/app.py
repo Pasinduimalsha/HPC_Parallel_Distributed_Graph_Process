@@ -181,7 +181,7 @@ def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
     return True, "\n".join(logs) if logs else "All binaries are up-to-date."
 
 def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int = 2,
-                       schedule: str = "static", gpu_fraction: float = 1.00,
+                       gpu_fraction: float = 1.00,
                        repeats: int = 1, max_iterations: int = 100,
                        tolerance: float = 1e-6) -> dict:
     graph_path = _normalize_graph_path(graph_path)
@@ -194,7 +194,7 @@ def run_implementation(impl: str, graph_path: str, threads: int = 4, procs: int 
     if impl == "serial":
         cmd = [str(BIN_DIR / "serial"), abs_graph_path, str(max_iterations), str(tolerance)]
     elif impl == "openmp":
-        cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), schedule, str(max_iterations), str(tolerance)]
+        cmd = [str(BIN_DIR / "openmp"), abs_graph_path, str(threads), str(max_iterations), str(tolerance)]
     elif impl == "mpi":
         cmd = ["mpirun", "-np", str(procs), str(BIN_DIR / "mpi"), abs_graph_path, str(max_iterations), str(tolerance)]
     elif impl == "hybrid":
@@ -389,7 +389,6 @@ def run_benchmark():
     graph = _normalize_graph_path(data.get("graph", "data/sample_graph.txt"))
     threads = int(data.get("threads", 4))
     procs = int(data.get("procs", 2))
-    schedule = data.get("schedule", "static")
     gpu_fraction = 1.0 if impl == "hybrid" else float(data.get("gpu_fraction", 1.00))
     max_iterations = int(data.get("max_iterations", 100))
     tolerance = float(data.get("tolerance", 1e-6))
@@ -399,7 +398,7 @@ def run_benchmark():
     file_size_mb = _graph_file_size_mb(graph)
     edges = int(graph_entry.get("edges", 0) or 0)
     repeats = 1 if edges >= 1_000_000 or file_size_mb >= 10 else 3
-    res = run_implementation(impl, graph, threads, procs, schedule, gpu_fraction,
+    res = run_implementation(impl, graph, threads, procs, gpu_fraction,
                              repeats=repeats, max_iterations=max_iterations,
                              tolerance=tolerance)
     if "error" in res:
@@ -429,7 +428,6 @@ def run_benchmark():
         graph_entry["openmp"] = {
             "time_ms": time_ms,
             "threads": threads,
-            "schedule": schedule,
             "speedup": speedup,
             "efficiency": efficiency,
             "pagerank": res["pagerank"]
