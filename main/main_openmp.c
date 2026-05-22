@@ -6,7 +6,7 @@
 
 #include <string.h>
 
-//Argument count and argument values
+
 int main(int argc, char **argv) {
     const char *graph_file = (argc > 1) ? argv[1] : "data/sample_graph.txt";
     int num_threads = (argc > 2) ? atoi(argv[2]) : 0;
@@ -32,10 +32,10 @@ int main(int argc, char **argv) {
     printf("Graph: %d vertices, %d edges\n", g->num_vertices, g->num_edges);
 
     double t0 = omp_get_wtime(); // Start timing
-    double *pr = pagerank_openmp(g, 0.85, max_iterations, tolerance); // Damping factor, max iterations, tolerance
+    double *pr = pagerank_openmp(g, 0.85, max_iterations, tolerance);
     double t1 = omp_get_wtime(); // End timing
     if (!pr) {
-        graph_free(g); // Clean up graph memory
+        graph_free(g); // clean graph memory
         return 1;
     }
     printf("PageRank time: %.4f ms\n", 1000.0 * (t1 - t0));

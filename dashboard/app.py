@@ -35,7 +35,10 @@ def _graph_full_path(graph_path: str) -> Path:
     return PROJECT_ROOT / graph_path
 
 def _graph_cache_path(graph_path: str) -> Path:
-    return Path(str(_graph_full_path(graph_path)) + ".csr")
+    full_path = _graph_full_path(graph_path)
+    if full_path.suffix == ".txt":
+        return full_path.with_suffix(".csr")
+    return Path(str(full_path) + ".csr")
 
 def _graph_file_size_mb(graph_path: str) -> float:
     try:

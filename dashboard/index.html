@@ -601,7 +601,7 @@
                 <div style="display: flex; flex-direction: column; gap: 2rem;">
 
                     <div class="card">
-                        <div class="card-title">Execution Time Comparison (Lower is Better)</div>
+                        <div class="card-title">Execution Time Comparison</div>
                         <div class="chart-container">
                             <canvas id="timeChart"></canvas>
                         </div>
@@ -609,11 +609,9 @@
 
                     <div class="card">
                         <div class="terminal-header">
-                            <span>Benchmark Output</span>
-                            <span id="log-status" style="color: var(--accent-emerald);">IDLE</span>
+                            <span>CMD Terminal Output</span>
                         </div>
-                        <div class="terminal" id="console" style="max-height: 260px;">Terminal waiting... Run a
-                            benchmark to view the C program output.</div>
+                        <div class="terminal" id="console" style="max-height: 260px;"></div>
                     </div>
 
                 </div>
@@ -797,11 +795,13 @@
             const btn = document.querySelector(`.btn-${impl}`);
             const originalLabel = document.getElementById(`${impl}-label`).innerHTML;
 
-            statusBadge.textContent = "RUNNING";
-            statusBadge.style.color = "var(--accent-rose)";
+            if (statusBadge) {
+                statusBadge.textContent = "RUNNING";
+                statusBadge.style.color = "var(--accent-rose)";
+            }
             document.getElementById(`${impl}-label`).innerHTML = `<div class="spinner"></div>`;
             document.querySelectorAll('.btn').forEach(b => b.disabled = true);
-            terminal.textContent = `>>> Executing C implementation '${impl}' on ${currentGraph}...\n`;
+            terminal.textContent = "";
 
             try {
                 const response = await fetch('/api/run', {
@@ -823,17 +823,23 @@
                     terminal.textContent = data.raw;
                     terminal.scrollTop = terminal.scrollHeight;
                     await fetchResults(currentGraph);
-                    statusBadge.textContent = "SUCCESS";
-                    statusBadge.style.color = "var(--accent-emerald)";
+                    if (statusBadge) {
+                        statusBadge.textContent = "SUCCESS";
+                        statusBadge.style.color = "var(--accent-emerald)";
+                    }
                 } else {
-                    terminal.textContent = `ERROR: ${data.error || 'Server error'}\n\n${data.raw || ''}`;
+                    terminal.textContent = data.raw || data.error || 'Server error';
+                    if (statusBadge) {
+                        statusBadge.textContent = "FAILED";
+                        statusBadge.style.color = "var(--accent-rose)";
+                    }
+                }
+            } catch (err) {
+                terminal.textContent = "";
+                if (statusBadge) {
                     statusBadge.textContent = "FAILED";
                     statusBadge.style.color = "var(--accent-rose)";
                 }
-            } catch (err) {
-                terminal.textContent = `API Error: ${err.message}`;
-                statusBadge.textContent = "FAILED";
-                statusBadge.style.color = "var(--accent-rose)";
             } finally {
                 document.getElementById(`${impl}-label`).innerHTML = originalLabel;
                 document.querySelectorAll('.btn').forEach(b => b.disabled = false);
@@ -843,7 +849,6 @@
         // Event listener for dropdown selection
         document.getElementById('graph-select').addEventListener('change', function (e) {
             currentGraph = e.target.value;
-            document.getElementById('console').textContent = `Loaded graph data file: ${currentGraph}. Ready to run benchmarks.`;
             fetchResults(currentGraph);
         });
 

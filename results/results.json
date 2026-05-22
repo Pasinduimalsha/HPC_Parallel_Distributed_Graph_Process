@@ -4,7 +4,7 @@
     "vertices": 500000,
     "edges": 19999958,
     "serial": {
-      "time_ms": 225.473,
+      "time_ms": 188.57,
       "pagerank": [
         2e-06,
         2e-06,
@@ -19,11 +19,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 68.9902,
+      "time_ms": 102.7108,
       "threads": 4,
       "schedule": "static",
-      "speedup": 3.27,
-      "efficiency": 0.82,
+      "speedup": 1.84,
+      "efficiency": 0.46,
       "pagerank": [
         2e-06,
         2e-06,
@@ -38,10 +38,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 184.7023,
+      "time_ms": 100.2504,
       "processes": 2,
-      "speedup": 1.22,
-      "efficiency": 0.61,
+      "speedup": 1.88,
+      "efficiency": 0.94,
       "pagerank": [
         2e-06,
         2e-06,
@@ -56,14 +56,14 @@
       ]
     },
     "hybrid": {
-      "time_ms": 83.0272,
+      "time_ms": 64.0264,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 2.72,
-      "efficiency": 0.54,
+      "speedup": 2.95,
+      "efficiency": 0.59,
       "pagerank": [
         2e-06,
         2e-06,
@@ -77,14 +77,14 @@
         2e-06
       ]
     },
-    "last_updated": "2026-05-22T02:50:18.931516"
+    "last_updated": "2026-05-22T20:50:57.566615"
   },
   "data/graph_1000000_20000000.txt": {
     "graph": "data/graph_1000000_20000000.txt",
     "vertices": 1000000,
     "edges": 19999980,
     "serial": {
-      "time_ms": 432.958,
+      "time_ms": 585.757,
       "pagerank": [
         1e-06,
         1e-06,
@@ -99,11 +99,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 233.3248,
+      "time_ms": 186.2409,
       "threads": 4,
       "schedule": "static",
-      "speedup": 1.86,
-      "efficiency": 0.47,
+      "speedup": 3.15,
+      "efficiency": 0.79,
       "pagerank": [
         1e-06,
         1e-06,
@@ -118,10 +118,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 311.1269,
+      "time_ms": 363.9548,
       "processes": 2,
-      "speedup": 1.39,
-      "efficiency": 0.69,
+      "speedup": 1.61,
+      "efficiency": 0.81,
       "pagerank": [
         1e-06,
         1e-06,
@@ -136,14 +136,14 @@
       ]
     },
     "hybrid": {
-      "time_ms": 91.7931,
+      "time_ms": 95.7673,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 4.72,
-      "efficiency": 0.94,
+      "speedup": 6.12,
+      "efficiency": 1.22,
       "pagerank": [
         1e-06,
         1e-06,
@@ -157,14 +157,14 @@
         1e-06
       ]
     },
-    "last_updated": "2026-05-22T02:17:55.425673"
+    "last_updated": "2026-05-22T22:34:38.276552"
   },
   "data/graph_1000000_10000000.txt": {
     "graph": "data/graph_1000000_10000000.txt",
     "vertices": 1000000,
     "edges": 9999989,
     "serial": {
-      "time_ms": 231.708,
+      "time_ms": 158.417,
       "pagerank": [
         1e-06,
         1e-06,
@@ -179,11 +179,11 @@
       ]
     },
     "openmp": {
-      "time_ms": 67.637,
+      "time_ms": 50.4852,
       "threads": 4,
       "schedule": "static",
-      "speedup": 3.43,
-      "efficiency": 0.86,
+      "speedup": 3.14,
+      "efficiency": 0.79,
       "pagerank": [
         1e-06,
         1e-06,
@@ -198,10 +198,10 @@
       ]
     },
     "mpi": {
-      "time_ms": 195.1705,
+      "time_ms": 112.3968,
       "processes": 2,
-      "speedup": 1.19,
-      "efficiency": 0.59,
+      "speedup": 1.41,
+      "efficiency": 0.7,
       "pagerank": [
         1e-06,
         1e-06,
@@ -216,14 +216,14 @@
       ]
     },
     "hybrid": {
-      "time_ms": 51.1751,
+      "time_ms": 43.578,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 4.53,
-      "efficiency": 0.91,
+      "speedup": 3.64,
+      "efficiency": 0.73,
       "pagerank": [
         1e-06,
         1e-06,
@@ -237,6 +237,6 @@
         1e-06
       ]
     },
-    "last_updated": "2026-05-22T02:27:22.297091"
+    "last_updated": "2026-05-22T20:53:38.593083"
   }
 }

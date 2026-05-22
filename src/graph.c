@@ -29,11 +29,13 @@ static int get_source_stat(const char *filename, int64_t *size,
 
 static char *cache_filename_for(const char *filename) {
   size_t len = strlen(filename);
-  char *cache_name = (char *)malloc(len + 5);
+  int has_txt_suffix = len > 4 && strcmp(filename + len - 4, ".txt") == 0;
+  size_t base_len = has_txt_suffix ? len - 4 : len;
+  char *cache_name = (char *)malloc(base_len + 5);
   if (!cache_name)
     return NULL;
-  memcpy(cache_name, filename, len);
-  memcpy(cache_name + len, ".csr", 5);
+  memcpy(cache_name, filename, base_len);
+  memcpy(cache_name + base_len, ".csr", 5);
   return cache_name;
 }
 
