@@ -4,237 +4,139 @@
     "vertices": 500000,
     "edges": 19999958,
     "serial": {
-      "time_ms": 198.364,
-      "pagerank": [
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        3e-06,
-        2e-06,
-        2e-06
-      ]
+      "time_ms": 194.411,
+      "pagerank": []
     },
     "openmp": {
-      "time_ms": 40.6169,
+      "time_ms": 49.9682,
       "threads": 4,
-      "speedup": 4.88,
-      "efficiency": 1.22,
-      "pagerank": [
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        3e-06,
-        2e-06,
-        2e-06
-      ]
+      "speedup": 3.89,
+      "efficiency": 0.97,
+      "pagerank": []
     },
     "mpi": {
-      "time_ms": 99.9898,
+      "time_ms": 125.3385,
       "processes": 2,
-      "speedup": 1.98,
-      "efficiency": 0.99,
-      "pagerank": [
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        3e-06,
-        2e-06,
-        2e-06
-      ]
+      "speedup": 1.55,
+      "efficiency": 0.78,
+      "pagerank": []
     },
     "hybrid": {
-      "time_ms": 69.0655,
+      "time_ms": 78.2379,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 2.87,
-      "efficiency": 0.57,
-      "pagerank": [
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        2e-06,
-        3e-06,
-        2e-06,
-        2e-06
-      ]
+      "speedup": 2.48,
+      "efficiency": 0.5,
+      "pagerank": []
     },
-    "last_updated": "2026-05-23T00:36:47.506664"
+    "last_updated": "2026-05-23T15:55:46.089928"
   },
   "data/graph_1000000_20000000.txt": {
     "graph": "data/graph_1000000_20000000.txt",
     "vertices": 1000000,
     "edges": 19999980,
     "serial": {
-      "time_ms": 326.168,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "time_ms": 373.91,
+      "pagerank": []
     },
     "openmp": {
-      "time_ms": 92.91,
+      "time_ms": 125.3659,
       "threads": 4,
-      "speedup": 3.51,
-      "efficiency": 0.88,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 2.98,
+      "efficiency": 0.74,
+      "pagerank": []
     },
     "mpi": {
-      "time_ms": 226.8907,
+      "time_ms": 230.7706,
       "processes": 2,
-      "speedup": 1.44,
-      "efficiency": 0.72,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 1.62,
+      "efficiency": 0.81,
+      "pagerank": []
     },
     "hybrid": {
-      "time_ms": 80.6001,
+      "time_ms": 77.9249,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 4.05,
-      "efficiency": 0.81,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 4.8,
+      "efficiency": 0.96,
+      "pagerank": []
     },
-    "last_updated": "2026-05-23T00:37:09.589955"
+    "last_updated": "2026-05-23T15:56:30.699841"
   },
   "data/graph_1000000_10000000.txt": {
     "graph": "data/graph_1000000_10000000.txt",
     "vertices": 1000000,
     "edges": 9999989,
     "serial": {
-      "time_ms": 305.012,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "time_ms": 218.035,
+      "pagerank": []
     },
     "openmp": {
-      "time_ms": 85.8016,
+      "time_ms": 81.638,
       "threads": 4,
-      "schedule": "static",
-      "speedup": 3.55,
-      "efficiency": 0.89,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 2.67,
+      "efficiency": 0.67,
+      "pagerank": []
     },
     "mpi": {
-      "time_ms": 204.5074,
+      "time_ms": 152.6719,
       "processes": 2,
-      "speedup": 1.49,
-      "efficiency": 0.74,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 1.43,
+      "efficiency": 0.71,
+      "pagerank": []
     },
     "hybrid": {
-      "time_ms": 59.317,
+      "time_ms": 53.108,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 5.14,
-      "efficiency": 1.03,
-      "pagerank": [
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06,
-        1e-06
-      ]
+      "speedup": 4.11,
+      "efficiency": 0.82,
+      "pagerank": []
     },
-    "last_updated": "2026-05-22T23:39:15.244404"
+    "last_updated": "2026-05-23T15:55:58.970568"
+  },
+  "data/graph_500000_10000000.txt": {
+    "graph": "data/graph_500000_10000000.txt",
+    "vertices": 500000,
+    "edges": 9999973,
+    "serial": {
+      "time_ms": 97.891,
+      "pagerank": []
+    },
+    "openmp": {
+      "time_ms": 38.5443,
+      "threads": 4,
+      "speedup": 2.54,
+      "efficiency": 0.64,
+      "pagerank": []
+    },
+    "mpi": {
+      "time_ms": 66.9447,
+      "processes": 2,
+      "speedup": 1.46,
+      "efficiency": 0.73,
+      "pagerank": []
+    },
+    "hybrid": {
+      "time_ms": 39.0065,
+      "threads": 4,
+      "gpu_fraction": 1.0,
+      "gpu_devices": 1,
+      "resource_units": 5.0,
+      "mode": "OpenMP CPU launch threads + CUDA GPU compute",
+      "speedup": 2.51,
+      "efficiency": 0.5,
+      "pagerank": []
+    },
+    "last_updated": "2026-05-23T16:00:45.455881"
   }
 }

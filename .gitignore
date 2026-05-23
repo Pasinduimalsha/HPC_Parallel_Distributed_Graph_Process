@@ -2,6 +2,7 @@
 
 # Large generated graph files / archives
 
+data/*.txt
 data/*.csr
 data.zip
 *.zip

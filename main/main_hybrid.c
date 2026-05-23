@@ -58,10 +58,7 @@ int main(int argc, char **argv) {
 
   printf("PageRank time: %.4f ms\n", 1000.0 * (t1 - t0));
 
-  printf("PageRank (first 10): ");
-  for (int i = 0; i < 10 && i < g->num_vertices; i++)
-    printf("%.6f ", pr[i]);
-  printf("\n");
+  pagerank_print_summary(pr, g->num_vertices);
 
   free(pr);
   graph_free(g);

@@ -2,6 +2,7 @@
 #define PAGERANK_H
 
 #include "graph.h"
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +25,40 @@ double* pagerank_hybrid(const Graph *g, double damping_factor, int max_iteration
 
 /* Compute RMSE between two PageRank arrays (for validation)*/
 double pagerank_rmse(const double *a, const double *b, int n);
+
+static inline void pagerank_print_summary(const double *pr, int n) {
+    int count = (n < 10) ? n : 10;
+    int top_vertices[10];
+    double top_scores[10];
+
+    printf("PageRank (first %d vertices):\n", count);
+    for (int i = 0; i < count; i++)
+        printf("  Vertex %d: %.12f\n", i, pr[i]);
+
+    for (int i = 0; i < 10; i++) {
+        top_vertices[i] = -1;
+        top_scores[i] = -1.0;
+    }
+
+    for (int vertex = 0; vertex < n; vertex++) {
+        double score = pr[vertex];
+        for (int pos = 0; pos < count; pos++) {
+            if (score > top_scores[pos]) {
+                for (int shift = count - 1; shift > pos; shift--) {
+                    top_scores[shift] = top_scores[shift - 1];
+                    top_vertices[shift] = top_vertices[shift - 1];
+                }
+                top_scores[pos] = score;
+                top_vertices[pos] = vertex;
+                break;
+            }
+        }
+    }
+
+    printf("Top %d PageRank vertices:\n", count);
+    for (int i = 0; i < count; i++)
+        printf("  Rank %d: Vertex %d = %.12f\n", i + 1, top_vertices[i], top_scores[i]);
+}
 
 #ifdef __cplusplus
 }
