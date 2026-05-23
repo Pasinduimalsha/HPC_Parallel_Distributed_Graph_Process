@@ -4,139 +4,999 @@
     "vertices": 500000,
     "edges": 19999958,
     "serial": {
-      "time_ms": 194.411,
-      "pagerank": []
+      "time_ms": 183.49,
+      "pagerank": [
+        3.404692e-06,
+        3.379586e-06,
+        3.344405e-06,
+        3.291207e-06,
+        3.274068e-06,
+        3.266943e-06,
+        3.266822e-06,
+        3.26587e-06,
+        3.264742e-06,
+        3.264556e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 313297,
+          "score": 3.404692e-06
+        },
+        {
+          "vertex": 8918,
+          "score": 3.379586e-06
+        },
+        {
+          "vertex": 326155,
+          "score": 3.344405e-06
+        },
+        {
+          "vertex": 202754,
+          "score": 3.291207e-06
+        },
+        {
+          "vertex": 215036,
+          "score": 3.274068e-06
+        },
+        {
+          "vertex": 226677,
+          "score": 3.266943e-06
+        },
+        {
+          "vertex": 308189,
+          "score": 3.266822e-06
+        },
+        {
+          "vertex": 406603,
+          "score": 3.26587e-06
+        },
+        {
+          "vertex": 83580,
+          "score": 3.264742e-06
+        },
+        {
+          "vertex": 367277,
+          "score": 3.264556e-06
+        }
+      ]
     },
     "openmp": {
-      "time_ms": 49.9682,
+      "time_ms": 43.1476,
       "threads": 4,
-      "speedup": 3.89,
-      "efficiency": 0.97,
-      "pagerank": []
+      "speedup": 4.25,
+      "efficiency": 1.06,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        3.404692e-06,
+        3.379586e-06,
+        3.344405e-06,
+        3.291207e-06,
+        3.274068e-06,
+        3.266943e-06,
+        3.266822e-06,
+        3.26587e-06,
+        3.264742e-06,
+        3.264556e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 313297,
+          "score": 3.404692e-06
+        },
+        {
+          "vertex": 8918,
+          "score": 3.379586e-06
+        },
+        {
+          "vertex": 326155,
+          "score": 3.344405e-06
+        },
+        {
+          "vertex": 202754,
+          "score": 3.291207e-06
+        },
+        {
+          "vertex": 215036,
+          "score": 3.274068e-06
+        },
+        {
+          "vertex": 226677,
+          "score": 3.266943e-06
+        },
+        {
+          "vertex": 308189,
+          "score": 3.266822e-06
+        },
+        {
+          "vertex": 406603,
+          "score": 3.26587e-06
+        },
+        {
+          "vertex": 83580,
+          "score": 3.264742e-06
+        },
+        {
+          "vertex": 367277,
+          "score": 3.264556e-06
+        }
+      ]
     },
     "mpi": {
-      "time_ms": 125.3385,
+      "time_ms": 98.7605,
       "processes": 2,
-      "speedup": 1.55,
-      "efficiency": 0.78,
-      "pagerank": []
+      "speedup": 1.86,
+      "efficiency": 0.93,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        3.404692e-06,
+        3.379586e-06,
+        3.344405e-06,
+        3.291207e-06,
+        3.274068e-06,
+        3.266943e-06,
+        3.266822e-06,
+        3.26587e-06,
+        3.264742e-06,
+        3.264556e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 313297,
+          "score": 3.404692e-06
+        },
+        {
+          "vertex": 8918,
+          "score": 3.379586e-06
+        },
+        {
+          "vertex": 326155,
+          "score": 3.344405e-06
+        },
+        {
+          "vertex": 202754,
+          "score": 3.291207e-06
+        },
+        {
+          "vertex": 215036,
+          "score": 3.274068e-06
+        },
+        {
+          "vertex": 226677,
+          "score": 3.266943e-06
+        },
+        {
+          "vertex": 308189,
+          "score": 3.266822e-06
+        },
+        {
+          "vertex": 406603,
+          "score": 3.26587e-06
+        },
+        {
+          "vertex": 83580,
+          "score": 3.264742e-06
+        },
+        {
+          "vertex": 367277,
+          "score": 3.264556e-06
+        }
+      ]
     },
     "hybrid": {
-      "time_ms": 78.2379,
+      "time_ms": 67.0674,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 2.48,
-      "efficiency": 0.5,
-      "pagerank": []
+      "speedup": 2.74,
+      "efficiency": 0.55,
+      "rmse_vs_serial": 1.858112465534e-22,
+      "pagerank": [
+        3.404692e-06,
+        3.379586e-06,
+        3.344405e-06,
+        3.291207e-06,
+        3.274068e-06,
+        3.266943e-06,
+        3.266822e-06,
+        3.26587e-06,
+        3.264742e-06,
+        3.264556e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 313297,
+          "score": 3.404692e-06
+        },
+        {
+          "vertex": 8918,
+          "score": 3.379586e-06
+        },
+        {
+          "vertex": 326155,
+          "score": 3.344405e-06
+        },
+        {
+          "vertex": 202754,
+          "score": 3.291207e-06
+        },
+        {
+          "vertex": 215036,
+          "score": 3.274068e-06
+        },
+        {
+          "vertex": 226677,
+          "score": 3.266943e-06
+        },
+        {
+          "vertex": 308189,
+          "score": 3.266822e-06
+        },
+        {
+          "vertex": 406603,
+          "score": 3.26587e-06
+        },
+        {
+          "vertex": 83580,
+          "score": 3.264742e-06
+        },
+        {
+          "vertex": 367277,
+          "score": 3.264556e-06
+        }
+      ]
     },
-    "last_updated": "2026-05-23T15:55:46.089928"
+    "last_updated": "2026-05-23T17:36:16.492719"
   },
   "data/graph_1000000_20000000.txt": {
     "graph": "data/graph_1000000_20000000.txt",
     "vertices": 1000000,
     "edges": 19999980,
     "serial": {
-      "time_ms": 373.91,
-      "pagerank": []
+      "time_ms": 305.524,
+      "pagerank": [
+        2.129566e-06,
+        2.118009e-06,
+        2.075745e-06,
+        2.055868e-06,
+        2.027865e-06,
+        2.013801e-06,
+        2.006915e-06,
+        1.996615e-06,
+        1.994368e-06,
+        1.985822e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 600193,
+          "score": 2.129566e-06
+        },
+        {
+          "vertex": 378883,
+          "score": 2.118009e-06
+        },
+        {
+          "vertex": 980862,
+          "score": 2.075745e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.055868e-06
+        },
+        {
+          "vertex": 766708,
+          "score": 2.027865e-06
+        },
+        {
+          "vertex": 993511,
+          "score": 2.013801e-06
+        },
+        {
+          "vertex": 94783,
+          "score": 2.006915e-06
+        },
+        {
+          "vertex": 445347,
+          "score": 1.996615e-06
+        },
+        {
+          "vertex": 234336,
+          "score": 1.994368e-06
+        },
+        {
+          "vertex": 168257,
+          "score": 1.985822e-06
+        }
+      ]
     },
     "openmp": {
-      "time_ms": 125.3659,
+      "time_ms": 83.9679,
       "threads": 4,
-      "speedup": 2.98,
-      "efficiency": 0.74,
-      "pagerank": []
+      "speedup": 3.64,
+      "efficiency": 0.91,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        2.129566e-06,
+        2.118009e-06,
+        2.075745e-06,
+        2.055868e-06,
+        2.027865e-06,
+        2.013801e-06,
+        2.006915e-06,
+        1.996615e-06,
+        1.994368e-06,
+        1.985822e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 600193,
+          "score": 2.129566e-06
+        },
+        {
+          "vertex": 378883,
+          "score": 2.118009e-06
+        },
+        {
+          "vertex": 980862,
+          "score": 2.075745e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.055868e-06
+        },
+        {
+          "vertex": 766708,
+          "score": 2.027865e-06
+        },
+        {
+          "vertex": 993511,
+          "score": 2.013801e-06
+        },
+        {
+          "vertex": 94783,
+          "score": 2.006915e-06
+        },
+        {
+          "vertex": 445347,
+          "score": 1.996615e-06
+        },
+        {
+          "vertex": 234336,
+          "score": 1.994368e-06
+        },
+        {
+          "vertex": 168257,
+          "score": 1.985822e-06
+        }
+      ]
     },
     "mpi": {
-      "time_ms": 230.7706,
+      "time_ms": 247.9778,
       "processes": 2,
-      "speedup": 1.62,
-      "efficiency": 0.81,
-      "pagerank": []
+      "speedup": 1.23,
+      "efficiency": 0.61,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        2.129566e-06,
+        2.118009e-06,
+        2.075745e-06,
+        2.055868e-06,
+        2.027865e-06,
+        2.013801e-06,
+        2.006915e-06,
+        1.996615e-06,
+        1.994368e-06,
+        1.985822e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 600193,
+          "score": 2.129566e-06
+        },
+        {
+          "vertex": 378883,
+          "score": 2.118009e-06
+        },
+        {
+          "vertex": 980862,
+          "score": 2.075745e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.055868e-06
+        },
+        {
+          "vertex": 766708,
+          "score": 2.027865e-06
+        },
+        {
+          "vertex": 993511,
+          "score": 2.013801e-06
+        },
+        {
+          "vertex": 94783,
+          "score": 2.006915e-06
+        },
+        {
+          "vertex": 445347,
+          "score": 1.996615e-06
+        },
+        {
+          "vertex": 234336,
+          "score": 1.994368e-06
+        },
+        {
+          "vertex": 168257,
+          "score": 1.985822e-06
+        }
+      ]
     },
     "hybrid": {
-      "time_ms": 77.9249,
+      "time_ms": 78.339,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 4.8,
-      "efficiency": 0.96,
-      "pagerank": []
+      "speedup": 3.9,
+      "efficiency": 0.78,
+      "rmse_vs_serial": 9.217186229898e-23,
+      "pagerank": [
+        2.129566e-06,
+        2.118009e-06,
+        2.075745e-06,
+        2.055868e-06,
+        2.027865e-06,
+        2.013801e-06,
+        2.006915e-06,
+        1.996615e-06,
+        1.994368e-06,
+        1.985822e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 600193,
+          "score": 2.129566e-06
+        },
+        {
+          "vertex": 378883,
+          "score": 2.118009e-06
+        },
+        {
+          "vertex": 980862,
+          "score": 2.075745e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.055868e-06
+        },
+        {
+          "vertex": 766708,
+          "score": 2.027865e-06
+        },
+        {
+          "vertex": 993511,
+          "score": 2.013801e-06
+        },
+        {
+          "vertex": 94783,
+          "score": 2.006915e-06
+        },
+        {
+          "vertex": 445347,
+          "score": 1.996615e-06
+        },
+        {
+          "vertex": 234336,
+          "score": 1.994368e-06
+        },
+        {
+          "vertex": 168257,
+          "score": 1.985822e-06
+        }
+      ]
     },
-    "last_updated": "2026-05-23T15:56:30.699841"
+    "last_updated": "2026-05-23T17:36:45.363308"
   },
   "data/graph_1000000_10000000.txt": {
     "graph": "data/graph_1000000_10000000.txt",
     "vertices": 1000000,
     "edges": 9999989,
     "serial": {
-      "time_ms": 218.035,
-      "pagerank": []
+      "time_ms": 176.017,
+      "pagerank": [
+        3.232305e-06,
+        3.061282e-06,
+        2.838793e-06,
+        2.820883e-06,
+        2.810834e-06,
+        2.80786e-06,
+        2.790464e-06,
+        2.77031e-06,
+        2.746519e-06,
+        2.743817e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 572640,
+          "score": 3.232305e-06
+        },
+        {
+          "vertex": 254789,
+          "score": 3.061282e-06
+        },
+        {
+          "vertex": 589653,
+          "score": 2.838793e-06
+        },
+        {
+          "vertex": 21293,
+          "score": 2.820883e-06
+        },
+        {
+          "vertex": 450001,
+          "score": 2.810834e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.80786e-06
+        },
+        {
+          "vertex": 620021,
+          "score": 2.790464e-06
+        },
+        {
+          "vertex": 692121,
+          "score": 2.77031e-06
+        },
+        {
+          "vertex": 665075,
+          "score": 2.746519e-06
+        },
+        {
+          "vertex": 4240,
+          "score": 2.743817e-06
+        }
+      ]
     },
     "openmp": {
-      "time_ms": 81.638,
+      "time_ms": 42.1592,
       "threads": 4,
-      "speedup": 2.67,
-      "efficiency": 0.67,
-      "pagerank": []
+      "speedup": 4.18,
+      "efficiency": 1.04,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        3.232305e-06,
+        3.061282e-06,
+        2.838793e-06,
+        2.820883e-06,
+        2.810834e-06,
+        2.80786e-06,
+        2.790464e-06,
+        2.77031e-06,
+        2.746519e-06,
+        2.743817e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 572640,
+          "score": 3.232305e-06
+        },
+        {
+          "vertex": 254789,
+          "score": 3.061282e-06
+        },
+        {
+          "vertex": 589653,
+          "score": 2.838793e-06
+        },
+        {
+          "vertex": 21293,
+          "score": 2.820883e-06
+        },
+        {
+          "vertex": 450001,
+          "score": 2.810834e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.80786e-06
+        },
+        {
+          "vertex": 620021,
+          "score": 2.790464e-06
+        },
+        {
+          "vertex": 692121,
+          "score": 2.77031e-06
+        },
+        {
+          "vertex": 665075,
+          "score": 2.746519e-06
+        },
+        {
+          "vertex": 4240,
+          "score": 2.743817e-06
+        }
+      ]
     },
     "mpi": {
-      "time_ms": 152.6719,
+      "time_ms": 117.4363,
       "processes": 2,
-      "speedup": 1.43,
-      "efficiency": 0.71,
-      "pagerank": []
+      "speedup": 1.5,
+      "efficiency": 0.75,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        3.232305e-06,
+        3.061282e-06,
+        2.838793e-06,
+        2.820883e-06,
+        2.810834e-06,
+        2.80786e-06,
+        2.790464e-06,
+        2.77031e-06,
+        2.746519e-06,
+        2.743817e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 572640,
+          "score": 3.232305e-06
+        },
+        {
+          "vertex": 254789,
+          "score": 3.061282e-06
+        },
+        {
+          "vertex": 589653,
+          "score": 2.838793e-06
+        },
+        {
+          "vertex": 21293,
+          "score": 2.820883e-06
+        },
+        {
+          "vertex": 450001,
+          "score": 2.810834e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.80786e-06
+        },
+        {
+          "vertex": 620021,
+          "score": 2.790464e-06
+        },
+        {
+          "vertex": 692121,
+          "score": 2.77031e-06
+        },
+        {
+          "vertex": 665075,
+          "score": 2.746519e-06
+        },
+        {
+          "vertex": 4240,
+          "score": 2.743817e-06
+        }
+      ]
     },
     "hybrid": {
-      "time_ms": 53.108,
+      "time_ms": 55.7834,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 4.11,
-      "efficiency": 0.82,
-      "pagerank": []
+      "speedup": 3.16,
+      "efficiency": 0.63,
+      "rmse_vs_serial": 9.097595091283e-23,
+      "pagerank": [
+        3.232305e-06,
+        3.061282e-06,
+        2.838793e-06,
+        2.820883e-06,
+        2.810834e-06,
+        2.80786e-06,
+        2.790464e-06,
+        2.77031e-06,
+        2.746519e-06,
+        2.743817e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 572640,
+          "score": 3.232305e-06
+        },
+        {
+          "vertex": 254789,
+          "score": 3.061282e-06
+        },
+        {
+          "vertex": 589653,
+          "score": 2.838793e-06
+        },
+        {
+          "vertex": 21293,
+          "score": 2.820883e-06
+        },
+        {
+          "vertex": 450001,
+          "score": 2.810834e-06
+        },
+        {
+          "vertex": 331690,
+          "score": 2.80786e-06
+        },
+        {
+          "vertex": 620021,
+          "score": 2.790464e-06
+        },
+        {
+          "vertex": 692121,
+          "score": 2.77031e-06
+        },
+        {
+          "vertex": 665075,
+          "score": 2.746519e-06
+        },
+        {
+          "vertex": 4240,
+          "score": 2.743817e-06
+        }
+      ]
     },
-    "last_updated": "2026-05-23T15:55:58.970568"
+    "last_updated": "2026-05-23T17:36:27.285450"
   },
   "data/graph_500000_10000000.txt": {
     "graph": "data/graph_500000_10000000.txt",
     "vertices": 500000,
     "edges": 9999973,
     "serial": {
-      "time_ms": 97.891,
-      "pagerank": []
+      "time_ms": 90.731,
+      "pagerank": [
+        4.358415e-06,
+        4.254088e-06,
+        4.147611e-06,
+        4.13993e-06,
+        4.105469e-06,
+        3.99431e-06,
+        3.984911e-06,
+        3.948475e-06,
+        3.93483e-06,
+        3.902646e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 26348,
+          "score": 4.358415e-06
+        },
+        {
+          "vertex": 284042,
+          "score": 4.254088e-06
+        },
+        {
+          "vertex": 126229,
+          "score": 4.147611e-06
+        },
+        {
+          "vertex": 262440,
+          "score": 4.13993e-06
+        },
+        {
+          "vertex": 309493,
+          "score": 4.105469e-06
+        },
+        {
+          "vertex": 171908,
+          "score": 3.99431e-06
+        },
+        {
+          "vertex": 357903,
+          "score": 3.984911e-06
+        },
+        {
+          "vertex": 204263,
+          "score": 3.948475e-06
+        },
+        {
+          "vertex": 440100,
+          "score": 3.93483e-06
+        },
+        {
+          "vertex": 459655,
+          "score": 3.902646e-06
+        }
+      ]
     },
     "openmp": {
-      "time_ms": 38.5443,
+      "time_ms": 21.0588,
       "threads": 4,
-      "speedup": 2.54,
-      "efficiency": 0.64,
-      "pagerank": []
+      "speedup": 4.31,
+      "efficiency": 1.08,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        4.358415e-06,
+        4.254088e-06,
+        4.147611e-06,
+        4.13993e-06,
+        4.105469e-06,
+        3.99431e-06,
+        3.984911e-06,
+        3.948475e-06,
+        3.93483e-06,
+        3.902646e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 26348,
+          "score": 4.358415e-06
+        },
+        {
+          "vertex": 284042,
+          "score": 4.254088e-06
+        },
+        {
+          "vertex": 126229,
+          "score": 4.147611e-06
+        },
+        {
+          "vertex": 262440,
+          "score": 4.13993e-06
+        },
+        {
+          "vertex": 309493,
+          "score": 4.105469e-06
+        },
+        {
+          "vertex": 171908,
+          "score": 3.99431e-06
+        },
+        {
+          "vertex": 357903,
+          "score": 3.984911e-06
+        },
+        {
+          "vertex": 204263,
+          "score": 3.948475e-06
+        },
+        {
+          "vertex": 440100,
+          "score": 3.93483e-06
+        },
+        {
+          "vertex": 459655,
+          "score": 3.902646e-06
+        }
+      ]
     },
     "mpi": {
-      "time_ms": 66.9447,
+      "time_ms": 58.333,
       "processes": 2,
-      "speedup": 1.46,
-      "efficiency": 0.73,
-      "pagerank": []
+      "speedup": 1.56,
+      "efficiency": 0.78,
+      "rmse_vs_serial": 0.0,
+      "pagerank": [
+        4.358415e-06,
+        4.254088e-06,
+        4.147611e-06,
+        4.13993e-06,
+        4.105469e-06,
+        3.99431e-06,
+        3.984911e-06,
+        3.948475e-06,
+        3.93483e-06,
+        3.902646e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 26348,
+          "score": 4.358415e-06
+        },
+        {
+          "vertex": 284042,
+          "score": 4.254088e-06
+        },
+        {
+          "vertex": 126229,
+          "score": 4.147611e-06
+        },
+        {
+          "vertex": 262440,
+          "score": 4.13993e-06
+        },
+        {
+          "vertex": 309493,
+          "score": 4.105469e-06
+        },
+        {
+          "vertex": 171908,
+          "score": 3.99431e-06
+        },
+        {
+          "vertex": 357903,
+          "score": 3.984911e-06
+        },
+        {
+          "vertex": 204263,
+          "score": 3.948475e-06
+        },
+        {
+          "vertex": 440100,
+          "score": 3.93483e-06
+        },
+        {
+          "vertex": 459655,
+          "score": 3.902646e-06
+        }
+      ]
     },
     "hybrid": {
-      "time_ms": 39.0065,
+      "time_ms": 36.7077,
       "threads": 4,
       "gpu_fraction": 1.0,
       "gpu_devices": 1,
       "resource_units": 5.0,
       "mode": "OpenMP CPU launch threads + CUDA GPU compute",
-      "speedup": 2.51,
-      "efficiency": 0.5,
-      "pagerank": []
+      "speedup": 2.47,
+      "efficiency": 0.49,
+      "rmse_vs_serial": 1.848400156229e-22,
+      "pagerank": [
+        4.358415e-06,
+        4.254088e-06,
+        4.147611e-06,
+        4.13993e-06,
+        4.105469e-06,
+        3.99431e-06,
+        3.984911e-06,
+        3.948475e-06,
+        3.93483e-06,
+        3.902646e-06
+      ],
+      "top_pagerank": [
+        {
+          "vertex": 26348,
+          "score": 4.358415e-06
+        },
+        {
+          "vertex": 284042,
+          "score": 4.254088e-06
+        },
+        {
+          "vertex": 126229,
+          "score": 4.147611e-06
+        },
+        {
+          "vertex": 262440,
+          "score": 4.13993e-06
+        },
+        {
+          "vertex": 309493,
+          "score": 4.105469e-06
+        },
+        {
+          "vertex": 171908,
+          "score": 3.99431e-06
+        },
+        {
+          "vertex": 357903,
+          "score": 3.984911e-06
+        },
+        {
+          "vertex": 204263,
+          "score": 3.948475e-06
+        },
+        {
+          "vertex": 440100,
+          "score": 3.93483e-06
+        },
+        {
+          "vertex": 459655,
+          "score": 3.902646e-06
+        }
+      ]
     },
-    "last_updated": "2026-05-23T16:00:45.455881"
+    "last_updated": "2026-05-23T17:36:03.419693"
   }
 }

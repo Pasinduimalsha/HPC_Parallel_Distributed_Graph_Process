@@ -551,7 +551,8 @@
                                     <th>Time</th>
                                     <th>Speedup</th>
                                     <th>Efficiency</th>
-                                    <th>Config Details</th>
+                                    <th>Resource Count</th>
+                                    <th>RMSE</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -560,7 +561,8 @@
                                     <td id="tbl-serial-time">-</td>
                                     <td>1.00x</td>
                                     <td>1.00</td>
-                                    <td>1 Core</td>
+                                    <td>1 CPU core</td>
+                                    <td>Baseline</td>
                                 </tr>
                                 <tr>
                                     <td class="highlight-blue">OpenMP</td>
@@ -568,6 +570,7 @@
                                     <td id="tbl-openmp-speedup">-</td>
                                     <td id="tbl-openmp-efficiency">-</td>
                                     <td id="tbl-openmp-resource">-</td>
+                                    <td id="tbl-openmp-rmse">-</td>
                                 </tr>
                                 <tr>
                                     <td class="highlight-purple">MPI</td>
@@ -575,6 +578,7 @@
                                     <td id="tbl-mpi-speedup">-</td>
                                     <td id="tbl-mpi-efficiency">-</td>
                                     <td id="tbl-mpi-resource">-</td>
+                                    <td id="tbl-mpi-rmse">-</td>
                                 </tr>
                                 <tr>
                                     <td style="color:#f59e0b; font-weight:700;">Hybrid</td>
@@ -582,6 +586,7 @@
                                     <td id="tbl-hybrid-speedup">-</td>
                                     <td id="tbl-hybrid-efficiency">-</td>
                                     <td id="tbl-hybrid-resource">-</td>
+                                    <td id="tbl-hybrid-rmse">-</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -723,6 +728,9 @@
             document.getElementById('info-edges').textContent = data.edges || 0;
 
             const times = [0, 0, 0, 0];
+            const formatRmse = (value) => {
+                return Number.isFinite(value) ? value.toExponential(3) : "-";
+            };
 
             if (data.serial) {
                 document.getElementById('tbl-serial-time').textContent = data.serial.time_ms.toFixed(4) + " ms";
@@ -735,26 +743,30 @@
                 document.getElementById('tbl-openmp-time').textContent = data.openmp.time_ms.toFixed(4) + " ms";
                 document.getElementById('tbl-openmp-speedup').textContent = data.openmp.speedup ? data.openmp.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-openmp-efficiency').textContent = data.openmp.efficiency ? data.openmp.efficiency.toFixed(2) : "-";
-                document.getElementById('tbl-openmp-resource').textContent = `${data.openmp.threads} Th`;
+                document.getElementById('tbl-openmp-resource').textContent = `${data.openmp.threads} CPU threads`;
+                document.getElementById('tbl-openmp-rmse').textContent = formatRmse(data.openmp.rmse_vs_serial);
                 times[1] = data.openmp.time_ms;
             } else {
                 document.getElementById('tbl-openmp-time').textContent = "-";
                 document.getElementById('tbl-openmp-speedup').textContent = "-";
                 document.getElementById('tbl-openmp-efficiency').textContent = "-";
                 document.getElementById('tbl-openmp-resource').textContent = "-";
+                document.getElementById('tbl-openmp-rmse').textContent = "-";
             }
 
             if (data.mpi) {
                 document.getElementById('tbl-mpi-time').textContent = data.mpi.time_ms.toFixed(4) + " ms";
                 document.getElementById('tbl-mpi-speedup').textContent = data.mpi.speedup ? data.mpi.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-mpi-efficiency').textContent = data.mpi.efficiency ? data.mpi.efficiency.toFixed(2) : "-";
-                document.getElementById('tbl-mpi-resource').textContent = data.mpi.processes + " Procs";
+                document.getElementById('tbl-mpi-resource').textContent = `${data.mpi.processes} MPI processes`;
+                document.getElementById('tbl-mpi-rmse').textContent = formatRmse(data.mpi.rmse_vs_serial);
                 times[2] = data.mpi.time_ms;
             } else {
                 document.getElementById('tbl-mpi-time').textContent = "-";
                 document.getElementById('tbl-mpi-speedup').textContent = "-";
                 document.getElementById('tbl-mpi-efficiency').textContent = "-";
                 document.getElementById('tbl-mpi-resource').textContent = "-";
+                document.getElementById('tbl-mpi-rmse').textContent = "-";
             }
 
             if (data.hybrid) {
@@ -762,14 +774,15 @@
                 document.getElementById('tbl-hybrid-speedup').textContent = data.hybrid.speedup ? data.hybrid.speedup.toFixed(2) + "x" : "-";
                 document.getElementById('tbl-hybrid-efficiency').textContent = data.hybrid.efficiency ? data.hybrid.efficiency.toFixed(2) : "-";
                 const hybridUnits = data.hybrid.resource_units ? ` (${data.hybrid.resource_units.toFixed(1)} units)` : "";
-                const hybridMode = data.hybrid.mode ? ` - ${data.hybrid.mode}` : "";
-                document.getElementById('tbl-hybrid-resource').textContent = `${data.hybrid.threads} Th + ${(data.hybrid.gpu_fraction * 100).toFixed(0)}% GPU${hybridUnits}${hybridMode}`;
+                document.getElementById('tbl-hybrid-resource').textContent = `${data.hybrid.threads} CPU threads + ${(data.hybrid.gpu_fraction * 100).toFixed(0)}% GPU${hybridUnits}`;
+                document.getElementById('tbl-hybrid-rmse').textContent = formatRmse(data.hybrid.rmse_vs_serial);
                 times[3] = data.hybrid.time_ms;
             } else {
                 document.getElementById('tbl-hybrid-time').textContent = "-";
                 document.getElementById('tbl-hybrid-speedup').textContent = "-";
                 document.getElementById('tbl-hybrid-efficiency').textContent = "-";
                 document.getElementById('tbl-hybrid-resource').textContent = "-";
+                document.getElementById('tbl-hybrid-rmse').textContent = "-";
             }
 
             timeChart.data.datasets[0].data = times;

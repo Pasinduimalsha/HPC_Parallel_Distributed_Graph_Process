@@ -31,10 +31,6 @@ static inline void pagerank_print_summary(const double *pr, int n) {
     int top_vertices[10];
     double top_scores[10];
 
-    printf("PageRank (first %d vertices):\n", count);
-    for (int i = 0; i < count; i++)
-        printf("  Vertex %d: %.12f\n", i, pr[i]);
-
     for (int i = 0; i < 10; i++) {
         top_vertices[i] = -1;
         top_scores[i] = -1.0;

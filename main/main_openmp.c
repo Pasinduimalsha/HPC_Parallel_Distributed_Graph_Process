@@ -29,8 +29,17 @@ int main(int argc, char **argv) {
     }
     printf("PageRank time: %.4f ms\n", 1000.0 * (t1 - t0));
 
+    double *serial_pr = pagerank_serial(g, 0.85, max_iterations, tolerance);
+    if (!serial_pr) {
+        free(pr);
+        graph_free(g);
+        return 1;
+    }
+    printf("RMSE vs Serial: %.12e\n", pagerank_rmse(serial_pr, pr, g->num_vertices));
+
     pagerank_print_summary(pr, g->num_vertices);
 
+    free(serial_pr);
     free(pr); // Clean up PageRank memory
     graph_free(g);
     return 0;

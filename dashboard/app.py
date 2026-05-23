@@ -78,6 +78,8 @@ def _benchmark_timeout_seconds(graph_path: str, impl: str) -> int:
 TIME_RE = re.compile(r"PageRank time:\s+([\d.]+)\s+ms")
 GRAPH_RE = re.compile(r"Graph:\s+(\d+)\s+vertices,\s+(\d+)\s+edges")
 PAGERANK_RE = re.compile(r"PageRank \(first 10\):\s+(.+)")
+TOP_PAGERANK_RE = re.compile(r"Rank\s+\d+:\s+Vertex\s+(\d+)\s+=\s+([\d.eE+-]+)")
+RMSE_RE = re.compile(r"RMSE vs Serial:\s+([\d.eE+-]+)")
 HYBRID_MODE_RE = re.compile(r"Hybrid mode:\s+(.+)")
 
 def parse_output(output: str, impl_name: str) -> dict:
@@ -87,6 +89,8 @@ def parse_output(output: str, impl_name: str) -> dict:
         "vertices": None,
         "edges": None,
         "pagerank": [],
+        "top_pagerank": [],
+        "rmse_vs_serial": None,
         "impl": impl_name
     }
     m = TIME_RE.search(output)
@@ -99,6 +103,16 @@ def parse_output(output: str, impl_name: str) -> dict:
     m = PAGERANK_RE.search(output)
     if m:
         result["pagerank"] = [float(x) for x in m.group(1).split()]
+    top_matches = TOP_PAGERANK_RE.findall(output)
+    if top_matches:
+        result["top_pagerank"] = [
+            {"vertex": int(vertex), "score": float(score)}
+            for vertex, score in top_matches
+        ]
+        result["pagerank"] = [entry["score"] for entry in result["top_pagerank"]]
+    m = RMSE_RE.search(output)
+    if m:
+        result["rmse_vs_serial"] = float(m.group(1))
     m = HYBRID_MODE_RE.search(output)
     if m:
         result["mode"] = m.group(1).strip()
@@ -169,7 +183,7 @@ def compile_binaries(include_hybrid: bool = False) -> tuple[bool, str]:
         openmp_flag = "/openmp" if IS_WINDOWS else "-fopenmp"
         cmd = [
             nvcc, "-x", "cu", "-O3", "-Xcompiler", openmp_flag,
-            "src/graph.c", "src/hybrid_pagerank.c", "main/main_hybrid.c",
+            "src/graph.c", "src/serial_pagerank.c", "src/hybrid_pagerank.c", "main/main_hybrid.c",
             "-o", str(hybrid_binary)
         ]
         if not IS_WINDOWS:
@@ -415,7 +429,8 @@ def run_benchmark():
     if impl == "serial":
         graph_entry["serial"] = {
             "time_ms": time_ms,
-            "pagerank": res["pagerank"]
+            "pagerank": res["pagerank"],
+            "top_pagerank": res["top_pagerank"]
         }
     elif impl == "openmp":
         speedup = None
@@ -430,7 +445,9 @@ def run_benchmark():
             "threads": threads,
             "speedup": speedup,
             "efficiency": efficiency,
-            "pagerank": res["pagerank"]
+            "rmse_vs_serial": res["rmse_vs_serial"],
+            "pagerank": res["pagerank"],
+            "top_pagerank": res["top_pagerank"]
         }
     elif impl == "mpi":
         speedup = None
@@ -445,7 +462,9 @@ def run_benchmark():
             "processes": procs,
             "speedup": speedup,
             "efficiency": efficiency,
-            "pagerank": res["pagerank"]
+            "rmse_vs_serial": res["rmse_vs_serial"],
+            "pagerank": res["pagerank"],
+            "top_pagerank": res["top_pagerank"]
         }
     elif impl == "hybrid":
         speedup = None
@@ -465,7 +484,9 @@ def run_benchmark():
             "mode": res.get("mode", "Unknown"),
             "speedup": speedup,
             "efficiency": efficiency,
-            "pagerank": res["pagerank"]
+            "rmse_vs_serial": res["rmse_vs_serial"],
+            "pagerank": res["pagerank"],
+            "top_pagerank": res["top_pagerank"]
         }
 
     graph_entry = _normalize_graph_metrics(graph_entry)
