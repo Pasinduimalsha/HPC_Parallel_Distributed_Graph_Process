@@ -1,8 +1,10 @@
 .vscode/
 
-# Large generated graph files (exceed GitHub 100MB limit)
-data/graph_500000.txt
-data/graph_1000000.txt
+# Large generated graph files / archives
+
+data/*.csr
+data.zip
+*.zip
 
 # Build artifacts
 build/
@@ -43,7 +45,6 @@ pip-wheel-metadata/
 # Logs and caches
 *.log
 .cache/
-*.csr
 
 # Packaging / distribution
 dist/
